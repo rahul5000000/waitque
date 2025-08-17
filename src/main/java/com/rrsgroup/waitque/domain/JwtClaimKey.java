@@ -7,9 +7,9 @@ public enum JwtClaimKey {
     EMAIL("email"),
     USERNAME("preferred_username");
 
-    private String claimKey;
+    private final String claimKey;
 
-    private JwtClaimKey(String claimKey) {
+    JwtClaimKey(String claimKey) {
         this.claimKey = claimKey;
     }
 
