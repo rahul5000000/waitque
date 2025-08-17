@@ -2,7 +2,10 @@ package com.rrsgroup.waitque.web;
 
 import com.rrsgroup.waitque.domain.UserRole;
 import com.rrsgroup.waitque.dto.UserDto;
+import com.rrsgroup.waitque.exception.RoleNotFoundException;
+import com.rrsgroup.waitque.service.UserService;
 import com.rrsgroup.waitque.util.JwtWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -14,20 +17,19 @@ import java.util.Optional;
 
 @RestController
 public class UserController {
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @GetMapping("/api/users/me")
     public UserDto getLoggedInUser(@AuthenticationPrincipal Jwt jwt) {
-        JwtWrapper jwtWrapper = new JwtWrapper(jwt);
-        Optional<UserRole> userRole = jwtWrapper.getUserRole();
-
-        if(userRole.isEmpty()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have allowed UserRole");
-
-        UserDto user = new UserDto(
-                jwtWrapper.getFirstName(),
-                jwtWrapper.getLastName(),
-                jwtWrapper.getEmail(),
-                jwtWrapper.getUsername(),
-                userRole.get());
-
-        return user;
+        try {
+            return userService.mapJwtToUser(jwt);
+        } catch (RoleNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 }

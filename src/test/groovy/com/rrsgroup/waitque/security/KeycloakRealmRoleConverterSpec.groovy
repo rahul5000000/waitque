@@ -1,12 +1,14 @@
 package com.rrsgroup.waitque.security
 
-import org.springframework.security.oauth2.jwt.Jwt
+import com.rrsgroup.waitque.util.JwtMockGenerator
 import spock.lang.Specification
 
 class KeycloakRealmRoleConverterSpec extends Specification {
+    def mockGenerator = new JwtMockGenerator()
+
     def "convert returns realm roles mapped to set of GrantedAuthority"() {
         given:
-        def jwt = getMockJwt()
+        def jwt = mockGenerator.getMockJwt()
         def converter = new KeycloakRealmRoleConverter()
 
         when:
@@ -21,7 +23,7 @@ class KeycloakRealmRoleConverterSpec extends Specification {
 
     def "convert returns empty set for JWT without roles"() {
         given:
-        def jwt = getMockJwt(false)
+        def jwt = mockGenerator.getMockJwt(false, false, false)
         def converter = new KeycloakRealmRoleConverter()
 
         when:
@@ -30,30 +32,5 @@ class KeycloakRealmRoleConverterSpec extends Specification {
         then:
         result != null
         result.size() == 0
-    }
-
-    private Jwt getMockJwt() {
-        return getMockJwt(true)
-    }
-
-    private Jwt getMockJwt(boolean includeRealmAccess) {
-        def realmAccess = null
-        if(includeRealmAccess) {
-            realmAccess = new HashMap()
-
-            def roles = new ArrayList()
-            roles.add("default-roles-rrs-waitque")
-            roles.add("ADMIN")
-            realmAccess.put("roles", roles)
-        }
-
-        def jwt = Mock(Jwt.class)
-        jwt.getClaim("given_name") >> "first_name"
-        jwt.getClaim("family_name") >> "last_name"
-        jwt.getClaim("email") >> "email@test.com"
-        jwt.getClaim("preferred_username") >> "username"
-        jwt.getClaim("realm_access") >> realmAccess
-
-        return jwt
     }
 }

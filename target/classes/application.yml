@@ -8,4 +8,4 @@ spring:
           issuer-uri: http://localhost:8080/realms/rrs-waitque
 logging:
   level:
-    org.springframework.security: TRACE
+    org.springframework.security: INFO
