@@ -6,6 +6,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/rrs-waitque
+  datasource:
+    url: jdbc:postgresql://localhost:5432/waitque
+    username: waitque_api
+    password: zDsCDGN96h7J
+    jpa:
+      hibernate:
+        ddl-auto: create-drop # or validate / create-drop (dev only)
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
 logging:
   level:
     org.springframework.security: INFO
