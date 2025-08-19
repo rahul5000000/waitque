@@ -1,0 +1,8 @@
+CREATE TABLE address (
+    id BIGSERIAL PRIMARY KEY,
+    address1 VARCHAR(512) NOT NULL,
+    address2 VARCHAR(512),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zipcode VARCHAR(20) NOT NULL
+);
