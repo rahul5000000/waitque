@@ -1,7 +1,9 @@
 package com.rrsgroup.waitque.service;
 
 import com.rrsgroup.waitque.dto.AddressDto;
+import com.rrsgroup.waitque.dto.PhoneNumberDto;
 import com.rrsgroup.waitque.entity.Address;
+import com.rrsgroup.waitque.entity.PhoneNumber;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,5 +28,13 @@ public class DtoMapper {
                 dto.state(),
                 dto.zipcode(),
                 dto.country());
+    }
+
+    public PhoneNumberDto map(PhoneNumber phoneNumber) {
+        return new PhoneNumberDto(phoneNumber.getId(), phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
+    }
+    
+    public PhoneNumber map(PhoneNumberDto dto) {
+        return new PhoneNumber(dto.id(), dto.countryCode(), dto.phoneNumber());
     }
 }
