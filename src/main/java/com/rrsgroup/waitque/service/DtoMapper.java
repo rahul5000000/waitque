@@ -40,9 +40,9 @@ public class DtoMapper {
         return new PhoneNumber(dto.id(), dto.countryCode(), dto.phoneNumber());
     }
 
-    public CompanyDto map(Company company, Address address, PhoneNumber phoneNumber) {
-        AddressDto addressDto = map(address);
-        PhoneNumberDto phoneNumberDto = map(phoneNumber);
+    public CompanyDto map(Company company) {
+        AddressDto addressDto = map(company.getAddress());
+        PhoneNumberDto phoneNumberDto = map(company.getPhoneNumber());
 
         return new CompanyDto(company.getId(), company.getName(), addressDto, phoneNumberDto, company.getLogoUrl(),
                 company.getLandingPrompt(), company.getTextColor(), company.getBackgroundColor(),
@@ -53,6 +53,6 @@ public class DtoMapper {
     public Company map(CompanyDto dto) {
         return new Company(dto.id(), dto.name(), dto.logoUrl(), dto.landingPrompt(), dto.textColor(),
                 dto.backgroundColor(), dto.primaryButtonColor(), dto.secondaryButtonColor(),
-                dto.warningButtonColor(), dto.dangerButtonColor());
+                dto.warningButtonColor(), dto.dangerButtonColor(), map(dto.address()), map(dto.phoneNumber()));
     }
 }
