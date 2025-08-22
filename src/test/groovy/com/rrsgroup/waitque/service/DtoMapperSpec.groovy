@@ -167,10 +167,10 @@ class DtoMapperSpec extends Specification {
         def phoneNumberDomain = new PhoneNumber(phoneNumberId, countryCode, phoneNumber)
 
         def company = new Company(companyId, name, logoUrl, landingPrompt, textColor, backgroundColor, primaryButtonColor,
-            secondaryButtonColor, warningButtonColor, dangerButtonColor)
+            secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain)
 
         when:
-        def result = mapper.map(company, address, phoneNumberDomain)
+        def result = mapper.map(company)
 
         then:
         result.id() == companyId
