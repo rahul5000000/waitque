@@ -1,11 +1,15 @@
 package com.rrsgroup.waitque.service;
 
+import com.rrsgroup.waitque.domain.SortDirection;
 import com.rrsgroup.waitque.dto.AddressDto;
 import com.rrsgroup.waitque.dto.CompanyDto;
+import com.rrsgroup.waitque.dto.CompanyListDto;
 import com.rrsgroup.waitque.dto.PhoneNumberDto;
 import com.rrsgroup.waitque.entity.Address;
 import com.rrsgroup.waitque.entity.Company;
 import com.rrsgroup.waitque.entity.PhoneNumber;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,5 +58,20 @@ public class DtoMapper {
         return new Company(dto.id(), dto.name(), dto.logoUrl(), dto.landingPrompt(), dto.textColor(),
                 dto.backgroundColor(), dto.primaryButtonColor(), dto.secondaryButtonColor(),
                 dto.warningButtonColor(), dto.dangerButtonColor(), map(dto.address()), map(dto.phoneNumber()));
+    }
+
+    public CompanyListDto map(Page<Company> pageOfCompanies) {
+        String sortField = pageOfCompanies.getPageable().getSort().stream().findFirst()
+                .map(Sort.Order::getProperty).orElse("");
+        SortDirection sortDir = pageOfCompanies.getPageable().getSort().stream().findFirst()
+                .map(sort -> sort.getDirection() == Sort.Direction.ASC ? SortDirection.ASC : SortDirection.DESC).orElse(SortDirection.ASC);
+        return new CompanyListDto(
+                pageOfCompanies.getPageable().getPageNumber(),
+                pageOfCompanies.getPageable().getPageSize(),
+                pageOfCompanies.getTotalElements(),
+                sortField,
+                sortDir,
+                pageOfCompanies.getContent().stream().map(company -> new CompanyListDto.CompanyListItem(company.getId(), company.getName(), company.getLogoUrl())).toList()
+                );
     }
 }

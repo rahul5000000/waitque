@@ -1,14 +1,15 @@
 package com.rrsgroup.waitque.web;
 
+import com.rrsgroup.waitque.domain.SortDirection;
 import com.rrsgroup.waitque.dto.CompanyDto;
+import com.rrsgroup.waitque.dto.CompanyListDto;
 import com.rrsgroup.waitque.entity.Company;
 import com.rrsgroup.waitque.service.CompanyService;
 import com.rrsgroup.waitque.service.DtoMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -34,5 +35,16 @@ public class CompanyController {
         Company savedCompany = companyService.createCompany(mapper.map(request));
 
         return mapper.map(savedCompany);
+    }
+
+    @GetMapping("/api/internal/companies")
+    public CompanyListDto getListOfCompanies(
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "name") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") SortDirection sortDir) {
+        Page<Company> pageOfCompanies = companyService.getListOfCompanies(limit, page, sortField, sortDir);
+
+        return mapper.map(pageOfCompanies);
     }
 }
