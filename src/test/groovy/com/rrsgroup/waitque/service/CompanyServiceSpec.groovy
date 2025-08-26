@@ -1,9 +1,12 @@
 package com.rrsgroup.waitque.service
 
+import com.rrsgroup.waitque.domain.SortDirection
 import com.rrsgroup.waitque.entity.Address
 import com.rrsgroup.waitque.entity.Company
 import com.rrsgroup.waitque.entity.PhoneNumber
 import com.rrsgroup.waitque.repository.CompanyRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
 class CompanyServiceSpec extends Specification {
@@ -51,5 +54,19 @@ class CompanyServiceSpec extends Specification {
         1 * repository.save(company) >> savedCompany
         0 * _
         result == savedCompany
+    }
+
+    def "getListOfCompanies finds all companies with pagination parameters #description"() {
+        when:
+        companyService.getListOfCompanies(limit, page, sortField, sortDir)
+
+        then:
+        1 * repository.findAll(pageable)
+        0 * _
+
+        where:
+        sortDir            | limit | page | sortField | pageable                                                     | description
+        SortDirection.ASC  | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).ascending())  | "ascending"
+        SortDirection.DESC | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).descending()) | "descending"
     }
 }

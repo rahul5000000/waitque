@@ -4,7 +4,7 @@ import com.rrsgroup.waitque.domain.UserRole
 import spock.lang.Specification
 
 class JwtWrapperSpec extends Specification {
-    def mockGenerator = new JwtMockGenerator()
+    def mockGenerator = new MockGenerator()
 
     def "getFirstName should return the first name from the JWT token"() {
         given:

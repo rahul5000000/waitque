@@ -2,11 +2,11 @@ package com.rrsgroup.waitque.service
 
 import com.rrsgroup.waitque.domain.UserRole
 import com.rrsgroup.waitque.exception.RoleNotFoundException
-import com.rrsgroup.waitque.util.JwtMockGenerator
+import com.rrsgroup.waitque.util.MockGenerator
 import spock.lang.Specification
 
 class UserServiceSpec extends Specification {
-    def mockGenerator = new JwtMockGenerator()
+    def mockGenerator = new MockGenerator()
     def service = new UserService()
 
     def "mapJwtToUser returns mapped user for complete JWT"() {

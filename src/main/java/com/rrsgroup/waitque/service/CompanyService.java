@@ -1,8 +1,13 @@
 package com.rrsgroup.waitque.service;
 
+import com.rrsgroup.waitque.domain.SortDirection;
 import com.rrsgroup.waitque.entity.Company;
 import com.rrsgroup.waitque.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,5 +21,13 @@ public class CompanyService {
 
     public Company createCompany(Company request) {
         return repository.save(request);
+    }
+
+    public Page<Company> getListOfCompanies(int limit, int page, String sortField, SortDirection sortDir) {
+        Pageable pageable = PageRequest.of(
+                page,
+                limit,
+                sortDir == SortDirection.ASC ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+        return repository.findAll(pageable);
     }
 }

@@ -1,10 +1,10 @@
 package com.rrsgroup.waitque.security
 
-import com.rrsgroup.waitque.util.JwtMockGenerator
+import com.rrsgroup.waitque.util.MockGenerator
 import spock.lang.Specification
 
 class KeycloakRealmRoleConverterSpec extends Specification {
-    def mockGenerator = new JwtMockGenerator()
+    def mockGenerator = new MockGenerator()
 
     def "convert returns realm roles mapped to set of GrantedAuthority"() {
         given:
