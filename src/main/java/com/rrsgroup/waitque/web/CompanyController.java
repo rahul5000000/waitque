@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 @RestController
 public class CompanyController {
     private final CompanyService companyService;
@@ -46,5 +48,16 @@ public class CompanyController {
         Page<Company> pageOfCompanies = companyService.getListOfCompanies(limit, page, sortField, sortDir);
 
         return mapper.map(pageOfCompanies);
+    }
+
+    @GetMapping("/api/internal/companies/{companyId}")
+    public CompanyDto getCompany(@PathVariable(name = "companyId") Long companyId) {
+        Optional<Company> company = companyService.getCompany(companyId);
+
+        if(company.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with that ID");
+        }
+
+        return mapper.map(company.get());
     }
 }
