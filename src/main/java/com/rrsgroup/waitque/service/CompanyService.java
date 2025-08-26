@@ -2,6 +2,7 @@ package com.rrsgroup.waitque.service;
 
 import com.rrsgroup.waitque.domain.SortDirection;
 import com.rrsgroup.waitque.entity.Company;
+import com.rrsgroup.waitque.exception.IllegalUpdateException;
 import com.rrsgroup.waitque.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,5 +36,12 @@ public class CompanyService {
 
     public Optional<Company> getCompany(Long companyId) {
         return repository.findById(companyId);
+    }
+
+    public Company updateCompany(Company updateRequest) {
+        if(updateRequest.getId() == null) {
+            throw new IllegalUpdateException("Id must be set to update the record");
+        }
+        return repository.save(updateRequest);
     }
 }
