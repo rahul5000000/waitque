@@ -86,6 +86,36 @@ class CompanyControllerSpec extends Specification {
         result.getCompanies().get(0).getLogoUrl() == company.getLogoUrl()
     }
 
+    def "getCompany returns company for a valid companyId"() {
+        given:
+        def company = mockGenerator.getCompanyMock()
+        def companyId = company.getId()
+
+        when:
+        def result = controller.getCompany(companyId)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        0 * _
+        result != null
+        result.id() == companyId
+    }
+
+    def "getCompany returns a 404 for a companyId that does not exist"() {
+        given:
+        def companyId = -1
+
+        when:
+        def result = controller.getCompany(companyId)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.empty()
+        0 * _
+        def e = thrown(ResponseStatusException.class)
+        e.getStatusCode() == HttpStatus.NOT_FOUND
+    }
+
+
     private static CompanyDto buildCompanyDto (Long companyId, String name) {
         def logoUrl = "logoUrl.com"
         def landingPrompt = "What do you want to do?"

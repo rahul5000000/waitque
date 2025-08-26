@@ -5,6 +5,7 @@ import com.rrsgroup.waitque.entity.Address
 import com.rrsgroup.waitque.entity.Company
 import com.rrsgroup.waitque.entity.PhoneNumber
 import com.rrsgroup.waitque.repository.CompanyRepository
+import com.rrsgroup.waitque.util.MockGenerator
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import spock.lang.Specification
@@ -12,6 +13,7 @@ import spock.lang.Specification
 class CompanyServiceSpec extends Specification {
     def repository = Mock(CompanyRepository.class)
     def companyService = new CompanyService(repository)
+    def mockGenerator = new MockGenerator()
 
     def "createCompany saves the company via the repository and returns saved company"() {
         given:
@@ -68,5 +70,20 @@ class CompanyServiceSpec extends Specification {
         sortDir            | limit | page | sortField | pageable                                                     | description
         SortDirection.ASC  | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).ascending())  | "ascending"
         SortDirection.DESC | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).descending()) | "descending"
+    }
+
+    def "getCompany finds specific company"() {
+        given:
+        def company = mockGenerator.getCompanyMock()
+        def companyId = company.getId()
+
+        when:
+        def result = companyService.getCompany(companyId)
+
+        then:
+        1 * repository.findById(companyId) >> Optional.of(company)
+        0 * _
+        result.isPresent()
+        result.get().id == companyId
     }
 }

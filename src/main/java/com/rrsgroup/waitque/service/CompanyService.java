@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CompanyService {
     private final CompanyRepository repository;
@@ -29,5 +31,9 @@ public class CompanyService {
                 limit,
                 sortDir == SortDirection.ASC ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
         return repository.findAll(pageable);
+    }
+
+    public Optional<Company> getCompany(Long companyId) {
+        return repository.findById(companyId);
     }
 }
