@@ -52,12 +52,31 @@ public class CompanyController {
 
     @GetMapping("/api/internal/companies/{companyId}")
     public CompanyDto getCompany(@PathVariable(name = "companyId") Long companyId) {
+        return mapper.map(getCompanySafe(companyId));
+    }
+
+    private Company getCompanySafe(Long companyId) {
         Optional<Company> company = companyService.getCompany(companyId);
 
         if(company.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with that ID");
         }
 
-        return mapper.map(company.get());
+        return company.get();
+    }
+
+    @PutMapping("/api/internal/companies/{companyId}")
+    public CompanyDto updateCompany(@PathVariable(name = "companyId") Long companyId, @RequestBody CompanyDto updateRequest) {
+        if(updateRequest.id() != null &&  !updateRequest.id().equals(companyId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The companyId in the URL does not match the companyId in the request body");
+        }
+
+        // Confirm company exists
+        getCompanySafe(companyId);
+
+        Company updateCompanyRequest = mapper.map(updateRequest);
+        updateCompanyRequest.setId(companyId); // Set the ID in case it wasn't already set
+
+        return mapper.map(companyService.updateCompany(updateCompanyRequest));
     }
 }

@@ -4,6 +4,7 @@ import com.rrsgroup.waitque.domain.SortDirection
 import com.rrsgroup.waitque.entity.Address
 import com.rrsgroup.waitque.entity.Company
 import com.rrsgroup.waitque.entity.PhoneNumber
+import com.rrsgroup.waitque.exception.IllegalUpdateException
 import com.rrsgroup.waitque.repository.CompanyRepository
 import com.rrsgroup.waitque.util.MockGenerator
 import org.springframework.data.domain.PageRequest
@@ -85,5 +86,33 @@ class CompanyServiceSpec extends Specification {
         0 * _
         result.isPresent()
         result.get().id == companyId
+    }
+
+    def "updateCompany updates a company and returns the updated record"() {
+        given:
+        def company = mockGenerator.getCompanyMock()
+        def updatedCompany = mockGenerator.getCompanyMock()
+        updatedCompany.setName(company.getName() + "Updated")
+
+        when:
+        def result = companyService.updateCompany(company)
+
+        then:
+        1 * repository.save(company) >> updatedCompany
+        0 * _
+        result != null
+        result.getName() == company.getName() + "Updated"
+    }
+
+    def "updateCompany throws an exception if the request does not have an ID"() {
+        given:
+        def company = mockGenerator.getCompanyMock()
+        company.setId(null)
+
+        when:
+        def result = companyService.updateCompany(company)
+
+        then:
+        thrown(IllegalUpdateException.class)
     }
 }

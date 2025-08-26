@@ -115,6 +115,81 @@ class CompanyControllerSpec extends Specification {
         e.getStatusCode() == HttpStatus.NOT_FOUND
     }
 
+    def "updateCompany returns a 400 if companyId in the URL and request body don't match"() {
+        given:
+        def companyId = 123L
+        def name = "name"
+        def dto = buildCompanyDto(companyId, name)
+
+        when:
+        controller.updateCompany(456L, dto)
+
+        then:
+        def e = thrown(ResponseStatusException.class)
+        e.getStatusCode() == HttpStatus.BAD_REQUEST
+    }
+
+    def "updateCompany returns a 404 if companyId does not exist"() {
+        given:
+        def companyId = 123L
+        def name = "name"
+        def dto = buildCompanyDto(companyId, name)
+
+        when:
+        controller.updateCompany(companyId, dto)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.empty()
+        0 * _
+        def e = thrown(ResponseStatusException.class)
+        e.getStatusCode() == HttpStatus.NOT_FOUND
+    }
+
+    def "updateCompany calls service to update the company details"() {
+        given:
+        def mapper = new DtoMapper()
+        def companyId = 1231L
+        def name = "name"
+        def dto = buildCompanyDto(companyId, name)
+        def company = mockGenerator.getCompanyMock()
+        def updateRequest = mapper.map(dto)
+        def updatedCompany = mockGenerator.getCompanyMock()
+        updatedCompany.setName(company.getName() + "Updated")
+
+        when:
+        def result = controller.updateCompany(companyId, dto)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        1 * companyService.updateCompany(updateRequest) >> updatedCompany
+        0 * _
+        result != null
+        result.id() == companyId
+        result.name() == company.getName() + "Updated"
+    }
+
+    def "updateCompany calls service to update the company details and sets the ID from the URL if the body doesn't have an ID"() {
+        given:
+        def mapper = new DtoMapper()
+        def companyId = 1231L
+        def name = "name"
+        def dto = buildCompanyDto(null, name)
+        def company = mockGenerator.getCompanyMock()
+        def updateRequest = mapper.map(buildCompanyDto(companyId, name))
+        def updatedCompany = mockGenerator.getCompanyMock()
+        updatedCompany.setName(company.getName() + "Updated")
+
+        when:
+        def result = controller.updateCompany(companyId, dto)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        1 * companyService.updateCompany(updateRequest) >> updatedCompany
+        0 * _
+        result != null
+        result.id() == companyId
+        result.name() == company.getName() + "Updated"
+    }
 
     private static CompanyDto buildCompanyDto (Long companyId, String name) {
         def logoUrl = "logoUrl.com"
