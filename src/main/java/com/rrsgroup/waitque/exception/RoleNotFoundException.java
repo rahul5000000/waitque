@@ -1,6 +1,6 @@
 package com.rrsgroup.waitque.exception;
 
-public class RoleNotFoundException extends Exception {
+public class RoleNotFoundException extends RuntimeException {
     public RoleNotFoundException(String message) {
         super(message);
     }

@@ -1,21 +1,27 @@
-package com.rrsgroup.waitque.service;
+package com.rrsgroup.waitque.security;
 
 import com.rrsgroup.waitque.domain.UserRole;
+import com.rrsgroup.waitque.domain.WaitqueAuthenticationToken;
 import com.rrsgroup.waitque.dto.AdminUserDto;
 import com.rrsgroup.waitque.dto.SuperUserDto;
 import com.rrsgroup.waitque.dto.UserDto;
 import com.rrsgroup.waitque.exception.RoleNotFoundException;
 import com.rrsgroup.waitque.util.JwtWrapper;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public class UserService {
-    public UserDto mapJwtToUser(Jwt jwt) throws RoleNotFoundException {
+public class JwtAuthenticationPrincipalConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+    private final KeycloakRealmRoleConverter keycloakRealmRoleConverter = new KeycloakRealmRoleConverter();
+
+    @Override
+    public AbstractAuthenticationToken convert(Jwt jwt) {
         JwtWrapper jwtWrapper = new JwtWrapper(jwt);
+        var authorities = keycloakRealmRoleConverter.convert(jwt);
+
         Optional<UserRole> userRole = jwtWrapper.getUserRole();
 
         if(userRole.isEmpty()) throw new RoleNotFoundException("User does not have allowed UserRole");
@@ -41,6 +47,6 @@ public class UserService {
             throw new NotImplementedException("User of type " + userRole.get() + " is not supported");
         }
 
-        return user;
+        return new WaitqueAuthenticationToken(user, jwt, authorities);
     }
 }
