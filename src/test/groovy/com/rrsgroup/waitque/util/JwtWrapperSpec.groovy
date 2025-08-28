@@ -119,4 +119,27 @@ class JwtWrapperSpec extends Specification {
         then:
         result.isEmpty()
     }
+
+    def "getCompanyId #description"() {
+        given:
+        def jwt = mockGenerator.getMockJwt(true, true, true, includeCompanyId, companyId)
+        def jwtWrapper = new JwtWrapper(jwt)
+
+        when:
+        def result = jwtWrapper.getCompanyId()
+
+        then:
+        if(expected) {
+            result.isPresent()
+            result.get() == 1L
+        } else {
+            result.isEmpty()
+        }
+
+        where:
+        companyId | includeCompanyId | expected | description
+        1L        | true             | true     | "returns companyId if it's included in JWT"
+        1L        | false            | false    | "returns empty optional companyId is not in JWT"
+        null      | true             | false    | "returns empty optional companyId is exists in JWT, but is null"
+    }
 }

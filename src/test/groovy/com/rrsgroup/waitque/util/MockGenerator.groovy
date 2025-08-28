@@ -8,10 +8,22 @@ import spock.lang.Specification
 
 class MockGenerator extends Specification {
     Jwt getMockJwt() {
-        return getMockJwt(true, true, true)
+        return getMockJwt("ADMIN", true, true, true)
+    }
+
+    Jwt getMockJwt(String role) {
+        return getMockJwt(role, true, true, true)
     }
 
     Jwt getMockJwt(boolean includeRealmAccess, boolean includeRoles, boolean includeUserRole) {
+        return getMockJwt("ADMIN", includeRealmAccess, includeRoles, includeUserRole, true, 1L)
+    }
+
+    Jwt getMockJwt(String role, boolean includeRealmAccess, boolean includeRoles, boolean includeUserRole) {
+        return getMockJwt(role, includeRealmAccess, includeRoles, includeUserRole, true, 1L)
+    }
+
+    Jwt getMockJwt(String role, boolean includeRealmAccess, boolean includeRoles, boolean includeUserRole, boolean includeCompanyId, Long companyId) {
         def realmAccess = null
         if(includeRealmAccess) {
             realmAccess = new HashMap()
@@ -21,7 +33,7 @@ class MockGenerator extends Specification {
                 roles.add("default-roles-rrs-waitque")
 
                 if(includeUserRole) {
-                    roles.add("ADMIN")
+                    roles.add(role)
                 }
 
                 realmAccess.put("roles", roles)
@@ -34,6 +46,8 @@ class MockGenerator extends Specification {
         jwt.getClaim("email") >> "email@test.com"
         jwt.getClaim("preferred_username") >> "username"
         jwt.getClaim("realm_access") >> realmAccess
+
+        if(includeCompanyId) jwt.getClaim("company_id") >> companyId
 
         return jwt
     }
