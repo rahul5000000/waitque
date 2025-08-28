@@ -1,14 +1,17 @@
 package com.rrsgroup.waitque.web;
 
 import com.rrsgroup.waitque.domain.SortDirection;
+import com.rrsgroup.waitque.dto.AdminUserDto;
 import com.rrsgroup.waitque.dto.CompanyDto;
 import com.rrsgroup.waitque.dto.CompanyListDto;
+import com.rrsgroup.waitque.dto.UserDto;
 import com.rrsgroup.waitque.entity.Company;
 import com.rrsgroup.waitque.service.CompanyService;
 import com.rrsgroup.waitque.service.DtoMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -78,5 +81,10 @@ public class CompanyController {
         updateCompanyRequest.setId(companyId); // Set the ID in case it wasn't already set
 
         return mapper.map(companyService.updateCompany(updateCompanyRequest));
+    }
+
+    @GetMapping("/api/admin/config/companyInfo")
+    public CompanyDto getCompany(@AuthenticationPrincipal AdminUserDto user) {
+        return mapper.map(getCompanySafe(user.getCompanyId()));
     }
 }
