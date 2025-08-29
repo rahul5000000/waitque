@@ -74,6 +74,10 @@ public class CompanyController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The companyId in the URL does not match the companyId in the request body");
         }
 
+        return updateCompanyInternal(companyId, updateRequest);
+    }
+
+    private CompanyDto updateCompanyInternal(Long companyId, CompanyDto updateRequest) {
         // Confirm company exists
         getCompanySafe(companyId);
 
@@ -86,5 +90,16 @@ public class CompanyController {
     @GetMapping("/api/admin/config/companyInfo")
     public CompanyDto getCompany(@AuthenticationPrincipal AdminUserDto user) {
         return mapper.map(getCompanySafe(user.getCompanyId()));
+    }
+
+    @PutMapping("/api/admin/config/companyInfo")
+    public CompanyDto updateCompany(@AuthenticationPrincipal AdminUserDto user, @RequestBody CompanyDto updateRequest) {
+        Long companyId = user.getCompanyId();
+
+        if(updateRequest.id() != null && !updateRequest.id().equals(companyId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The companyId in the request body is not the user's company");
+        }
+
+        return updateCompanyInternal(companyId, updateRequest);
     }
 }

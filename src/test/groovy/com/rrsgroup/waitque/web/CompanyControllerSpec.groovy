@@ -1,7 +1,9 @@
 package com.rrsgroup.waitque.web
 
 import com.rrsgroup.waitque.domain.SortDirection
+import com.rrsgroup.waitque.domain.UserRole
 import com.rrsgroup.waitque.dto.AddressDto
+import com.rrsgroup.waitque.dto.AdminUserDto
 import com.rrsgroup.waitque.dto.CompanyDto
 import com.rrsgroup.waitque.dto.PhoneNumberDto
 import com.rrsgroup.waitque.entity.Company
@@ -189,6 +191,67 @@ class CompanyControllerSpec extends Specification {
         result != null
         result.id() == companyId
         result.name() == company.getName() + "Updated"
+    }
+
+    def "Admin getCompany returns company from companyId in principal"() {
+        given:
+        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
+        def company = mockGenerator.getCompanyMock()
+        def companyId = principal.getCompanyId()
+
+        when:
+        def result = controller.getCompany(principal)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        0 * _
+        result != null
+        result.id() == companyId
+    }
+
+    def "Admin updateCompany updates company from companyId in principal"() {
+        given:
+        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
+        def mapper = new DtoMapper()
+        def companyId = principal.getCompanyId()
+        def name = "name"
+        def dto = buildCompanyDto(companyId, name)
+        def company = mockGenerator.getCompanyMock()
+        def updateRequest = mapper.map(dto)
+        def updatedCompany = mockGenerator.getCompanyMock()
+        updatedCompany.setName(company.getName() + "Updated")
+
+        when:
+        def result = controller.updateCompany(principal, dto)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        1 * companyService.updateCompany(updateRequest) >> updatedCompany
+        0 * _
+        result != null
+        result.id() == companyId
+        result.name() == company.getName() + "Updated"
+    }
+
+    def "Admin updateCompany returns 409 if the companyId in the body does not match principal's companyId"() {
+        given:
+        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
+        def mapper = new DtoMapper()
+        def companyId = -1L
+        def name = "name"
+        def dto = buildCompanyDto(companyId, name)
+        def company = mockGenerator.getCompanyMock()
+        def updateRequest = mapper.map(dto)
+        def updatedCompany = mockGenerator.getCompanyMock()
+        updatedCompany.setName(company.getName() + "Updated")
+
+        when:
+        def result = controller.updateCompany(principal, dto)
+
+        then:
+        0 * _
+        def e = thrown(ResponseStatusException)
+        e.getStatusCode() == HttpStatus.CONFLICT
     }
 
     private static CompanyDto buildCompanyDto (Long companyId, String name) {
