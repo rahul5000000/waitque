@@ -1,8 +1,13 @@
 package com.rrsgroup.waitque.util
 
+import com.rrsgroup.waitque.domain.UserRole
+import com.rrsgroup.waitque.dto.AdminUserDto
+import com.rrsgroup.waitque.dto.SuperUserDto
+import com.rrsgroup.waitque.dto.UserDto
 import com.rrsgroup.waitque.entity.Address
 import com.rrsgroup.waitque.entity.Company
 import com.rrsgroup.waitque.entity.PhoneNumber
+import org.apache.commons.lang3.NotImplementedException
 import org.springframework.security.oauth2.jwt.Jwt
 import spock.lang.Specification
 
@@ -81,5 +86,21 @@ class MockGenerator extends Specification {
 
         return new Company(companyId, name, logoUrl, landingPrompt, textColor, backgroundColor, primaryButtonColor,
                 secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain)
+    }
+
+    UserDto getUserMock(UserRole role) {
+        def firstName = "firstName"
+        def lastName = "lastName"
+        def email = "email"
+        def username = "username"
+        def companyId = 1231L
+
+        if(role == UserRole.ADMIN) {
+            return new AdminUserDto(firstName, lastName, email, username, role, companyId)
+        } else if (role == UserRole.SUPERUSER) {
+            return new SuperUserDto(firstName, lastName, email, username, role)
+        } else {
+            throw new NotImplementedException("User of type " + role + " is not supported")
+        }
     }
 }
