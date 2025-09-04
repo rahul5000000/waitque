@@ -129,7 +129,7 @@ _Persistence:_ Postgres Database (audit)
 Waitque functionality for image upload and processing is ideal for serverless AWS lambda implementation. This functionality will be implemented via Spring Cloud Functions to decouple from AWS specific functionality and will persist content to S3.
 
 ### Database
-Waitque uses PostgresDB for persistence and Flyway for database migrations & version management. Flyway changesets are tracked in the same Github repository as the Waitque source code and are automatically deployed upon app startup.
+Waitque uses PostgresDB for persistence and [Flyway](https://www.red-gate.com/products/flyway/) for database migrations & version management. Flyway changesets are tracked in the same Github repository as the Waitque source code and are automatically deployed upon app startup.
 
 Each microservice owns its data and, likewise, does not have direct access to another microservice’s data. However, for efficiency, all microservices share the database, but each microservice has its own access-controlled schema.
 
