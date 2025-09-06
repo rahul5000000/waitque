@@ -5,3 +5,9 @@
 /mavenHomeManager.xml
 /target/
 /src/main/resources/application.yml
+/user-service/src/main/resources/application.yml
+/common/src/main/resources/application.yml
+/company-service/src/main/resources/application.yml
+/common/target/
+/company-service/target/
+/user-service/target/
