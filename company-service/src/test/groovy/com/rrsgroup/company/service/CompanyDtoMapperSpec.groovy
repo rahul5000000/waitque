@@ -1,101 +1,21 @@
-package com.rrsgroup.waitque.service
+package com.rrsgroup.company.service
 
-import com.rrsgroup.waitque.domain.SortDirection
-import com.rrsgroup.waitque.dto.AddressDto
-import com.rrsgroup.waitque.dto.CompanyDto
-import com.rrsgroup.waitque.dto.PhoneNumberDto
-import com.rrsgroup.waitque.entity.Address
-import com.rrsgroup.waitque.entity.Company
-import com.rrsgroup.waitque.entity.PhoneNumber
-import com.rrsgroup.waitque.util.MockGenerator
+import com.rrsgroup.common.domain.SortDirection
+import com.rrsgroup.common.dto.AddressDto
+import com.rrsgroup.common.dto.PhoneNumberDto
+import CommonDtoMapperSpec
+import com.rrsgroup.company.dto.CompanyDto
+import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.util.CompanyMockGenerator
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
-class DtoMapperSpec extends Specification {
-    def mockGenerator = new MockGenerator()
-    def mapper = new DtoMapper()
-
-    def "can map from AddressDto to Address"() {
-        given:
-        def id = 123L
-        def address1 = "address1"
-        def address2 = "address2"
-        def city = "city"
-        def state = "state"
-        def zipcode = "zipcode"
-        def country = "country"
-        def dto = new AddressDto(id, address1, address2, city, state, zipcode, country)
-
-        when:
-        def result = mapper.map(dto)
-
-        then:
-        result.getId() == id
-        result.getAddress1() == address1
-        result.getAddress2() == address2
-        result.getCity() == city
-        result.getState() == state
-        result.getZipcode() == zipcode
-        result.getCountry() == country
-    }
-
-    def "can map from Address to AddressDto"() {
-        given:
-        def id = 123L
-        def address1 = "address1"
-        def address2 = "address2"
-        def city = "city"
-        def state = "state"
-        def zipcode = "zipcode"
-        def country = "country"
-        def address = new Address(id, address1, address2, city, state, zipcode, country)
-
-        when:
-        def result = mapper.map(address)
-
-        then:
-        result.id() == id
-        result.address1() == address1
-        result.address2() == address2
-        result.city() == city
-        result.state() == state
-        result.zipcode() == zipcode
-        result.country() == country
-    }
-
-    def "can map from PhoneNumberDto to PhoneNumber"() {
-        given:
-        def id = 123L
-        def countryCode = 1
-        def phoneNumber = 1234567
-        def dto = new PhoneNumberDto(id, countryCode, phoneNumber)
-
-        when:
-        def result = mapper.map(dto)
-
-        then:
-        result.getId() == id
-        result.getCountryCode() == countryCode
-        result.getPhoneNumber() == phoneNumber
-    }
-
-    def "can map from PhoneNumber to PhoneNumberDto"() {
-        given:
-        def id = 123L
-        def countryCode = 1
-        def phoneNumber = 1234567
-        def phoneNumberDomain = new PhoneNumber(id, countryCode, phoneNumber)
-
-        when:
-        def result = mapper.map(phoneNumberDomain)
-
-        then:
-        result.id() == id
-        result.countryCode() == countryCode
-        result.phoneNumber() == phoneNumber
-    }
+class CompanyDtoMapperSpec extends Specification {
+    def commonDtoMapper = new CommonDtoMapperSpec()
+    def mapper = new CompanyDtoMapper(commonDtoMapper)
+    def companyMockGenerator = new CompanyMockGenerator()
 
     def "can map from CompanyDto to Company"() {
         given:
@@ -146,7 +66,7 @@ class DtoMapperSpec extends Specification {
 
     def "can map from Company, Address & PhoneNumber to CompanyDto"() {
         given:
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
 
         when:
         def result = mapper.map(company)
@@ -177,7 +97,7 @@ class DtoMapperSpec extends Specification {
     def "can map from Page of Companies to CompanyListDto"() {
         given:
         Page<Company> pageOfCompanies = Mock()
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
 
         when:
         def result = mapper.map(pageOfCompanies)
@@ -199,7 +119,7 @@ class DtoMapperSpec extends Specification {
 
         where:
         sortDir            | limit | page | sortField | pageable                                                     | description
-        SortDirection.ASC  | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).ascending())  | "ascending"
+        SortDirection.ASC | 10 | 0 | "id" | PageRequest.of(page, limit, Sort.by(sortField).ascending()) | "ascending"
         SortDirection.DESC | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).descending()) | "descending"
     }
 }

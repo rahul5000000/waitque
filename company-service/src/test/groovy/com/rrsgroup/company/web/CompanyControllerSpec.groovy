@@ -1,15 +1,17 @@
-package com.rrsgroup.waitque.web
+package com.rrsgroup.company.web
 
-import com.rrsgroup.waitque.domain.SortDirection
-import com.rrsgroup.waitque.domain.UserRole
-import com.rrsgroup.waitque.dto.AddressDto
-import com.rrsgroup.waitque.dto.AdminUserDto
-import com.rrsgroup.waitque.dto.CompanyDto
-import com.rrsgroup.waitque.dto.PhoneNumberDto
-import com.rrsgroup.waitque.entity.Company
-import com.rrsgroup.waitque.service.CompanyService
-import com.rrsgroup.waitque.service.DtoMapper
-import com.rrsgroup.waitque.util.MockGenerator
+import com.rrsgroup.common.domain.SortDirection
+import com.rrsgroup.common.domain.UserRole
+import com.rrsgroup.common.dto.AddressDto
+import com.rrsgroup.common.dto.AdminUserDto
+import com.rrsgroup.common.dto.PhoneNumberDto
+import CommonDtoMapperSpec
+import com.rrsgroup.company.dto.CompanyDto
+import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.service.CompanyDtoMapper
+import com.rrsgroup.company.service.CompanyService
+import com.rrsgroup.company.util.CommonMockGenerator
+import com.rrsgroup.company.util.CompanyMockGenerator
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -18,9 +20,11 @@ import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
 class CompanyControllerSpec extends Specification {
-    def companyService = Mock(CompanyService.class)
-    def mapper = new DtoMapper()
-    def mockGenerator = new MockGenerator()
+    def companyService = Mock(CompanyService)
+    def commonDtoMapper = new CommonDtoMapperSpec()
+    def mapper = new CompanyDtoMapper(commonDtoMapper)
+    def companyMockGenerator = new CompanyMockGenerator()
+    def commonMockGenerator = new CommonMockGenerator()
 
     def controller = new CompanyController(companyService, mapper)
 
@@ -66,7 +70,7 @@ class CompanyControllerSpec extends Specification {
         def sortDir = SortDirection.ASC
         def pageable = PageRequest.of(page, limit, Sort.by(sortField).ascending())
         Page<Company> pageOfCompanies = Mock()
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
 
         when:
         def result = controller.getListOfCompanies(limit, page, sortField, sortDir)
@@ -90,7 +94,7 @@ class CompanyControllerSpec extends Specification {
 
     def "getCompany returns company for a valid companyId"() {
         given:
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def companyId = company.getId()
 
         when:
@@ -149,13 +153,12 @@ class CompanyControllerSpec extends Specification {
 
     def "updateCompany calls service to update the company details"() {
         given:
-        def mapper = new DtoMapper()
         def companyId = 1231L
         def name = "name"
         def dto = buildCompanyDto(companyId, name)
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def updateRequest = mapper.map(dto)
-        def updatedCompany = mockGenerator.getCompanyMock()
+        def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
 
         when:
@@ -172,13 +175,12 @@ class CompanyControllerSpec extends Specification {
 
     def "updateCompany calls service to update the company details and sets the ID from the URL if the body doesn't have an ID"() {
         given:
-        def mapper = new DtoMapper()
         def companyId = 1231L
         def name = "name"
         def dto = buildCompanyDto(null, name)
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def updateRequest = mapper.map(buildCompanyDto(companyId, name))
-        def updatedCompany = mockGenerator.getCompanyMock()
+        def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
 
         when:
@@ -195,8 +197,8 @@ class CompanyControllerSpec extends Specification {
 
     def "Admin getCompany returns company from companyId in principal"() {
         given:
-        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
-        def company = mockGenerator.getCompanyMock()
+        def principal = (AdminUserDto)commonMockGenerator.getUserMock(UserRole.ADMIN)
+        def company = companyMockGenerator.getCompanyMock()
         def companyId = principal.getCompanyId()
 
         when:
@@ -211,14 +213,13 @@ class CompanyControllerSpec extends Specification {
 
     def "Admin updateCompany updates company from companyId in principal"() {
         given:
-        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
-        def mapper = new DtoMapper()
+        def principal = (AdminUserDto)commonMockGenerator.getUserMock(UserRole.ADMIN)
         def companyId = principal.getCompanyId()
         def name = "name"
         def dto = buildCompanyDto(companyId, name)
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def updateRequest = mapper.map(dto)
-        def updatedCompany = mockGenerator.getCompanyMock()
+        def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
 
         when:
@@ -235,14 +236,13 @@ class CompanyControllerSpec extends Specification {
 
     def "Admin updateCompany returns 409 if the companyId in the body does not match principal's companyId"() {
         given:
-        def principal = (AdminUserDto)mockGenerator.getUserMock(UserRole.ADMIN)
-        def mapper = new DtoMapper()
+        def principal = (AdminUserDto)commonMockGenerator.getUserMock(UserRole.ADMIN)
         def companyId = -1L
         def name = "name"
         def dto = buildCompanyDto(companyId, name)
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def updateRequest = mapper.map(dto)
-        def updatedCompany = mockGenerator.getCompanyMock()
+        def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
 
         when:

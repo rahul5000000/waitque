@@ -1,10 +1,10 @@
-package com.rrsgroup.waitque.security
+package com.rrsgroup.common.security
 
-import com.rrsgroup.waitque.util.MockGenerator
+import com.rrsgroup.common.util.CommonMockGenerator
 import spock.lang.Specification
 
 class KeycloakRealmRoleConverterSpec extends Specification {
-    def mockGenerator = new MockGenerator()
+    def mockGenerator = new CommonMockGenerator()
 
     def "convert returns realm roles mapped to set of GrantedAuthority"() {
         given:

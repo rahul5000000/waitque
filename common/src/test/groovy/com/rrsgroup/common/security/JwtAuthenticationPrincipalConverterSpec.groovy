@@ -1,15 +1,15 @@
-package com.rrsgroup.waitque.security
+package com.rrsgroup.common.security
 
-import com.rrsgroup.waitque.domain.UserRole
-import com.rrsgroup.waitque.dto.AdminUserDto
-import com.rrsgroup.waitque.dto.SuperUserDto
-import com.rrsgroup.waitque.dto.UserDto
-import com.rrsgroup.waitque.exception.RoleNotFoundException
-import com.rrsgroup.waitque.util.MockGenerator
+import com.rrsgroup.common.domain.UserRole
+import com.rrsgroup.common.dto.AdminUserDto
+import com.rrsgroup.common.dto.SuperUserDto
+import com.rrsgroup.common.dto.UserDto
+import com.rrsgroup.common.exception.RoleNotFoundException
+import com.rrsgroup.common.util.CommonMockGenerator
 import spock.lang.Specification
 
 class JwtAuthenticationPrincipalConverterSpec extends Specification {
-    def mockGenerator = new MockGenerator()
+    def mockGenerator = new CommonMockGenerator()
 
     def "convert returns ADMIN principal for admin user's JWT"() {
         given:

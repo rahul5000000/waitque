@@ -1,20 +1,20 @@
-package com.rrsgroup.waitque.service
+package com.rrsgroup.company.service
 
-import com.rrsgroup.waitque.domain.SortDirection
-import com.rrsgroup.waitque.entity.Address
-import com.rrsgroup.waitque.entity.Company
-import com.rrsgroup.waitque.entity.PhoneNumber
-import com.rrsgroup.waitque.exception.IllegalUpdateException
-import com.rrsgroup.waitque.repository.CompanyRepository
-import com.rrsgroup.waitque.util.MockGenerator
+import com.rrsgroup.common.domain.SortDirection
+import com.rrsgroup.common.entity.Address
+import com.rrsgroup.common.entity.PhoneNumber
+import com.rrsgroup.common.exception.IllegalUpdateException
+import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.repository.CompanyRepository
+import com.rrsgroup.company.util.CompanyMockGenerator
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
 class CompanyServiceSpec extends Specification {
-    def repository = Mock(CompanyRepository.class)
+    def repository = Mock(CompanyRepository)
     def companyService = new CompanyService(repository)
-    def mockGenerator = new MockGenerator()
+    def companyMockGenerator = new CompanyMockGenerator()
 
     def "createCompany saves the company via the repository and returns saved company"() {
         given:
@@ -69,13 +69,13 @@ class CompanyServiceSpec extends Specification {
 
         where:
         sortDir            | limit | page | sortField | pageable                                                     | description
-        SortDirection.ASC  | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).ascending())  | "ascending"
+        SortDirection.ASC | 10 | 0 | "id" | PageRequest.of(page, limit, Sort.by(sortField).ascending()) | "ascending"
         SortDirection.DESC | 10    | 0    | "id"      | PageRequest.of(page, limit, Sort.by(sortField).descending()) | "descending"
     }
 
     def "getCompany finds specific company"() {
         given:
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         def companyId = company.getId()
 
         when:
@@ -90,8 +90,8 @@ class CompanyServiceSpec extends Specification {
 
     def "updateCompany updates a company and returns the updated record"() {
         given:
-        def company = mockGenerator.getCompanyMock()
-        def updatedCompany = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
+        def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
 
         when:
@@ -106,13 +106,13 @@ class CompanyServiceSpec extends Specification {
 
     def "updateCompany throws an exception if the request does not have an ID"() {
         given:
-        def company = mockGenerator.getCompanyMock()
+        def company = companyMockGenerator.getCompanyMock()
         company.setId(null)
 
         when:
         def result = companyService.updateCompany(company)
 
         then:
-        thrown(IllegalUpdateException.class)
+        thrown(IllegalUpdateException)
     }
 }
