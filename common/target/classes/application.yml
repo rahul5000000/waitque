@@ -1,11 +1,4 @@
-server:
-  port: 8081
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/rrs-waitque
   datasource:
     url: jdbc:postgresql://localhost:5432/waitque
     username: waitque_api
