@@ -1,0 +1,2 @@
+ALTER TABLE base.address
+ADD COLUMN country VARCHAR(100) DEFAULT 'USA';

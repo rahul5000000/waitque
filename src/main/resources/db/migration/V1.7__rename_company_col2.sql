@@ -1,1 +1,0 @@
-ALTER TABLE company RENAME COLUMN backgroundColor TO background_color;

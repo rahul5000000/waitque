@@ -5,3 +5,4 @@
 /mavenHomeManager.xml
 /target/
 /src/main/resources/application.yml
+/user-service/src/main/resources/application.yml

@@ -5,8 +5,14 @@
   <groupId>com.rrsgroup</groupId>
   <artifactId>waitque-api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
   <name>waitque-api</name>
   <description>Waitque API</description>
+  <modules>
+    <module>user-service</module>
+    <module>common</module>
+    <module>company-service</module>
+  </modules>
   <properties>
     <java.version>21</java.version>
     <spring-boot.version>3.3.2</spring-boot.version>
