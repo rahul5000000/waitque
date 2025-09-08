@@ -1,9 +1,11 @@
 package com.rrsgroup.company.entity;
 
+import com.rrsgroup.company.domain.LeadFlowQuestionDataType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class LeadFlowQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -28,13 +31,13 @@ public class LeadFlowQuestion {
     private String question;
     @NotBlank
     @Size(max = 512)
-    private String data_type;
+    private LeadFlowQuestionDataType dataType;
     @NotBlank
-    private LocalDateTime created_date;
+    private LocalDateTime createdDate;
     @NotBlank
-    private LocalDateTime updated_date;
+    private LocalDateTime updatedDate;
     @NotBlank
-    private String created_by;
+    private String createdBy;
     @NotBlank
-    private String updated_by;
+    private String updatedBy;
 }

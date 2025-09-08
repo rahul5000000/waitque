@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class LeadFlowOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -31,11 +33,11 @@ public class LeadFlowOrder {
     @Min(0)
     private Integer ordinal;
     @NotBlank
-    private LocalDateTime created_date;
+    private LocalDateTime createdDate;
     @NotBlank
-    private LocalDateTime updated_date;
+    private LocalDateTime updatedDate;
     @NotBlank
-    private String created_by;
+    private String createdBy;
     @NotBlank
-    private String updated_by;
+    private String updatedBy;
 }
