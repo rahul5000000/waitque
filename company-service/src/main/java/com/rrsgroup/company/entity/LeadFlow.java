@@ -3,6 +3,7 @@ package com.rrsgroup.company.entity;
 import com.rrsgroup.company.domain.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +24,7 @@ public class LeadFlow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
-    @NotBlank
-    @Size(max = 512)
+    @NotNull
     private Status status;
     @NotBlank
     @Size(max = 512)
@@ -47,9 +47,9 @@ public class LeadFlow {
     private String confirmationMessage2;
     @Size(max = 128)
     private String confirmationMessage3;
-    @NotBlank
+    @NotNull
     private LocalDateTime createdDate;
-    @NotBlank
+    @NotNull
     private LocalDateTime updatedDate;
     @NotBlank
     private String createdBy;

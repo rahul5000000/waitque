@@ -7,6 +7,8 @@ import com.rrsgroup.company.entity.LeadFlowOrder;
 import com.rrsgroup.company.entity.LeadFlowQuestion;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class LeadFlowDtoMapper {
     public LeadFlowDto map(LeadFlow leadFlow) {
@@ -27,14 +29,27 @@ public class LeadFlowDtoMapper {
         return LeadFlowQuestion.builder().id(dto.id()).question(dto.question()).dataType(dto.dataType()).build();
     }
 
+    public LeadFlowQuestion map(LeadFlowQuestionDto dto, LeadFlow leadFlow) {
+        LeadFlowQuestion leadFlowQuestion = map(dto);
+        leadFlowQuestion.setLeadFlow(leadFlow);
+
+        return leadFlowQuestion;
+    }
+
     public LeadFlow map(LeadFlowDto dto) {
-        return LeadFlow.builder().id(dto.id()).status(dto.status()).name(dto.name()).icon(dto.iconUrl())
+        LeadFlow leadFlow = LeadFlow.builder().id(dto.id()).status(dto.status()).name(dto.name()).icon(dto.iconUrl())
                 .buttonText(dto.buttonText()).title(dto.title())
                 .confirmationMessageHeader(dto.confirmationMessageHeader())
                 .confirmationMessage1(dto.confirmationMessage1())
                 .confirmationMessage2(dto.confirmationMessage2())
-                .confirmationMessage3(dto.confirmationMessage3())
-                .leadFlowOrder(LeadFlowOrder.builder().ordinal(dto.ordinal()).build())
-                .questions(dto.questions().stream().map(this::map).toList()).build();
+                .confirmationMessage3(dto.confirmationMessage3()).build();
+
+        LeadFlowOrder leadFlowOrder = LeadFlowOrder.builder().ordinal(dto.ordinal()).leadFlow(leadFlow).build();
+        leadFlow.setLeadFlowOrder(leadFlowOrder);
+
+        List<LeadFlowQuestion> leadFlowQuestionList = dto.questions().stream().map(questionDto -> map(questionDto, leadFlow)).toList();
+        leadFlow.setQuestions(leadFlowQuestionList);
+
+        return leadFlow;
     }
 }

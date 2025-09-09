@@ -18,6 +18,10 @@ public class JwtWrapper {
         this.jwt = jwt;
     }
 
+    public String getUserId() {
+        return getStringClaim(JwtClaimKey.USER_ID);
+    }
+
     public String getFirstName() {
         return getStringClaim(JwtClaimKey.FIRST_NAME);
     }
