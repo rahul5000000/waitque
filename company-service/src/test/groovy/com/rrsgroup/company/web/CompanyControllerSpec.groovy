@@ -5,7 +5,7 @@ import com.rrsgroup.common.domain.UserRole
 import com.rrsgroup.common.dto.AddressDto
 import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.dto.PhoneNumberDto
-import CommonDtoMapperSpec
+import com.rrsgroup.common.service.CommonDtoMapper
 import com.rrsgroup.company.dto.CompanyDto
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.service.CompanyDtoMapper
@@ -21,7 +21,7 @@ import spock.lang.Specification
 
 class CompanyControllerSpec extends Specification {
     def companyService = Mock(CompanyService)
-    def commonDtoMapper = new CommonDtoMapperSpec()
+    def commonDtoMapper = new CommonDtoMapper()
     def mapper = new CompanyDtoMapper(commonDtoMapper)
     def companyMockGenerator = new CompanyMockGenerator()
     def commonMockGenerator = new CommonMockGenerator()

@@ -6,7 +6,8 @@ public enum JwtClaimKey {
     LAST_NAME("family_name"),
     EMAIL("email"),
     USERNAME("preferred_username"),
-    COMPANY_ID("company_id");
+    COMPANY_ID("company_id"),
+    USER_ID("sub");
 
     private final String claimKey;
 

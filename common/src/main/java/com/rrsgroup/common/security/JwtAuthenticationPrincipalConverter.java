@@ -29,6 +29,7 @@ public class JwtAuthenticationPrincipalConverter implements Converter<Jwt, Abstr
         UserDto user;
         if(userRole.get() == UserRole.SUPERUSER) {
             user = new SuperUserDto(
+                    jwtWrapper.getUserId(),
                     jwtWrapper.getFirstName(),
                     jwtWrapper.getLastName(),
                     jwtWrapper.getEmail(),
@@ -37,6 +38,7 @@ public class JwtAuthenticationPrincipalConverter implements Converter<Jwt, Abstr
         } else if(userRole.get() == UserRole.ADMIN) {
             if(jwtWrapper.getCompanyId().isEmpty()) throw new IllegalStateException("Admin user is not configured with a company");
             user = new AdminUserDto(
+                    jwtWrapper.getUserId(),
                     jwtWrapper.getFirstName(),
                     jwtWrapper.getLastName(),
                     jwtWrapper.getEmail(),

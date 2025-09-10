@@ -1,8 +1,10 @@
 package com.rrsgroup.company.entity;
 
+import com.rrsgroup.company.domain.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,20 +23,22 @@ public class LeadFlowOrder {
     @Id
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_id", referencedColumnName = "id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Company company;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "lead_flow_id", referencedColumnName = "id", unique = true)
     private LeadFlow leadFlow;
 
-    @NotBlank
+    @NotNull
     @Min(0)
     private Integer ordinal;
-    @NotBlank
+    @NotNull
+    private Status status;
+    @NotNull
     private LocalDateTime createdDate;
-    @NotBlank
+    @NotNull
     private LocalDateTime updatedDate;
     @NotBlank
     private String createdBy;

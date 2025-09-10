@@ -9,8 +9,8 @@ import lombok.Data;
 public class AdminUserDto extends UserDto {
     private Long companyId;
 
-    public AdminUserDto(String firstName, String lastName, String email, String username, UserRole role, Long companyId) {
-        super(firstName, lastName, email, username, role);
+    public AdminUserDto(String userId, String firstName, String lastName, String email, String username, UserRole role, Long companyId) {
+        super(userId, firstName, lastName, email, username, role);
         this.companyId = companyId;
     }
 }

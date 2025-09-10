@@ -3,7 +3,7 @@ package com.rrsgroup.company.service
 import com.rrsgroup.common.domain.SortDirection
 import com.rrsgroup.common.dto.AddressDto
 import com.rrsgroup.common.dto.PhoneNumberDto
-import CommonDtoMapperSpec
+import com.rrsgroup.common.service.CommonDtoMapper
 import com.rrsgroup.company.dto.CompanyDto
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.util.CompanyMockGenerator
@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
 class CompanyDtoMapperSpec extends Specification {
-    def commonDtoMapper = new CommonDtoMapperSpec()
+    def commonDtoMapper = new CommonDtoMapper()
     def mapper = new CompanyDtoMapper(commonDtoMapper)
     def companyMockGenerator = new CompanyMockGenerator()
 
