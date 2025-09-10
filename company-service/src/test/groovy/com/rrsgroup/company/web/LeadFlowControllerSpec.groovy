@@ -1,7 +1,6 @@
 package com.rrsgroup.company.web
 
 import com.rrsgroup.common.dto.AdminUserDto
-import com.rrsgroup.common.dto.UserDto
 import com.rrsgroup.company.service.LeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator

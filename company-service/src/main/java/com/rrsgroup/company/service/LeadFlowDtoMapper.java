@@ -13,7 +13,7 @@ import java.util.List;
 public class LeadFlowDtoMapper {
     public LeadFlowDto map(LeadFlow leadFlow) {
         return new LeadFlowDto(leadFlow.getId(), leadFlow.getLeadFlowOrder().getCompany().getId(),
-                leadFlow.getStatus(), leadFlow.getName(), leadFlow.getIcon(), leadFlow.getButtonText(),
+                leadFlow.getLeadFlowOrder().getStatus(), leadFlow.getName(), leadFlow.getIcon(), leadFlow.getButtonText(),
                 leadFlow.getTitle(), leadFlow.getConfirmationMessageHeader(), leadFlow.getConfirmationMessage1(),
                 leadFlow.getConfirmationMessage2(), leadFlow.getConfirmationMessage3(),
                 leadFlow.getLeadFlowOrder().getOrdinal(),
@@ -37,14 +37,14 @@ public class LeadFlowDtoMapper {
     }
 
     public LeadFlow map(LeadFlowDto dto) {
-        LeadFlow leadFlow = LeadFlow.builder().id(dto.id()).status(dto.status()).name(dto.name()).icon(dto.iconUrl())
+        LeadFlow leadFlow = LeadFlow.builder().id(dto.id()).name(dto.name()).icon(dto.iconUrl())
                 .buttonText(dto.buttonText()).title(dto.title())
                 .confirmationMessageHeader(dto.confirmationMessageHeader())
                 .confirmationMessage1(dto.confirmationMessage1())
                 .confirmationMessage2(dto.confirmationMessage2())
                 .confirmationMessage3(dto.confirmationMessage3()).build();
 
-        LeadFlowOrder leadFlowOrder = LeadFlowOrder.builder().ordinal(dto.ordinal()).leadFlow(leadFlow).build();
+        LeadFlowOrder leadFlowOrder = LeadFlowOrder.builder().ordinal(dto.ordinal()).status(dto.status()).leadFlow(leadFlow).build();
         leadFlow.setLeadFlowOrder(leadFlowOrder);
 
         List<LeadFlowQuestion> leadFlowQuestionList = dto.questions().stream().map(questionDto -> map(questionDto, leadFlow)).toList();

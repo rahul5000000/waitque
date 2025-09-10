@@ -24,8 +24,6 @@ public class LeadFlow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
-    @NotNull
-    private Status status;
     @NotBlank
     @Size(max = 512)
     private String name;

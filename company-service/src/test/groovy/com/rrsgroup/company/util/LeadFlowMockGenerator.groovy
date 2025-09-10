@@ -63,9 +63,9 @@ class LeadFlowMockGenerator extends Specification {
         questions.add(LeadFlowQuestion.builder().id(question1Id).question(question1).dataType(question1DataType).build())
         questions.add(LeadFlowQuestion.builder().id(question2Id).question(question2).dataType(question2DataType).build())
 
-        def leadFlowOrder = LeadFlowOrder.builder().ordinal(ordinal).company(company).build();
+        def leadFlowOrder = LeadFlowOrder.builder().ordinal(ordinal).status(status).company(company).build();
 
-        def leadFlow = LeadFlow.builder().id(id).status(status).name(name).icon(iconUrl)
+        def leadFlow = LeadFlow.builder().id(id).name(name).icon(iconUrl)
                 .buttonText(buttonText).title(title).confirmationMessageHeader(confirmationMessageHeader)
                 .confirmationMessage1(confirmationMessage1).confirmationMessage2(confirmationMessage2)
                 .confirmationMessage3(confirmationMessage3).leadFlowOrder(leadFlowOrder).questions(questions).build()

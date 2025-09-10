@@ -1,5 +1,6 @@
 package com.rrsgroup.company.entity;
 
+import com.rrsgroup.company.domain.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +34,8 @@ public class LeadFlowOrder {
     @NotNull
     @Min(0)
     private Integer ordinal;
+    @NotNull
+    private Status status;
     @NotNull
     private LocalDateTime createdDate;
     @NotNull
