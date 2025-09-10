@@ -1,17 +1,21 @@
 package com.rrsgroup.company.web;
 
+import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
+import com.rrsgroup.company.domain.Status;
 import com.rrsgroup.company.dto.LeadFlowDto;
+import com.rrsgroup.company.dto.LeadFlowListDto;
 import com.rrsgroup.company.entity.LeadFlow;
 import com.rrsgroup.company.service.LeadFlowDtoMapper;
 import com.rrsgroup.company.service.LeadFlowService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 public class LeadFlowController {
@@ -38,5 +42,19 @@ public class LeadFlowController {
 
         LeadFlow leadFlow = leadFlowDtoMapper.map(request);
         return leadFlowDtoMapper.map(leadFlowService.createLeadFlow(leadFlow, companyId, user));
+    }
+
+    @GetMapping("/api/admin/flows")
+    public LeadFlowListDto getListOfLeadFlows(
+            @AuthenticationPrincipal AdminUserDto user,
+            @RequestParam(name = "status", required = false) List<Status> statuses,
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "ordinal") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") SortDirection sortDir) {
+        Long companyId = user.getCompanyId();
+        Page<LeadFlow> pageOfLeadFlows = leadFlowService.getCompanyListOfLeadFlows(companyId, statuses, limit, page, sortField, sortDir);
+
+        return leadFlowDtoMapper.map(pageOfLeadFlows);
     }
 }
