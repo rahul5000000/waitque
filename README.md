@@ -12,6 +12,7 @@ This allows for a streamlined process for the company’s customers scheduling a
 - [High-level Functional Design](#high-level-functional-design)
   - [Waitque User Personas](#waitque-user-personas)
   - [Happy Path Flow](#happy-path-flow)
+  - [Mockups](#mockups)
   - [Technology Stack](#technology-stack)
 - [Technical Design](#technical-design)
   - [Integrations](#integrations)
@@ -50,6 +51,9 @@ This allows for a streamlined process for the company’s customers scheduling a
   - Send message
 ### Happy Path Flow
 ![HappyPathFlow](images/readme/WaitqueHappyPathFlow.jpg)
+### Mockups
+**Customer Experience Mockup:**
+![CustomerMockup](/images/readme/WaitqueCustomerMockup.jpg)
 ### Technology Stack
 ![TechnologyStack](images/readme/WaitqueTechnologyStack.jpg)
 ## Technical Design
