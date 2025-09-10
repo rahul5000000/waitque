@@ -1,5 +1,8 @@
 # Waitque 
 Version 1: App allowing home/business-service companies to schedule work orders via customer contextualized QR codes
+
+Reference to [User Stories](https://github.com/users/rahul5000000/projects/1/views/1).
+
 ## Purpose
 The purpose of this app is to allow home/business-service companies to reduce the barrier for their customers to schedule work orders by providing each of their customers with printed materials with a custom QR that is mapped to that customer’s basic information like name, address, phone number, etc.
 
