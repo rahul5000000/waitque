@@ -1,17 +1,31 @@
 package com.rrsgroup.company.service;
 
+import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.company.domain.Status;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.entity.LeadFlow;
 import com.rrsgroup.company.repository.LeadFlowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class LeadFlowService {
+    private final Map<String, String> SQL_COLUMN_NAMESPACE_MAP = Map.of(
+            "ordinal", "leadFlowOrder",
+            "status", "leadFlowOrder"
+        );
+
     private final LeadFlowRepository leadFlowRepository;
     private final CompanyService companyService;
 
@@ -56,4 +70,28 @@ public class LeadFlowService {
         return companyOptional.get();
     }
 
+    public Page<LeadFlow> getCompanyListOfLeadFlows(Long companyId, List<Status> statuses, int limit, int page, String sortField, SortDirection sortDir) {
+        String namespacedSortField = namespaceSortField(sortField);
+
+        Pageable pageable = PageRequest.of(
+                page,
+                limit,
+                sortDir == SortDirection.ASC ? Sort.by(namespacedSortField).ascending() : Sort.by(namespacedSortField).descending());
+
+        if(statuses == null || statuses.isEmpty()) {
+            return leadFlowRepository.findByCompanyId(companyId, pageable);
+        } else {
+            return leadFlowRepository.findByCompanyIdAndStatusIn(companyId, statuses, pageable);
+        }
+    }
+
+    private String namespaceSortField(String sortField) {
+        String namespace = SQL_COLUMN_NAMESPACE_MAP.get(sortField);
+
+        if(namespace != null) {
+            return namespace + "." + sortField;
+        } else {
+            return sortField;
+        }
+    }
 }

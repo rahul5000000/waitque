@@ -35,6 +35,7 @@ public class LeadFlowOrder {
     @Min(0)
     private Integer ordinal;
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Status status;
     @NotNull
     private LocalDateTime createdDate;

@@ -12,6 +12,10 @@ import spock.lang.Specification
 
 class LeadFlowMockGenerator extends Specification {
     LeadFlowDto getLeadFlowDtoMock(Long id, Long companyId) {
+        return getLeadFlowDtoMock(id, companyId, null)
+    }
+
+    LeadFlowDto getLeadFlowDtoMock(Long id, Long companyId, Long predecessorId) {
         def status = Status.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
@@ -25,16 +29,18 @@ class LeadFlowMockGenerator extends Specification {
         def question1Id = 3L
         def question1 = "question1"
         def question1DataType = LeadFlowQuestionDataType.BOOLEAN
+        def question1IsRequired = true
         def question2Id = 4L
         def question2 = "question2"
         def question2DataType = LeadFlowQuestionDataType.TEXT
+        def question2IsRequired = false
 
         List<LeadFlowQuestionDto> questionDtos = new ArrayList<>()
-        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType))
-        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType))
+        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType, question1IsRequired))
+        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType, question2IsRequired))
 
         def dto = new LeadFlowDto(id, companyId, status, name, iconUrl, buttonText, title, confirmationMessageHeader,
-                confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos)
+                confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos, predecessorId)
 
         return dto
     }
