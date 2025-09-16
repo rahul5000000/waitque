@@ -16,21 +16,28 @@ import java.util.List;
 @Service
 public class LeadFlowDtoMapper {
     public LeadFlowDto map(LeadFlow leadFlow) {
+        Long predecessorId = null;
+        LeadFlow predecessor = leadFlow.getPredecessor();
+
+        if(predecessor != null) {
+            predecessorId = predecessor.getId();
+        }
+
         return new LeadFlowDto(leadFlow.getId(), leadFlow.getLeadFlowOrder().getCompany().getId(),
                 leadFlow.getLeadFlowOrder().getStatus(), leadFlow.getName(), leadFlow.getIcon(), leadFlow.getButtonText(),
                 leadFlow.getTitle(), leadFlow.getConfirmationMessageHeader(), leadFlow.getConfirmationMessage1(),
                 leadFlow.getConfirmationMessage2(), leadFlow.getConfirmationMessage3(),
                 leadFlow.getLeadFlowOrder().getOrdinal(),
                 leadFlow.getQuestions().stream()
-                        .map(this::map).toList());
+                        .map(this::map).toList(), predecessorId);
     }
 
     public LeadFlowQuestionDto map(LeadFlowQuestion question) {
-        return new LeadFlowQuestionDto(question.getId(), question.getQuestion(), question.getDataType());
+        return new LeadFlowQuestionDto(question.getId(), question.getQuestion(), question.getDataType(), question.getIsRequired());
     }
 
     public LeadFlowQuestion map(LeadFlowQuestionDto dto) {
-        return LeadFlowQuestion.builder().id(dto.id()).question(dto.question()).dataType(dto.dataType()).build();
+        return LeadFlowQuestion.builder().id(dto.id()).question(dto.question()).dataType(dto.dataType()).isRequired(dto.isRequired()).build();
     }
 
     public LeadFlowQuestion map(LeadFlowQuestionDto dto, LeadFlow leadFlow) {
@@ -53,6 +60,8 @@ public class LeadFlowDtoMapper {
 
         List<LeadFlowQuestion> leadFlowQuestionList = dto.questions().stream().map(questionDto -> map(questionDto, leadFlow)).toList();
         leadFlow.setQuestions(leadFlowQuestionList);
+
+        // DO NOT MAP predecessor_id from inbound dto
 
         return leadFlow;
     }

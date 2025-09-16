@@ -1,6 +1,5 @@
 package com.rrsgroup.company.entity;
 
-import com.rrsgroup.company.domain.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,6 +52,10 @@ public class LeadFlow {
     private String createdBy;
     @NotBlank
     private String updatedBy;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "predecessor_id")
+    private LeadFlow predecessor;
 
     @OneToMany(mappedBy = "leadFlow", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<LeadFlowQuestion> questions = new ArrayList<>();
