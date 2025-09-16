@@ -2,17 +2,20 @@ package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.company.domain.Status;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.entity.LeadFlow;
 import com.rrsgroup.company.repository.LeadFlowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +60,17 @@ public class LeadFlowService {
             question.setUpdatedDate(now);
         });
 
-        return leadFlowRepository.save(leadFlow);
+        try {
+            return leadFlowRepository.save(leadFlow);
+        } catch(DataIntegrityViolationException e) {
+            // If the SQL unique constraint that prevents multiple active lead flows at the same ordinal was the violation
+            if(e.getMessage().contains("uq_lead_flow_order_company_id_ordinal_status_active")) {
+                throw new IllegalUpdateException("An active Lead Flow exists with the same ordinal");
+            } else {
+                // Otherwise it was some other violation, rethrow it because it's unhandled
+                throw e;
+            }
+        }
     }
 
     private Company getCompany(Long companyId) {

@@ -36,4 +36,16 @@ public class GlobalExceptionHandler {
             return "Unknown error";
         }
     }
+
+    @ExceptionHandler(IllegalUpdateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalUpdateException(IllegalUpdateException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getMethod() + " " + request.getRequestURI());
+        return ResponseEntity.status(status).body(response);
+    }
 }
