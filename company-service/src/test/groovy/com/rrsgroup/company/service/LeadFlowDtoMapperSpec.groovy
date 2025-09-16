@@ -88,16 +88,18 @@ class LeadFlowDtoMapperSpec extends Specification {
         def question1Id = 3L
         def question1 = "question1"
         def question1DataType = LeadFlowQuestionDataType.BOOLEAN
+        def question1IsRequired = true
         def question2Id = 4L
         def question2 = "question2"
         def question2DataType = LeadFlowQuestionDataType.TEXT
+        def question2IsRequired = false
 
         List<LeadFlowQuestionDto> questionDtos = new ArrayList<>()
-        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType))
-        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType))
+        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType, question1IsRequired))
+        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType, question2IsRequired))
 
         def dto = new LeadFlowDto(id, companyId, status, name, iconUrl, buttonText, title, confirmationMessageHeader,
-                confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos)
+                confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos, null)
 
         when:
         def result = leadFlowDtoMapper.map(dto)
@@ -118,10 +120,12 @@ class LeadFlowDtoMapperSpec extends Specification {
         result.getQuestions().get(0).getId() == question1Id
         result.getQuestions().get(0).getQuestion() == question1
         result.getQuestions().get(0).getDataType() == question1DataType
+        result.getQuestions().get(0).getIsRequired() == question1IsRequired
         result.getQuestions().get(0).getLeadFlow() == result
         result.getQuestions().get(1).getId() == question2Id
         result.getQuestions().get(1).getQuestion() == question2
         result.getQuestions().get(1).getDataType() == question2DataType
+        result.getQuestions().get(1).getIsRequired() == question2IsRequired
         result.getQuestions().get(1).getLeadFlow() == result
     }
 }
