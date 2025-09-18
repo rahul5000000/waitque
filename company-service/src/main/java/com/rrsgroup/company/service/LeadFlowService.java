@@ -107,4 +107,8 @@ public class LeadFlowService {
             return sortField;
         }
     }
+
+    public LeadFlow getLeadFlow(Long leadFlowId, Long companyId) {
+        return leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId);
+    }
 }

@@ -1,11 +1,13 @@
 package com.rrsgroup.company.web
 
 import com.rrsgroup.common.dto.AdminUserDto
+import com.rrsgroup.common.exception.IllegalRequestException
+import com.rrsgroup.common.exception.IllegalUpdateException
+import com.rrsgroup.common.exception.RecordNotFoundException
+import com.rrsgroup.company.entity.LeadFlow
 import com.rrsgroup.company.service.LeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
 class LeadFlowControllerSpec extends Specification {
@@ -25,8 +27,7 @@ class LeadFlowControllerSpec extends Specification {
         leadFlowController.addLeadFlow(user, leadFlowDto)
 
         then:
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.BAD_REQUEST
+        def e = thrown(IllegalRequestException.class)
     }
 
     def "addLeadFlow throws a CONFLICT exception for requests that contain company ID, but does not match user's company"() {
@@ -42,8 +43,7 @@ class LeadFlowControllerSpec extends Specification {
         leadFlowController.addLeadFlow(user, leadFlowDto)
 
         then:
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.CONFLICT
+        def e = thrown(IllegalUpdateException.class)
     }
 
     def "addLeadFlow creates lead if request does not contain companyId"() {
@@ -78,5 +78,42 @@ class LeadFlowControllerSpec extends Specification {
         1 * leadFlowService.createLeadFlow(_, companyId, user) >> leadFlowMockGenerator.getLeadFlowMock(1L, companyId)
         1 * user.getCompanyId() >> companyId
         0 * _
+    }
+
+    def "getLeadFlow returns leadDto when lead is found for logged in user's company"() {
+        given:
+        def userId = "abcd"
+        def companyId = 1L
+        def user = Mock(AdminUserDto)
+        user.getUserId() >> userId
+        def leadFlowId = 3L
+        def leadFlow = leadFlowMockGenerator.getLeadFlowMock(leadFlowId, companyId)
+
+        when:
+        def result = leadFlowController.getLeadFlow(user, leadFlowId)
+
+        then:
+        1 * user.getCompanyId() >> companyId
+        1 * leadFlowService.getLeadFlow(leadFlowId, companyId) >> leadFlow
+        0 * _
+        result.id() == leadFlowId
+    }
+
+    def "getLeadFlow throws RecordNotFoundException exception if lead is not found"() {
+        given:
+        def userId = "abcd"
+        def companyId = 1L
+        def user = Mock(AdminUserDto)
+        user.getUserId() >> userId
+        def leadFlowId = 3L
+
+        when:
+        leadFlowController.getLeadFlow(user, leadFlowId)
+
+        then:
+        1 * user.getCompanyId() >> companyId
+        1 * leadFlowService.getLeadFlow(leadFlowId, companyId) >> null
+        0 * _
+        thrown(RecordNotFoundException.class)
     }
 }

@@ -37,9 +37,33 @@ public class GlobalExceptionHandler {
         }
     }
 
+    @ExceptionHandler(IllegalRequestException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalRequestException(IllegalRequestException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getMethod() + " " + request.getRequestURI());
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(IllegalUpdateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalUpdateException(IllegalUpdateException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getMethod() + " " + request.getRequestURI());
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(RecordNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRecordNotFoundException(RecordNotFoundException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
