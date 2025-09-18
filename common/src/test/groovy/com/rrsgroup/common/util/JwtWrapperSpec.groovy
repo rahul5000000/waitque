@@ -1,5 +1,6 @@
 package com.rrsgroup.common.util
 
+import com.rrsgroup.common.domain.UserRole
 import spock.lang.Specification
 
 class JwtWrapperSpec extends Specification {
@@ -121,7 +122,7 @@ class JwtWrapperSpec extends Specification {
 
     def "getCompanyId #description"() {
         given:
-        def jwt = mockGenerator.getMockJwt(true, true, true, includeCompanyId, companyId)
+        def jwt = mockGenerator.getMockJwt("ADMIN", true, true, true, includeCompanyId, companyId)
         def jwtWrapper = new JwtWrapper(jwt)
 
         when:

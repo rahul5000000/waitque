@@ -55,6 +55,7 @@ class CommonMockGenerator extends Specification {
     }
 
     UserDto getUserMock(UserRole role) {
+        def userId = "abcd-1234"
         def firstName = "firstName"
         def lastName = "lastName"
         def email = "email"
@@ -62,9 +63,9 @@ class CommonMockGenerator extends Specification {
         def companyId = 1231L
 
         if(role == UserRole.ADMIN) {
-            return new AdminUserDto(firstName, lastName, email, username, role, companyId)
+            return new AdminUserDto(userId, firstName, lastName, email, username, role, companyId)
         } else if (role == UserRole.SUPERUSER) {
-            return new SuperUserDto(firstName, lastName, email, username, role)
+            return new SuperUserDto(userId, firstName, lastName, email, username, role)
         } else {
             throw new NotImplementedException("User of type " + role + " is not supported")
         }
