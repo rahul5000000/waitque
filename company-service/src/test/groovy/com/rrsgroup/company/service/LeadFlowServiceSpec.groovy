@@ -1,6 +1,7 @@
 package com.rrsgroup.company.service
 
 import com.rrsgroup.common.dto.UserDto
+import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
 import com.rrsgroup.company.domain.Status
 import com.rrsgroup.company.entity.Company
@@ -8,6 +9,7 @@ import com.rrsgroup.company.entity.LeadFlow
 import com.rrsgroup.company.entity.LeadFlowOrder
 import com.rrsgroup.company.entity.LeadFlowQuestion
 import com.rrsgroup.company.repository.LeadFlowRepository
+import org.springframework.dao.DataIntegrityViolationException
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -107,5 +109,47 @@ class LeadFlowServiceSpec extends Specification {
         result.getQuestions().get(1).getUpdatedBy() == userId
         result.getQuestions().get(1).getCreatedDate().isAfter(startOfTest)
         result.getQuestions().get(1).getUpdatedDate().isAfter(startOfTest)
+    }
+
+    def "createLeadFlow throws IllegalUpdateException for unique key constraint violation"() {
+        def companyId = 2L
+        def company = Mock(Company) {
+            getId() >> { -> companyId }
+        }
+        def leadFlow = Mock(LeadFlow) {
+            getLeadFlowOrder() >> { -> Mock(LeadFlowOrder)}
+            getQuestions() >> { -> new ArrayList<LeadFlowQuestion>()}
+        }
+        def user = Mock(UserDto)
+
+        when:
+        leadFlowService.createLeadFlow(leadFlow, companyId, user)
+
+        then:
+        user.getUserId() >> "abcd"
+        companyService.getCompany(companyId) >> Optional.of(company)
+        leadFlowRepository.save(leadFlow) >> {throw new DataIntegrityViolationException("uq_lead_flow_order_company_id_ordinal_status_active")}
+        thrown(IllegalUpdateException.class)
+    }
+
+    def "createLeadFlow rethrows DataIntegrityViolationException for violations other than unique key constraint violation"() {
+        def companyId = 2L
+        def company = Mock(Company) {
+            getId() >> { -> companyId }
+        }
+        def leadFlow = Mock(LeadFlow) {
+            getLeadFlowOrder() >> { -> Mock(LeadFlowOrder)}
+            getQuestions() >> { -> new ArrayList<LeadFlowQuestion>()}
+        }
+        def user = Mock(UserDto)
+
+        when:
+        leadFlowService.createLeadFlow(leadFlow, companyId, user)
+
+        then:
+        user.getUserId() >> "abcd"
+        companyService.getCompany(companyId) >> Optional.of(company)
+        leadFlowRepository.save(leadFlow) >> {throw new DataIntegrityViolationException("some_other_constraint")}
+        thrown(DataIntegrityViolationException.class)
     }
 }
