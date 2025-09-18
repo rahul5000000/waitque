@@ -152,4 +152,20 @@ class LeadFlowServiceSpec extends Specification {
         leadFlowRepository.save(leadFlow) >> {throw new DataIntegrityViolationException("some_other_constraint")}
         thrown(DataIntegrityViolationException.class)
     }
+
+    def "getLeadFlow invokes repository to get lead flow by ID and companyId"() {
+        given:
+        def companyId = 2L
+        def leadFlowId = 3L
+        def leadFlow = Mock(LeadFlow) {
+            getId() >> { -> leadFlowId}
+        }
+
+        when:
+        def result = leadFlowService.getLeadFlow(leadFlowId, companyId)
+
+        then:
+        1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> leadFlow
+        result.getId() == leadFlowId
+    }
 }

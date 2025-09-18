@@ -75,4 +75,42 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.message == "Illegal update attempted"
         response.body.path == "PUT /api/resource/1"
     }
+
+    def "handleIllegalRequestException returns BAD_REQUEST with exception message"() {
+        given:
+        def ex = new IllegalRequestException("Illegal request attempted")
+        def request = Mock(HttpServletRequest) {
+            getMethod() >> "PUT"
+            getRequestURI() >> "/api/resource/1"
+        }
+
+        when:
+        ResponseEntity<ErrorResponse> response = handler.handleIllegalRequestException(ex, request)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body.status == HttpStatus.BAD_REQUEST.value()
+        response.body.error == HttpStatus.BAD_REQUEST.reasonPhrase
+        response.body.message == "Illegal request attempted"
+        response.body.path == "PUT /api/resource/1"
+    }
+
+    def "handleRecordNotFoundException returns NOT_FOUND with exception message"() {
+        given:
+        def ex = new RecordNotFoundException("Record not found")
+        def request = Mock(HttpServletRequest) {
+            getMethod() >> "GET"
+            getRequestURI() >> "/api/resource/1"
+        }
+
+        when:
+        ResponseEntity<ErrorResponse> response = handler.handleRecordNotFoundException(ex, request)
+
+        then:
+        response.statusCode == HttpStatus.NOT_FOUND
+        response.body.status == HttpStatus.NOT_FOUND.value()
+        response.body.error == HttpStatus.NOT_FOUND.reasonPhrase
+        response.body.message == "Record not found"
+        response.body.path == "GET /api/resource/1"
+    }
 }
