@@ -45,4 +45,8 @@ public class LeadFlowOrder {
     private String createdBy;
     @NotBlank
     private String updatedBy;
+
+    public boolean updateRequiresNewRecord(LeadFlowOrder newVersion) {
+        return !ordinal.equals(newVersion.getOrdinal());
+    }
 }

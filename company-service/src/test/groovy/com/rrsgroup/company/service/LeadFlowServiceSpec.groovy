@@ -2,6 +2,7 @@ package com.rrsgroup.company.service
 
 import com.rrsgroup.common.dto.UserDto
 import com.rrsgroup.common.exception.IllegalUpdateException
+import com.rrsgroup.common.exception.RecordNotFoundException
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
 import com.rrsgroup.company.domain.Status
 import com.rrsgroup.company.entity.Company
@@ -167,5 +168,59 @@ class LeadFlowServiceSpec extends Specification {
         then:
         1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> leadFlow
         result.getId() == leadFlowId
+    }
+
+    def "updateLeadFlow throws RecordNotFoundException if existing lead does not exist"() {
+        given:
+        def companyId = 1L
+        def user = Mock(UserDto) {
+            getUserId() >> { -> "abcd" }
+        }
+        def leadFlow = Mock(LeadFlow) {
+            getId() >> { -> null }
+        }
+
+        when:
+        leadFlowService.updateLeadFlow(leadFlow, companyId, user)
+
+        then:
+        thrown(RecordNotFoundException.class)
+    }
+
+    def "updateLeadFlow creates a new LeadFlow for update with audit fields copied from original LeadFlow"() {
+        given:
+        def companyId = 1L
+        def company = Mock(Company) {
+            getId() >> { -> companyId }
+        }
+        def user = Mock(UserDto) {
+            getUserId() >> { -> "updatedBy" }
+        }
+        def leadFlowQuestion1 = Mock(LeadFlowQuestion)
+        def leadFlowQuestion2 = Mock(LeadFlowQuestion)
+        def leadFlowOrder = Mock(LeadFlowOrder)
+        def leadFlowId = 2L
+        def leadFlow = Mock(LeadFlow) {
+            getId() >> { -> leadFlowId }
+            getQuestions() >> { -> List.of(leadFlowQuestion1, leadFlowQuestion2) }
+            getLeadFlowOrder() >> { -> leadFlowOrder }
+        }
+        def createdDate = LocalDateTime.now().minusDays(1)
+        def createdBy = "createdBy"
+        def existingLeadFlowOrder = Mock(LeadFlowOrder)
+        def existingLeadFlow = Mock(LeadFlow) {
+            getCreatedDate() >> { -> createdDate}
+            getCreatedBy() >> { -> createdBy }
+            getLeadFlowOrder() >> { -> existingLeadFlowOrder }
+        }
+
+        when:
+        leadFlowService.updateLeadFlow(leadFlow, companyId, user)
+
+        then:
+        1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> existingLeadFlow
+        1 * leadFlowRepository.saveAndFlush(existingLeadFlow)
+        1 * leadFlowRepository.save(leadFlow)
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
     }
 }

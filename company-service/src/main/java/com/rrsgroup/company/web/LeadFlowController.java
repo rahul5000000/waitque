@@ -72,4 +72,18 @@ public class LeadFlowController {
 
         return leadFlowDtoMapper.map(leadFlow);
     }
+
+    @PostMapping("/api/admin/flows/{leadFlowId}")
+    public LeadFlowDto updateLeadFlow(@AuthenticationPrincipal AdminUserDto user, @PathVariable(name = "leadFlowId") Long leadFlowId, @RequestBody LeadFlowDto request) {
+        Long companyId = user.getCompanyId();
+
+        if(request.id() != null &&  !request.id().equals(leadFlowId)) {
+            throw new IllegalRequestException("The leadFlowId in the URL does not match the leadFlowId in the request body");
+        }
+
+        LeadFlow updateRequest = leadFlowDtoMapper.map(request);
+        updateRequest.setId(leadFlowId);
+
+        return leadFlowDtoMapper.map(leadFlowService.updateLeadFlow(updateRequest, companyId, user));
+    }
 }
