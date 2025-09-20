@@ -4,7 +4,7 @@ import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
-import com.rrsgroup.company.entity.LeadFlow
+import com.rrsgroup.company.dto.LeadFlowDto
 import com.rrsgroup.company.service.LeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator
@@ -115,5 +115,39 @@ class LeadFlowControllerSpec extends Specification {
         1 * leadFlowService.getLeadFlow(leadFlowId, companyId) >> null
         0 * _
         thrown(RecordNotFoundException.class)
+    }
+
+    def "updateLeadFlow throws IllegalRequestException if the leadFlowId in the request and URL do not match"() {
+        given:
+        def userId = "abcd"
+        def companyId = 1L
+        def user = Mock(AdminUserDto)
+        user.getUserId() >> userId
+        def leadFlowId = 3L
+        def leadFlowDto = leadFlowMockGenerator.getLeadFlowDtoMock(leadFlowId + 1, companyId)
+
+        when:
+        leadFlowController.updateLeadFlow(user, leadFlowId, leadFlowDto)
+
+        then:
+        thrown(IllegalRequestException.class)
+    }
+
+    def "updateLeadFlow returns updated LeadFlowDto"() {
+        given:
+        def userId = "abcd"
+        def companyId = 1L
+        def user = Mock(AdminUserDto)
+        user.getUserId() >> userId
+        def leadFlowId = 3L
+        def leadFlowDto = leadFlowMockGenerator.getLeadFlowDtoMock(leadFlowId , companyId)
+        def leadFlow = leadFlowMockGenerator.getLeadFlowMock(leadFlowId + 1, companyId)
+
+        when:
+        def result = leadFlowController.updateLeadFlow(user, leadFlowId, leadFlowDto)
+
+        then:
+        1 * leadFlowService.updateLeadFlow(_, _, _) >> leadFlow
+        result.id() == leadFlowId + 1
     }
 }

@@ -3,6 +3,7 @@ package com.rrsgroup.company.service;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.exception.IllegalUpdateException;
+import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.company.domain.Status;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.entity.LeadFlow;
@@ -14,10 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,24 +42,12 @@ public class LeadFlowService {
         LocalDateTime now = LocalDateTime.now();
         String userId = createdBy.getUserId();
 
-        leadFlow.setCreatedBy(userId);
-        leadFlow.setCreatedDate(now);
-        leadFlow.setUpdatedBy(userId);
-        leadFlow.setUpdatedDate(now);
+        setLeadFlowAuditFields(leadFlow, companyId, userId, now);
 
-        leadFlow.getLeadFlowOrder().setCreatedBy(userId);
-        leadFlow.getLeadFlowOrder().setCreatedDate(now);
-        leadFlow.getLeadFlowOrder().setUpdatedBy(userId);
-        leadFlow.getLeadFlowOrder().setUpdatedDate(now);
-        leadFlow.getLeadFlowOrder().setCompany(getCompany(companyId));
+        return saveLeadFlowSafe(leadFlow);
+    }
 
-        leadFlow.getQuestions().forEach(question -> {
-            question.setCreatedBy(userId);
-            question.setCreatedDate(now);
-            question.setUpdatedBy(userId);
-            question.setUpdatedDate(now);
-        });
-
+    private LeadFlow saveLeadFlowSafe(LeadFlow leadFlow) {
         try {
             return leadFlowRepository.save(leadFlow);
         } catch(DataIntegrityViolationException e) {
@@ -71,6 +59,34 @@ public class LeadFlowService {
                 throw e;
             }
         }
+    }
+
+    private void setLeadFlowAuditFields(LeadFlow leadFlow, Long companyId, String createdByUserId, LocalDateTime createdDate) {
+        setLeadFlowAuditFields(leadFlow, companyId, createdByUserId, createdDate, createdByUserId, createdDate, null);
+    }
+
+    private void setLeadFlowAuditFields(LeadFlow leadFlow, Long companyId, String createdByUserId, LocalDateTime createdDate, String updatedByUserId, LocalDateTime updatedDate, LeadFlow predecessor) {
+        leadFlow.setCreatedBy(createdByUserId);
+        leadFlow.setCreatedDate(createdDate);
+        leadFlow.setUpdatedBy(updatedByUserId);
+        leadFlow.setUpdatedDate(updatedDate);
+
+        if(predecessor != null) {
+            leadFlow.setPredecessor(predecessor);
+        }
+
+        leadFlow.getLeadFlowOrder().setCreatedBy(createdByUserId);
+        leadFlow.getLeadFlowOrder().setCreatedDate(createdDate);
+        leadFlow.getLeadFlowOrder().setUpdatedBy(updatedByUserId);
+        leadFlow.getLeadFlowOrder().setUpdatedDate(updatedDate);
+        leadFlow.getLeadFlowOrder().setCompany(getCompany(companyId));
+
+        leadFlow.getQuestions().forEach(question -> {
+            question.setCreatedBy(createdByUserId);
+            question.setCreatedDate(createdDate);
+            question.setUpdatedBy(updatedByUserId);
+            question.setUpdatedDate(updatedDate);
+        });
     }
 
     private Company getCompany(Long companyId) {
@@ -110,5 +126,31 @@ public class LeadFlowService {
 
     public LeadFlow getLeadFlow(Long leadFlowId, Long companyId) {
         return leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public LeadFlow updateLeadFlow(LeadFlow leadFlow, Long companyId, UserDto updatedBy) {
+        LeadFlow existingLeadFlow = getLeadFlow(leadFlow.getId(), companyId);
+
+        if(existingLeadFlow == null) {
+            throw new RecordNotFoundException("The leadFlowId=" + leadFlow.getId() + " was not found");
+        }
+
+        LocalDateTime createdDate = existingLeadFlow.getCreatedDate();
+        String createdByUserId = existingLeadFlow.getCreatedBy();
+        LocalDateTime updatedDate = LocalDateTime.now();
+        String updatedByUserId = updatedBy.getUserId();
+
+        // Update existing lead flow to mark it inactive
+        existingLeadFlow.getLeadFlowOrder().setStatus(Status.INACTIVE);
+        leadFlowRepository.saveAndFlush(existingLeadFlow);
+
+        // Update new lead flow to set predecessor & fields to clone
+        setLeadFlowAuditFields(leadFlow, companyId, createdByUserId, createdDate, updatedByUserId, updatedDate, existingLeadFlow);
+        leadFlow.setId(null); // clear ID field so that a new record is created
+        leadFlow.getQuestions().forEach(question -> question.setId(null)); // Safety, clear question ID field
+
+        // Save new lead flow
+        return saveLeadFlowSafe(leadFlow);
     }
 }
