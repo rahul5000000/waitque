@@ -223,4 +223,50 @@ class LeadFlowServiceSpec extends Specification {
         1 * leadFlowRepository.save(leadFlow)
         1 * companyService.getCompany(companyId) >> Optional.of(company)
     }
+
+    def "inactivateLeadFlow should set status to INACTIVE and update metadata"() {
+        given:
+        Long leadFlowId = 1L
+        Long companyId = 10L
+        def user = Mock(UserDto) {
+            getUserId() >> { -> "updatedBy" }
+        }
+        def existingLeadFlow = new LeadFlow(
+                id: leadFlowId,
+                leadFlowOrder: new LeadFlowOrder(status: Status.ACTIVE)
+        )
+
+        when:
+        def result = leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user)
+
+        then:
+        1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> existingLeadFlow
+        1 * leadFlowRepository.saveAndFlush(_ as LeadFlow) >> { LeadFlow lf ->
+            assert lf.leadFlowOrder.status == Status.INACTIVE
+            assert lf.updatedBy == user.userId
+            assert lf.updatedDate != null
+            return lf
+        }
+
+        result.leadFlowOrder.status == Status.INACTIVE
+        result.updatedBy == user.userId
+        result.updatedDate instanceof LocalDateTime
+    }
+
+    def "inactivateLeadFlow should throw RecordNotFoundException if leadFlow does not exist"() {
+        given:
+        Long leadFlowId = 999L
+        Long companyId = 10L
+        def user = Mock(UserDto) {
+            getUserId() >> { -> "updatedBy" }
+        }
+
+        when:
+        leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user)
+
+        then:
+        1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> null
+        thrown(RecordNotFoundException)
+        0 * leadFlowRepository.saveAndFlush(_)
+    }
 }

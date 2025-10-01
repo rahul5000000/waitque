@@ -86,4 +86,12 @@ public class LeadFlowController {
 
         return leadFlowDtoMapper.map(leadFlowService.updateLeadFlow(updateRequest, companyId, user));
     }
+
+    @DeleteMapping("/api/admin/flows/{leadFlowId}")
+    public LeadFlowDto inactivateLeadFlow(
+            @AuthenticationPrincipal AdminUserDto user,
+            @PathVariable(name = "leadFlowId") Long leadFlowId) {
+        Long companyId = user.getCompanyId();
+        return leadFlowDtoMapper.map(leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user));
+    }
 }

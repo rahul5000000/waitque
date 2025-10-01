@@ -143,6 +143,8 @@ public class LeadFlowService {
 
         // Update existing lead flow to mark it inactive
         existingLeadFlow.getLeadFlowOrder().setStatus(Status.INACTIVE);
+        existingLeadFlow.setUpdatedBy(updatedByUserId);
+        existingLeadFlow.setUpdatedDate(updatedDate);
         leadFlowRepository.saveAndFlush(existingLeadFlow);
 
         // Update new lead flow to set predecessor & fields to clone
@@ -152,5 +154,21 @@ public class LeadFlowService {
 
         // Save new lead flow
         return saveLeadFlowSafe(leadFlow);
+    }
+
+    public LeadFlow inactivateLeadFlow(Long leadFlowId, Long companyId, UserDto updatedBy) {
+        LeadFlow existingLeadFlow = getLeadFlow(leadFlowId, companyId);
+
+        if(existingLeadFlow == null) {
+            throw new RecordNotFoundException("The leadFlowId=" + leadFlowId + " was not found");
+        }
+
+        LocalDateTime updatedDate = LocalDateTime.now();
+        String updatedByUserId = updatedBy.getUserId();
+
+        existingLeadFlow.getLeadFlowOrder().setStatus(Status.INACTIVE);
+        existingLeadFlow.setUpdatedBy(updatedByUserId);
+        existingLeadFlow.setUpdatedDate(updatedDate);
+        return leadFlowRepository.saveAndFlush(existingLeadFlow);
     }
 }
