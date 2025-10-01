@@ -3,6 +3,7 @@ package com.rrsgroup.company.web;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
+import com.rrsgroup.common.util.ImageWrapper;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
 import com.rrsgroup.company.entity.Company;
@@ -142,16 +143,13 @@ public class CompanyController {
 
         try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
             for (int i = 0; i < qrCodes.size(); i++) {
-                BufferedImage qrImage = qrCodeService.generateQRCodeImage(
+                ImageWrapper image = qrCodeService.generateQRCodeImage(
                         frontEndLinkService.getCustomerLandingPageLink(companyId, qrCodes.get(i).getQrCode()),
                         width, 
                         height);
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(qrImage, "png", baos);
-
                 zos.putNextEntry(new ZipEntry("qrcode-" + (i + 1) + ".png"));
-                zos.write(baos.toByteArray());
+                zos.write(image.toByteArray("png"));
                 zos.closeEntry();
             }
         }

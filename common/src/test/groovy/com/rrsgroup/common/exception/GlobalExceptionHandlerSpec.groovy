@@ -113,4 +113,23 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.message == "Record not found"
         response.body.path == "GET /api/resource/1"
     }
+
+    def "handleGenericException returns INTERNAL_SERVER_ERROR with exception message"() {
+        given:
+        def ex = new Exception("Generic exception")
+        def request = Mock(HttpServletRequest) {
+            getMethod() >> "GET"
+            getRequestURI() >> "/api/resource/1"
+        }
+
+        when:
+        ResponseEntity<ErrorResponse> response = handler.handleGenericException(ex, request)
+
+        then:
+        response.statusCode == HttpStatus.INTERNAL_SERVER_ERROR
+        response.body.status == HttpStatus.INTERNAL_SERVER_ERROR.value()
+        response.body.error == HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase
+        response.body.message == "Generic exception"
+        response.body.path == "GET /api/resource/1"
+    }
 }
