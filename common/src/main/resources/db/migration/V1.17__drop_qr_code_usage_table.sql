@@ -1,0 +1,1 @@
+DROP TABLE company.qr_code_usage;

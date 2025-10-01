@@ -5,13 +5,21 @@ import com.rrsgroup.common.domain.UserRole
 import com.rrsgroup.common.dto.AddressDto
 import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.dto.PhoneNumberDto
+import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.service.CommonDtoMapper
+import com.rrsgroup.common.util.ImageWrapper
 import com.rrsgroup.company.dto.CompanyDto
 import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.entity.QrCode
 import com.rrsgroup.company.service.CompanyDtoMapper
 import com.rrsgroup.company.service.CompanyService
+import com.rrsgroup.company.service.FrontEndLinkService
+import com.rrsgroup.company.service.QrCodeService
 import com.rrsgroup.company.util.CommonMockGenerator
 import com.rrsgroup.company.util.CompanyMockGenerator
+import jakarta.servlet.ServletOutputStream
+import jakarta.servlet.WriteListener
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -19,14 +27,18 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
+import java.awt.image.BufferedImage
+
 class CompanyControllerSpec extends Specification {
     def companyService = Mock(CompanyService)
     def commonDtoMapper = new CommonDtoMapper()
     def mapper = new CompanyDtoMapper(commonDtoMapper)
     def companyMockGenerator = new CompanyMockGenerator()
     def commonMockGenerator = new CommonMockGenerator()
+    def qrCodeService = Mock(QrCodeService)
+    def frontEndLinkService = Mock(FrontEndLinkService)
 
-    def controller = new CompanyController(companyService, mapper)
+    def controller = new CompanyController(companyService, mapper, qrCodeService, frontEndLinkService)
 
     def "createCompany throws a BAD REQUEST exception for requests that contain IDs"() {
         given:
@@ -281,5 +293,72 @@ class CompanyControllerSpec extends Specification {
 
         return new CompanyDto(companyId, name, addressDto, phoneNumberDto, logoUrl, landingPrompt, textColor,
                 backgroundColor, primaryButtonColor, secondaryButtonColor, warningButtonColor, dangerButtonColor)
+    }
+
+    def "generateAssignableQrCodes returns 400 if the count is less than 1"() {
+        given:
+        def principal = (AdminUserDto)commonMockGenerator.getUserMock(UserRole.ADMIN)
+        def company = companyMockGenerator.getCompanyMock()
+        def companyId = principal.getCompanyId()
+        def height = 200, width = 200
+        def response = Mock(HttpServletResponse.class)
+
+        when:
+        controller.generateAssignableQrCodes(principal, 0, height, width, response)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        thrown(IllegalRequestException.class)
+    }
+
+    def "generateAssignableQrCodes returns zip file of images"() {
+        given:
+        def principal = (AdminUserDto)commonMockGenerator.getUserMock(UserRole.ADMIN)
+        def company = companyMockGenerator.getCompanyMock()
+        def companyId = principal.getCompanyId()
+        def height = 200, width = 200
+        def baos = new ByteArrayOutputStream()
+        def response = Mock(HttpServletResponse) {
+            getOutputStream() >> new DelegatingServletOutputStream(baos)
+        }
+        def qrCodes = [
+                QrCode.builder().qrCode(UUID.randomUUID()).company(company).build(),
+                QrCode.builder().qrCode(UUID.randomUUID()).company(company).build()
+        ]
+
+        when:
+        controller.generateAssignableQrCodes(principal, 2, height, width, response)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        1 * qrCodeService.generateQrCodes(2, company, principal) >> qrCodes
+        2 * frontEndLinkService.getCustomerLandingPageLink(companyId, _) >> "test.com"
+        2 * qrCodeService.generateQRCodeImage("test.com", width, height) >> Mock(ImageWrapper.class) {
+            toByteArray("png") >> []
+        }
+
+        1 * response.setContentType("application/zip")
+        1 * response.setHeader("Content-Disposition", _)
+    }
+
+    static class DelegatingServletOutputStream extends ServletOutputStream {
+        private final OutputStream targetStream
+        DelegatingServletOutputStream(OutputStream targetStream) {
+            this.targetStream = targetStream
+        }
+        @Override
+        void write(int b) throws IOException {
+            targetStream.write(b)
+        }
+
+        @Override
+        boolean isReady() {
+            return false
+        }
+
+        @Override
+        void setWriteListener(WriteListener writeListener) {
+
+        }
     }
 }
