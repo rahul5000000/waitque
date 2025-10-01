@@ -4,7 +4,6 @@ import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
-import com.rrsgroup.company.dto.LeadFlowDto
 import com.rrsgroup.company.service.LeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator
@@ -149,5 +148,23 @@ class LeadFlowControllerSpec extends Specification {
         then:
         1 * leadFlowService.updateLeadFlow(_, _, _) >> leadFlow
         result.id() == leadFlowId + 1
+    }
+
+    def "inactivateLeadFlow invokes service to inactivate lead flow"() {
+        given:
+        def userId = "abcd"
+        def companyId = 1L
+        def leadFlowId = 3L
+        def user = Mock(AdminUserDto) {
+            getUserId() >> userId
+            getCompanyId() >> companyId
+        }
+        def leadFlow = leadFlowMockGenerator.getLeadFlowMock(leadFlowId, companyId)
+
+        when:
+        leadFlowController.inactivateLeadFlow(user, leadFlowId)
+
+        then:
+        1 * leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user) >> leadFlow
     }
 }
