@@ -2,11 +2,16 @@ package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
+import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
 import com.rrsgroup.company.entity.Company;
+import com.rrsgroup.company.entity.QrCode;
 import com.rrsgroup.company.service.CompanyDtoMapper;
 import com.rrsgroup.company.service.CompanyService;
+import com.rrsgroup.company.service.FrontEndLinkService;
+import com.rrsgroup.company.service.QrCodeService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,16 +19,30 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 public class CompanyController {
     private final CompanyService companyService;
     private final CompanyDtoMapper companyDtoMapper;
+    private final QrCodeService qrCodeService;
+    private final FrontEndLinkService frontEndLinkService;
 
-    public CompanyController(CompanyService companyService, CompanyDtoMapper companyDtoMapper) {
+    public CompanyController(
+            CompanyService companyService,
+            CompanyDtoMapper companyDtoMapper,
+            QrCodeService qrCodeService,
+            FrontEndLinkService frontEndLinkService) {
         this.companyService = companyService;
         this.companyDtoMapper = companyDtoMapper;
+        this.qrCodeService = qrCodeService;
+        this.frontEndLinkService = frontEndLinkService;
     }
 
     @PostMapping("/api/internal/companies")
@@ -100,5 +119,41 @@ public class CompanyController {
         }
 
         return updateCompanyInternal(companyId, updateRequest);
+    }
+
+    @GetMapping(value = "/api/admin/config/qrcode", produces = "application/zip")
+    public void generateAssignableQrCodes(
+            @AuthenticationPrincipal AdminUserDto user,
+            @RequestParam(name = "count") Integer count,
+            @RequestParam(name = "width", required = false, defaultValue = "250") Integer width,
+            @RequestParam(name = "height", required = false, defaultValue = "250") Integer height,
+            HttpServletResponse response) throws Exception {
+        Long companyId = user.getCompanyId();
+        Company company = getCompanySafe(companyId);
+
+        if(count < 1) {
+            throw new IllegalRequestException("count must be greater than 0");
+        }
+
+        List<QrCode> qrCodes = qrCodeService.generateQrCodes(count, company, user);
+
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=qrcodes.zip");
+
+        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+            for (int i = 0; i < qrCodes.size(); i++) {
+                BufferedImage qrImage = qrCodeService.generateQRCodeImage(
+                        frontEndLinkService.getCustomerLandingPageLink(companyId, qrCodes.get(i).getQrCode()),
+                        width, 
+                        height);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(qrImage, "png", baos);
+
+                zos.putNextEntry(new ZipEntry("qrcode-" + (i + 1) + ".png"));
+                zos.write(baos.toByteArray());
+                zos.closeEntry();
+            }
+        }
     }
 }

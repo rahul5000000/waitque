@@ -72,4 +72,20 @@ public class GlobalExceptionHandler {
                 request.getMethod() + " " + request.getRequestURI());
         return ResponseEntity.status(status).body(response);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        log.error("Unhandled exception occurred", ex);
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred",
+                request.getMethod() + " " + request.getRequestURI());
+
+        return ResponseEntity.status(status).body(response);
+    }
 }
