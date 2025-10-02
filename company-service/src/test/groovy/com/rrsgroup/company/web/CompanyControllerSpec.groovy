@@ -6,6 +6,8 @@ import com.rrsgroup.common.dto.AddressDto
 import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.dto.PhoneNumberDto
 import com.rrsgroup.common.exception.IllegalRequestException
+import com.rrsgroup.common.exception.IllegalUpdateException
+import com.rrsgroup.common.exception.RecordNotFoundException
 import com.rrsgroup.common.service.CommonDtoMapper
 import com.rrsgroup.common.util.ImageWrapper
 import com.rrsgroup.company.dto.CompanyDto
@@ -48,8 +50,7 @@ class CompanyControllerSpec extends Specification {
         controller.createCompany(dto)
 
         then:
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.BAD_REQUEST
+        def e = thrown(IllegalRequestException.class)
 
         where:
         companyId | name   | description
@@ -129,8 +130,7 @@ class CompanyControllerSpec extends Specification {
         then:
         1 * companyService.getCompany(companyId) >> Optional.empty()
         0 * _
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.NOT_FOUND
+        def e = thrown(RecordNotFoundException.class)
     }
 
     def "updateCompany returns a 400 if companyId in the URL and request body don't match"() {
@@ -143,8 +143,7 @@ class CompanyControllerSpec extends Specification {
         controller.updateCompany(456L, dto)
 
         then:
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.BAD_REQUEST
+        def e = thrown(IllegalRequestException.class)
     }
 
     def "updateCompany returns a 404 if companyId does not exist"() {
@@ -159,8 +158,7 @@ class CompanyControllerSpec extends Specification {
         then:
         1 * companyService.getCompany(companyId) >> Optional.empty()
         0 * _
-        def e = thrown(ResponseStatusException.class)
-        e.getStatusCode() == HttpStatus.NOT_FOUND
+        def e = thrown(RecordNotFoundException.class)
     }
 
     def "updateCompany calls service to update the company details"() {
@@ -262,8 +260,7 @@ class CompanyControllerSpec extends Specification {
 
         then:
         0 * _
-        def e = thrown(ResponseStatusException)
-        e.getStatusCode() == HttpStatus.CONFLICT
+        def e = thrown(IllegalUpdateException)
     }
 
     private static CompanyDto buildCompanyDto (Long companyId, String name) {
@@ -360,5 +357,33 @@ class CompanyControllerSpec extends Specification {
         void setWriteListener(WriteListener writeListener) {
 
         }
+    }
+
+    def "publicGetCompany returns company for a valid companyId"() {
+        given:
+        def company = companyMockGenerator.getCompanyMock()
+        def companyId = company.getId()
+
+        when:
+        def result = controller.publicGetCompany(companyId)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.of(company)
+        0 * _
+        result != null
+        result.id() == companyId
+    }
+
+    def "publicGetCompany returns a 404 for a companyId that does not exist"() {
+        given:
+        def companyId = -1
+
+        when:
+        def result = controller.publicGetCompany(companyId)
+
+        then:
+        1 * companyService.getCompany(companyId) >> Optional.empty()
+        0 * _
+        def e = thrown(RecordNotFoundException.class)
     }
 }
