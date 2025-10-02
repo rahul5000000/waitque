@@ -1,6 +1,8 @@
 package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.util.PageableWrapper;
+import com.rrsgroup.company.dto.ActiveLeadFlowListDto;
 import com.rrsgroup.company.dto.LeadFlowDto;
 import com.rrsgroup.company.dto.LeadFlowListDto;
 import com.rrsgroup.company.dto.LeadFlowQuestionDto;
@@ -67,29 +69,14 @@ public class LeadFlowDtoMapper {
     }
 
     public LeadFlowListDto map(Page<LeadFlow> pageOfLeadFlows) {
-        String sortField = pageOfLeadFlows.getPageable().getSort().stream().findFirst()
-                .map(Sort.Order::getProperty).orElse("");
-        SortDirection sortDir = pageOfLeadFlows.getPageable().getSort().stream().findFirst()
-                .map(sort -> sort.getDirection() == Sort.Direction.ASC ? SortDirection.ASC : SortDirection.DESC).orElse(SortDirection.ASC);
-        sortField = getLastPart(sortField);
+        PageableWrapper pageable = new PageableWrapper(pageOfLeadFlows.getPageable());
         return new LeadFlowListDto(
-                pageOfLeadFlows.getPageable().getPageNumber(),
-                pageOfLeadFlows.getPageable().getPageSize(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
                 pageOfLeadFlows.getTotalElements(),
-                sortField,
-                sortDir,
+                pageable.getSortField(),
+                pageable.getSortDir(),
                 pageOfLeadFlows.getContent().stream().map(leadFlow -> new LeadFlowListDto.LeadFlowListItem(leadFlow.getId(), leadFlow.getName(), leadFlow.getLeadFlowOrder().getStatus(), leadFlow.getLeadFlowOrder().getOrdinal())).toList()
         );
-    }
-
-    private String getLastPart(String input) {
-        if (input == null || input.isEmpty()) {
-            return input; // return as-is for null/empty
-        }
-        int lastDot = input.lastIndexOf('.');
-        if (lastDot == -1) {
-            return input; // no dot, return whole string
-        }
-        return input.substring(lastDot + 1);
     }
 }

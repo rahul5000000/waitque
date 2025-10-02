@@ -1,19 +1,28 @@
 package com.rrsgroup.company.web
 
+import com.rrsgroup.common.domain.SortDirection
 import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
+import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.entity.LeadFlow
+import com.rrsgroup.company.service.ActiveLeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
 class LeadFlowControllerSpec extends Specification {
     def leadFlowMockGenerator = new LeadFlowMockGenerator()
     def leadFlowDtoMapper = new LeadFlowDtoMapper()
     def leadFlowService = Mock(LeadFlowService)
-    def leadFlowController = new LeadFlowController(leadFlowDtoMapper, leadFlowService)
+    def ActiveLeadFlowDtoMapper activeLeadFlowDtoMapper = new ActiveLeadFlowDtoMapper()
+    def leadFlowController = new LeadFlowController(leadFlowDtoMapper, leadFlowService, activeLeadFlowDtoMapper)
 
     def "addLeadFlow throws a BAD REQUEST exception for requests that contain IDs"() {
         given:
@@ -166,5 +175,25 @@ class LeadFlowControllerSpec extends Specification {
 
         then:
         1 * leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user) >> leadFlow
+    }
+
+    def "publicGetListOfLeadFlows invokes service to get active lead flows for a company"() {
+        given:
+        def companyId = 1L
+        def limit = 10
+        def page = 0
+        def sortField = "ordinal"
+        def sortDir = SortDirection.ASC
+        def pageable = PageRequest.of(page, limit, Sort.by(Sort.Order.asc(sortField)))
+        Page<LeadFlow> mockPage = Mock(Page) {
+            getPageable() >> pageable
+            getContent() >> new ArrayList<LeadFlow>()
+        }
+
+        when:
+        leadFlowController.publicGetListOfLeadFlows(companyId, limit, page, sortField, sortDir)
+
+        then:
+        1 * leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(Status.ACTIVE), limit, page, sortField, sortDir) >> mockPage
     }
 }
