@@ -3,6 +3,8 @@ package com.rrsgroup.company.web;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
+import com.rrsgroup.common.exception.IllegalUpdateException;
+import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.common.util.ImageWrapper;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
@@ -20,9 +22,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -49,11 +48,11 @@ public class CompanyController {
     @PostMapping("/api/internal/companies")
     public CompanyDto createCompany(@RequestBody CompanyDto request) {
         if(request.id() != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'id' field shall not be populated in a create company request");
+            throw new IllegalRequestException("The 'id' field shall not be populated in a create company request");
         }
 
         if(StringUtils.isBlank(request.name())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The 'name' field shall not be blank in a create company request");
+            throw new IllegalRequestException("The 'name' field shall not be blank in a create company request");
         }
 
         Company savedCompany = companyService.createCompany(companyDtoMapper.map(request));
@@ -81,7 +80,7 @@ public class CompanyController {
         Optional<Company> company = companyService.getCompany(companyId);
 
         if(company.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found with that ID");
+            throw new RecordNotFoundException("Company not found with that ID");
         }
 
         return company.get();
@@ -90,7 +89,7 @@ public class CompanyController {
     @PutMapping("/api/internal/companies/{companyId}")
     public CompanyDto updateCompany(@PathVariable(name = "companyId") Long companyId, @RequestBody CompanyDto updateRequest) {
         if(updateRequest.id() != null &&  !updateRequest.id().equals(companyId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The companyId in the URL does not match the companyId in the request body");
+            throw new IllegalRequestException("The companyId in the URL does not match the companyId in the request body");
         }
 
         return updateCompanyInternal(companyId, updateRequest);
@@ -116,7 +115,7 @@ public class CompanyController {
         Long companyId = user.getCompanyId();
 
         if(updateRequest.id() != null && !updateRequest.id().equals(companyId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "The companyId in the request body is not the user's company");
+            throw new IllegalUpdateException("The companyId in the request body is not the user's company");
         }
 
         return updateCompanyInternal(companyId, updateRequest);
@@ -153,5 +152,10 @@ public class CompanyController {
                 zos.closeEntry();
             }
         }
+    }
+
+    @GetMapping("/api/public/companies/{companyId}/companyInfo")
+    public CompanyDto publicGetCompany(@PathVariable(name = "companyId") Long companyId) {
+        return companyDtoMapper.map(getCompanySafe(companyId));
     }
 }
