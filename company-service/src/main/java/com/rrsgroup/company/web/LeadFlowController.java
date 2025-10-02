@@ -112,4 +112,15 @@ public class LeadFlowController {
         Page<LeadFlow> pageOfLeadFlows = leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(Status.ACTIVE), limit, page, sortField, sortDir);
         return activeLeadFlowDtoMapper.map(pageOfLeadFlows);
     }
+
+    @GetMapping("/api/public/companies/{companyId}/flows/{leadFlowId}")
+    public LeadFlowDto publicGetLeadFlow(@PathVariable(name = "companyId") Long companyId, @PathVariable(name = "leadFlowId") Long leadFlowId) {
+        LeadFlow leadFlow = leadFlowService.getLeadFlow(leadFlowId, companyId);
+
+        if(leadFlow == null) {
+            throw new RecordNotFoundException("The leadFlowId=" + leadFlowId + " was not found");
+        }
+
+        return leadFlowDtoMapper.map(leadFlow);
+    }
 }
