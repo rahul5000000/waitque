@@ -13,7 +13,6 @@ import com.rrsgroup.company.service.LeadFlowService
 import com.rrsgroup.company.util.LeadFlowMockGenerator
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import spock.lang.Specification
 
@@ -195,5 +194,33 @@ class LeadFlowControllerSpec extends Specification {
 
         then:
         1 * leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(Status.ACTIVE), limit, page, sortField, sortDir) >> mockPage
+    }
+
+    def "publicGetLeadFlow throws RecordNotFoundException if lead flow is not found"() {
+        given:
+        def companyId = 1L
+        def leadFlowId = 2L
+
+        when:
+        leadFlowController.publicGetLeadFlow(companyId, leadFlowId)
+
+        then:
+        1 * leadFlowService.getLeadFlow(leadFlowId, companyId) >> null
+        thrown(RecordNotFoundException.class)
+    }
+
+    def "publicGetLeadFlow returns leadDto when lead is found"() {
+        given:
+        def companyId = 1L
+        def leadFlowId = 3L
+        def leadFlow = leadFlowMockGenerator.getLeadFlowMock(leadFlowId, companyId)
+
+        when:
+        def result = leadFlowController.publicGetLeadFlow(companyId, leadFlowId)
+
+        then:
+        1 * leadFlowService.getLeadFlow(leadFlowId, companyId) >> leadFlow
+        0 * _
+        result.id() == leadFlowId
     }
 }
