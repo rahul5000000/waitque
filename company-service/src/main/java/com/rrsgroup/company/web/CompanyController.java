@@ -71,7 +71,7 @@ public class CompanyController {
         return companyDtoMapper.map(pageOfCompanies);
     }
 
-    @GetMapping("/api/internal/companies/{companyId}")
+    @GetMapping({"/api/internal/companies/{companyId}", "/api/public/companies/{companyId}/companyInfo"})
     public CompanyDto getCompany(@PathVariable(name = "companyId") Long companyId) {
         return companyDtoMapper.map(getCompanySafe(companyId));
     }
@@ -152,10 +152,5 @@ public class CompanyController {
                 zos.closeEntry();
             }
         }
-    }
-
-    @GetMapping("/api/public/companies/{companyId}/companyInfo")
-    public CompanyDto publicGetCompany(@PathVariable(name = "companyId") Long companyId) {
-        return companyDtoMapper.map(getCompanySafe(companyId));
     }
 }

@@ -358,32 +358,4 @@ class CompanyControllerSpec extends Specification {
 
         }
     }
-
-    def "publicGetCompany returns company for a valid companyId"() {
-        given:
-        def company = companyMockGenerator.getCompanyMock()
-        def companyId = company.getId()
-
-        when:
-        def result = controller.publicGetCompany(companyId)
-
-        then:
-        1 * companyService.getCompany(companyId) >> Optional.of(company)
-        0 * _
-        result != null
-        result.id() == companyId
-    }
-
-    def "publicGetCompany returns a 404 for a companyId that does not exist"() {
-        given:
-        def companyId = -1
-
-        when:
-        def result = controller.publicGetCompany(companyId)
-
-        then:
-        1 * companyService.getCompany(companyId) >> Optional.empty()
-        0 * _
-        def e = thrown(RecordNotFoundException.class)
-    }
 }
