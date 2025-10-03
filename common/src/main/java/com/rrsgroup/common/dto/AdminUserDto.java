@@ -6,11 +6,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AdminUserDto extends UserDto {
-    private Long companyId;
+public class AdminUserDto extends CompanyUserDto {
 
     public AdminUserDto(String userId, String firstName, String lastName, String email, String username, UserRole role, Long companyId) {
-        super(userId, firstName, lastName, email, username, role);
-        this.companyId = companyId;
+        super(userId, firstName, lastName, email, username, role, companyId);
     }
 }

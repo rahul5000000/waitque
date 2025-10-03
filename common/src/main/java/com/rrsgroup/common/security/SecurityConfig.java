@@ -7,8 +7,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static com.rrsgroup.common.domain.UserRole.ADMIN;
-import static com.rrsgroup.common.domain.UserRole.SUPERUSER;
+import static com.rrsgroup.common.domain.UserRole.*;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,6 +21,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/**").hasAnyRole(UserRole.getAllRoleNames())
                 .requestMatchers("/api/internal/**").hasRole(SUPERUSER.getRoleName())
                 .requestMatchers("/api/admin/**").hasRole(ADMIN.getRoleName())
+                .requestMatchers("/api/field/**").hasRole(FIELD_USER.getRoleName())
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

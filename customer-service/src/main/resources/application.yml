@@ -1,0 +1,37 @@
+server:
+  port: 8083
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/rrs-waitque
+  datasource:
+    url: jdbc:postgresql://localhost:5432/waitque
+    username: waitque_api
+    password: zDsCDGN96h7J
+    jpa:
+      hibernate:
+        ddl-auto: validate # or validate / create-drop (dev only)
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+          default_schema: customer
+logging:
+  level:
+    org.springframework.security: INFO
+    com.rrsgroup: DEBUG
+---
+spring:
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: prod

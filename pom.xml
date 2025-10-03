@@ -12,6 +12,7 @@
     <module>user-service</module>
     <module>common</module>
     <module>company-service</module>
+    <module>customer-service</module>
   </modules>
   <properties>
     <java.version>21</java.version>
