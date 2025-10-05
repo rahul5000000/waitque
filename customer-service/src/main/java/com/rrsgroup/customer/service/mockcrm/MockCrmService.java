@@ -3,6 +3,7 @@ package com.rrsgroup.customer.service.mockcrm;
 import com.rrsgroup.customer.domain.CrmAddress;
 import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CrmPhoneNumber;
+import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.service.CrmService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,13 @@ public class MockCrmService implements CrmService {
     }
 
     @Override
-    public List<CrmCustomer> searchCustomers(String firstNameSnippet, String lastNameSnippet, String addressSnippet, Integer phoneNumberSnippet) {
+    public List<CrmCustomer> searchCustomers(CustomerSearchRequest request) {
+
+        String firstNameSnippet = request.getFirstName();
+        String lastNameSnippet = request.getLastName();
+        String addressSnippet = request.getAddress();
+        Integer phoneNumberSnippet = request.getPhoneNumber();
+
         return customers.stream().filter(customer -> {
             if(StringUtils.isNotBlank(firstNameSnippet) && StringUtils.containsIgnoreCase(customer.getFirstName(), firstNameSnippet)) {
                 return true;
