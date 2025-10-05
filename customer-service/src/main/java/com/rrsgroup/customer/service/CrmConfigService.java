@@ -2,6 +2,7 @@ package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.customer.domain.CrmType;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.repository.CrmConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
