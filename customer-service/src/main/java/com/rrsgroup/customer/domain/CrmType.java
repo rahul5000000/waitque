@@ -1,7 +1,8 @@
 package com.rrsgroup.customer.domain;
 
 public enum CrmType {
-    MOCK("mockCrmService");
+    MOCK("mockCrmService"),
+    WAITQUE("waitqueCrmService");
 
     private final String crmServiceName;
 

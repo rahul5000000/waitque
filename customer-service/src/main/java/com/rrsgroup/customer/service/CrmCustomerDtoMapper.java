@@ -4,8 +4,6 @@ import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
 import com.rrsgroup.customer.dto.CustomersSearchResultDto;
 import com.rrsgroup.customer.entity.Customer;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
