@@ -31,6 +31,7 @@ public class LeadFlowQuestion {
     @Size(max = 512)
     private String question;
     @NotNull
+    @Enumerated(EnumType.STRING)
     private LeadFlowQuestionDataType dataType;
     @NotNull
     private Boolean isRequired;

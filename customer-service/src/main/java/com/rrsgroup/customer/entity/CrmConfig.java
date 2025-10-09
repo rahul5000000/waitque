@@ -24,6 +24,7 @@ public class CrmConfig {
     @NotNull
     private Long companyId;
     @NotNull
+    @Enumerated(EnumType.STRING)
     private CrmType crmType;
     @NotBlank
     private String crmName;

@@ -1,9 +1,28 @@
 services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: WvGpGcSc59RgzH
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-multiple-dbs:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0
+    image: quay.io/keycloak/keycloak:26.3.2
     command: start-dev --http-port=8080
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak?currentSchema=keycloak
+      KC_DB_USERNAME: keycloak_user
+      KC_DB_PASSWORD: hGpHM3C8bdH3pz
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
