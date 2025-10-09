@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8081
 spring:
   security:
     oauth2:
@@ -16,20 +16,10 @@ spring:
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
-          default_schema: customer
+          default_schema: user
 logging:
   level:
     org.springframework.security: INFO
-    com.rrsgroup: DEBUG
----
-spring:
-  profiles:
-    active: dev
----
-spring:
-  config:
-    activate:
-      on-profile: dev
 ---
 spring:
   config:
@@ -46,7 +36,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: customer
+        default_schema: user
 
   security:
     oauth2:
@@ -55,4 +45,4 @@ spring:
           issuer-uri: http://keycloak:8080/realms/rrs-waitque
 
 self:
-  base-url: http://customer-service:8080
+  base-url: http://user-service:8081
