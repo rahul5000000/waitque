@@ -8,6 +8,7 @@ import com.rrsgroup.customer.domain.CrmType
 import com.rrsgroup.customer.domain.CustomerSearchRequest
 import com.rrsgroup.customer.entity.CrmConfig
 import com.rrsgroup.customer.entity.Customer
+import com.rrsgroup.customer.entity.QrCode
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -16,11 +17,12 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
     def crmConfigService = Mock(CrmConfigService)
     def customerService = Mock(CustomerService)
     def crmService = Mock(CrmService)
+    def qrCodeService = Mock(QrCodeService)
 
     def crmServices = [:] as Map<String, CrmService>
 
     @Subject
-    def service = new CustomerCrmIntegrationService(crmServices, crmConfigService, customerService)
+    def service = new CustomerCrmIntegrationService(crmServices, crmConfigService, customerService, qrCodeService)
 
     def "should search customers across CRM configs and return aggregated results"() {
         given: "a user and search request"
@@ -56,6 +58,10 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
         customerService.getCustomerByCrmConfig(_ as CrmConfig, crmCustomer1) >> customer1
         customerService.getCustomerByCrmConfig(_ as CrmConfig, crmCustomer2) >> customer2
 
+        and: "qrCodeService returns a QR code for customer1"
+        def qrCode = QrCode.builder().customer(customer1).qrCode(UUID.randomUUID()).build()
+        qrCodeService.getQrCodesForCustomers(_) >> List.of(qrCode)
+
         when:
         def results = service.customerSearch(fieldUser, request)
 
@@ -63,6 +69,7 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
         results.size() == 2
         results*.customer*.id == [10L, 11L]
         results*.crmCustomer*.crmCustomerId == ["crm-1", "crm-2"]
+        results*.qrCodeIsAssociated == [true, false]
     }
 
     def "should create new customer if CRM customer not found in DB"() {
