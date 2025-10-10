@@ -6,6 +6,7 @@ import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.QrCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,22 +14,26 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CustomerCrmIntegrationService {
     private final Map<String, CrmService> crmServices;
     private final CrmConfigService crmConfigService;
     private final CustomerService customerService;
+    private final QrCodeService qrCodeService;
 
     @Autowired
     public CustomerCrmIntegrationService(
             Map<String, CrmService> crmServices,
             CrmConfigService crmConfigService,
-            CustomerService customerService
+            CustomerService customerService,
+            QrCodeService qrCodeService
     ) {
         this.crmServices = crmServices;
         this.crmConfigService = crmConfigService;
         this.customerService = customerService;
+        this.qrCodeService = qrCodeService;
     }
 
     public List<CustomerSearchResult> customerSearch(FieldUserDto fieldUserDto,
@@ -50,17 +55,23 @@ public class CustomerCrmIntegrationService {
 
         List<CrmCustomer> crmCustomers = searchCrmCustomers(crmConfig, request);
         List<Customer> customers = getCustomersMatchingCrmCustomers(crmConfig, crmCustomers);
+        List<QrCode> qrCodes = qrCodeService.getQrCodesForCustomers(customers);
 
         // TODO: Convert this to parallel streams; customerPairs will have to be threadsafe
         // Map CrmCustomer and Customers
         for(CrmCustomer crmCustomer : crmCustomers) {
             Customer customer = customers.stream().filter(c -> c.getCrmCustomerId().equals(crmCustomer.getCrmCustomerId())).findFirst().orElse(null);
+            Optional<QrCode> qrCodeOptional = Optional.empty();
 
             if(customer == null) {
                 customer = customerService.createCustomer(crmConfig, crmCustomer, fieldUserDto);
+            } else {
+                // Optimization; only search for a QR code for customer that was not just created
+                Customer finalCustomer = customer;
+                qrCodeOptional = qrCodes.stream().filter(qrCode -> qrCode.getCustomer().getId().equals(finalCustomer.getId())).findFirst();
             }
 
-            searchResults.add(new CustomerSearchResult(crmCustomer, customer, false));
+            searchResults.add(new CustomerSearchResult(crmCustomer, customer, qrCodeOptional.isPresent()));
         }
 
         return searchResults;

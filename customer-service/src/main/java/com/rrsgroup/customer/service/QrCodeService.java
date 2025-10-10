@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.repository.QrCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +28,9 @@ public class QrCodeService {
                 .mapToObj(i -> QrCode.builder().companyId(companyId).qrCode(UUID.randomUUID()).createdDate(now).createdBy(createdByUserId).updatedDate(now).updatedBy(createdByUserId).build())
                 .toList();
         return qrCodeRepository.saveAllAndFlush(qrCodesToSave);
+    }
+
+    public List<QrCode> getQrCodesForCustomers(List<Customer> customers) {
+        return qrCodeRepository.findAllByCustomerIn(customers);
     }
 }
