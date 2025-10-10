@@ -91,4 +91,18 @@ class CustomerServiceSpec extends Specification {
         result == expectedCustomers
         result*.crmCustomerId == ["crm-1", "crm-2"]
     }
+
+    def "getCustomerById should invoke repository method"() {
+        given:
+        def customerId = 1L
+        def userDto = Mock(CompanyUserDto) {
+            getCompanyId() >> 2L
+        }
+
+        when:
+        service.getCustomerById(customerId, userDto)
+
+        then:
+        1 * customerRepository.findByIdAndCrmConfig_CompanyId(customerId, 2L);
+    }
 }

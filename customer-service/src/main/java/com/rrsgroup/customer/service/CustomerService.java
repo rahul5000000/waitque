@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -43,5 +44,9 @@ public class CustomerService {
     public List<Customer> getCustomersByCrmConfig(CrmConfig crmConfig, List<CrmCustomer> crmCustomers) {
         List<String> crmCustomerIds = crmCustomers.stream().map(CrmCustomer::getCrmCustomerId).toList();
         return customerRepository.findAllByCrmCustomerIdInAndCrmConfig_Id(crmCustomerIds, crmConfig.getId());
+    }
+
+    public Optional<Customer> getCustomerById(Long customerId, CompanyUserDto userDto) {
+        return customerRepository.findByIdAndCrmConfig_CompanyId(customerId, userDto.getCompanyId());
     }
 }
