@@ -8,8 +8,8 @@ import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.common.util.ImageWrapper;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
+import com.rrsgroup.company.dto.QrCodeDto;
 import com.rrsgroup.company.entity.Company;
-import com.rrsgroup.company.entity.QrCode;
 import com.rrsgroup.company.service.CompanyDtoMapper;
 import com.rrsgroup.company.service.CompanyService;
 import com.rrsgroup.company.service.FrontEndLinkService;
@@ -17,10 +17,8 @@ import com.rrsgroup.company.service.QrCodeService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -135,7 +133,7 @@ public class CompanyController {
             throw new IllegalRequestException("count must be greater than 0");
         }
 
-        List<QrCode> qrCodes = qrCodeService.generateQrCodes(count, company, user);
+        List<QrCodeDto> qrCodes = qrCodeService.generateQrCodes(count, company, user);
 
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=qrcodes.zip");
@@ -143,7 +141,7 @@ public class CompanyController {
         try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
             for (int i = 0; i < qrCodes.size(); i++) {
                 ImageWrapper image = qrCodeService.generateQRCodeImage(
-                        frontEndLinkService.getCustomerLandingPageLink(companyId, qrCodes.get(i).getQrCode()),
+                        frontEndLinkService.getCustomerLandingPageLink(companyId, qrCodes.get(i).qrCode()),
                         width, 
                         height);
 

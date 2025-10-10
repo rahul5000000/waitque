@@ -19,6 +19,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/api/public/**").permitAll()
                 .requestMatchers("/api/users/**").hasAnyRole(UserRole.getAllRoleNames())
+                .requestMatchers("/api/system/**").hasRole(SYSTEM.getRoleName())
                 .requestMatchers("/api/internal/**").hasRole(SUPERUSER.getRoleName())
                 .requestMatchers("/api/admin/**").hasRole(ADMIN.getRoleName())
                 .requestMatchers("/api/field/**").hasRole(FIELD_USER.getRoleName())

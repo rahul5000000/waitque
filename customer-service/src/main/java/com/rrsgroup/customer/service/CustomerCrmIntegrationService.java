@@ -52,6 +52,7 @@ public class CustomerCrmIntegrationService {
         List<Customer> customers = getCustomersMatchingCrmCustomers(crmConfig, crmCustomers);
 
         // TODO: Convert this to parallel streams; customerPairs will have to be threadsafe
+        // Map CrmCustomer and Customers
         for(CrmCustomer crmCustomer : crmCustomers) {
             Customer customer = customers.stream().filter(c -> c.getCrmCustomerId().equals(crmCustomer.getCrmCustomerId())).findFirst().orElse(null);
 

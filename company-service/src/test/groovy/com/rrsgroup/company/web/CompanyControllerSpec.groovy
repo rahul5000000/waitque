@@ -11,8 +11,9 @@ import com.rrsgroup.common.exception.RecordNotFoundException
 import com.rrsgroup.common.service.CommonDtoMapper
 import com.rrsgroup.common.util.ImageWrapper
 import com.rrsgroup.company.dto.CompanyDto
+import com.rrsgroup.company.dto.QrCodeDto
 import com.rrsgroup.company.entity.Company
-import com.rrsgroup.company.entity.QrCode
+
 import com.rrsgroup.company.service.CompanyDtoMapper
 import com.rrsgroup.company.service.CompanyService
 import com.rrsgroup.company.service.FrontEndLinkService
@@ -25,11 +26,9 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
-import java.awt.image.BufferedImage
+import java.time.LocalDateTime
 
 class CompanyControllerSpec extends Specification {
     def companyService = Mock(CompanyService)
@@ -319,8 +318,8 @@ class CompanyControllerSpec extends Specification {
             getOutputStream() >> new DelegatingServletOutputStream(baos)
         }
         def qrCodes = [
-                QrCode.builder().qrCode(UUID.randomUUID()).company(company).build(),
-                QrCode.builder().qrCode(UUID.randomUUID()).company(company).build()
+                new QrCodeDto(1L, 1L, 1L, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "1", "1"),
+                new QrCodeDto(2L, 1L, 1L, UUID.randomUUID(), LocalDateTime.now(), LocalDateTime.now(), "1", "1")
         ]
 
         when:

@@ -2,27 +2,19 @@ package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.dto.FieldUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
-import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
 import com.rrsgroup.customer.dto.CustomersSearchResultDto;
-import com.rrsgroup.customer.entity.CrmConfig;
-import com.rrsgroup.customer.entity.Customer;
-import com.rrsgroup.customer.service.*;
+import com.rrsgroup.customer.service.CrmCustomerDtoMapper;
+import com.rrsgroup.customer.service.CustomerCrmIntegrationService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 public class CustomerController {

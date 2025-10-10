@@ -6,33 +6,34 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.util.ImageWrapper;
+import com.rrsgroup.company.dto.QrCodeDto;
 import com.rrsgroup.company.entity.Company;
-import com.rrsgroup.company.entity.QrCode;
-import com.rrsgroup.company.repository.QrCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.IntStream;
 
 @Service
 public class QrCodeService {
-    private final QrCodeRepository qrCodeRepository;
+    private final WebClient webClient;
+
+    @Value("${microservices.customer-service.base-url}")
+    private String customerServiceBaseUrl;
 
     @Autowired
-    public QrCodeService(QrCodeRepository qrCodeRepository) {
-        this.qrCodeRepository = qrCodeRepository;
+    public QrCodeService(WebClient webClient) {
+        this.webClient = webClient;
     }
 
-    public List<QrCode> generateQrCodes(Integer count, Company company, UserDto createdBy) {
-        LocalDateTime now = LocalDateTime.now();
-        List<QrCode> qrCodesToSave = IntStream.range(0, count)
-                .parallel()
-                .mapToObj(i -> QrCode.builder().company(company).qrCode(UUID.randomUUID()).createdDate(now).createdBy(createdBy.getUserId()).updatedDate(now).updatedBy(createdBy.getUserId()).build())
-                .toList();
-        return qrCodeRepository.saveAllAndFlush(qrCodesToSave);
+    public List<QrCodeDto> generateQrCodes(Integer count, Company company, UserDto createdBy) {
+        return webClient.get()
+                .uri(customerServiceBaseUrl + "/api/system/qrcodes?count="+count+"&companyId="+company.getId()+"&userId="+createdBy.getUserId())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<QrCodeDto>>() {})
+                .block();
     }
 
     public ImageWrapper generateQRCodeImage(String text, int width, int height) {

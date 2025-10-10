@@ -2,10 +2,7 @@ package com.rrsgroup.common.security;
 
 import com.rrsgroup.common.domain.UserRole;
 import com.rrsgroup.common.domain.WaitqueAuthenticationToken;
-import com.rrsgroup.common.dto.AdminUserDto;
-import com.rrsgroup.common.dto.FieldUserDto;
-import com.rrsgroup.common.dto.SuperUserDto;
-import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.common.dto.*;
 import com.rrsgroup.common.exception.RoleNotFoundException;
 import com.rrsgroup.common.util.JwtWrapper;
 import org.apache.commons.lang3.NotImplementedException;
@@ -55,6 +52,14 @@ public class JwtAuthenticationPrincipalConverter implements Converter<Jwt, Abstr
                     jwtWrapper.getEmail(),
                     jwtWrapper.getUsername(),
                     jwtWrapper.getCompanyId().get());
+        } else if(userRole.get() == UserRole.SYSTEM) {
+            user = new SystemUserDto(
+                    jwtWrapper.getUserId(),
+                    jwtWrapper.getFirstName(),
+                    jwtWrapper.getLastName(),
+                    jwtWrapper.getEmail(),
+                    jwtWrapper.getUsername(),
+                    userRole.get());
         } else {
             throw new NotImplementedException("User of type " + userRole.get() + " is not supported");
         }
