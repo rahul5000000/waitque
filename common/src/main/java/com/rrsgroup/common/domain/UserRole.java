@@ -5,7 +5,9 @@ import java.util.Optional;
 
 public enum UserRole {
     ADMIN("ADMIN"),
-    SUPERUSER("SUPERUSER");
+    SUPERUSER("SUPERUSER"),
+    FIELD_USER("FIELD_USER"),
+    SYSTEM("SYSTEM");
 
     private final String roleName;
 

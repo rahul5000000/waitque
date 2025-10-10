@@ -9,7 +9,7 @@ import java.util.UUID;
 @Service
 @Log4j2
 public class FrontEndLinkService {
-    @Value("${self.base-url}")
+    @Value("${microservices.self.base-url}")
     private String selfBaseUrl;
 
     public String getCustomerLandingPageLink(Long companyId, UUID customerCode) {

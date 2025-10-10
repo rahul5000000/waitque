@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: company-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: company-service
+  template:
+    metadata:
+      labels:
+        app: company-service
+    spec:
+      containers:
+        - name: company-service
+          image: company-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: company-service
+spec:
+  selector:
+    app: company-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082

@@ -2,6 +2,8 @@ package com.rrsgroup.common.security
 
 import com.rrsgroup.common.domain.UserRole
 import com.rrsgroup.common.dto.AdminUserDto
+import com.rrsgroup.common.dto.CompanyUserDto
+import com.rrsgroup.common.dto.FieldUserDto
 import com.rrsgroup.common.dto.SuperUserDto
 import com.rrsgroup.common.dto.UserDto
 import com.rrsgroup.common.exception.RoleNotFoundException
@@ -26,7 +28,7 @@ class JwtAuthenticationPrincipalConverterSpec extends Specification {
         ((UserDto)result.getPrincipal()).email == "email@test.com"
         ((UserDto)result.getPrincipal()).username == "username"
         ((UserDto)result.getPrincipal()).role == UserRole.ADMIN
-        ((AdminUserDto)result.getPrincipal()).companyId == 1L
+        ((CompanyUserDto)result.getPrincipal()).companyId == 1L
         result.getAuthorities().size() == 2
         result.getAuthorities().getAt(0).authority == "ROLE_DEFAULT-ROLES-RRS-WAITQUE"
         result.getAuthorities().getAt(1).authority == "ROLE_ADMIN"
@@ -50,6 +52,27 @@ class JwtAuthenticationPrincipalConverterSpec extends Specification {
         result.getAuthorities().size() == 2
         result.getAuthorities().getAt(0).authority == "ROLE_SUPERUSER"
         result.getAuthorities().getAt(1).authority == "ROLE_DEFAULT-ROLES-RRS-WAITQUE"
+    }
+
+    def "convert returns FIELD_USER principal for field user's JWT"() {
+        given:
+        def jwt = mockGenerator.getMockJwt("FIELD_USER")
+        def converter = new JwtAuthenticationPrincipalConverter()
+
+        when:
+        def result = converter.convert(jwt)
+
+        then:
+        result.getPrincipal() instanceof FieldUserDto
+        ((UserDto)result.getPrincipal()).firstName == "first_name"
+        ((UserDto)result.getPrincipal()).lastName == "last_name"
+        ((UserDto)result.getPrincipal()).email == "email@test.com"
+        ((UserDto)result.getPrincipal()).username == "username"
+        ((UserDto)result.getPrincipal()).role == UserRole.FIELD_USER
+        ((CompanyUserDto)result.getPrincipal()).companyId == 1L
+        result.getAuthorities().size() == 2
+        result.getAuthorities().getAt(0).authority == "ROLE_DEFAULT-ROLES-RRS-WAITQUE"
+        result.getAuthorities().getAt(1).authority == "ROLE_FIELD_USER"
     }
 
     def "convert throws RoleNotFoundException exception for JWT without UserRole"() {
