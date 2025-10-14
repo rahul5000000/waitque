@@ -7,7 +7,7 @@ import com.rrsgroup.customer.domain.message.MessageStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record MessageDto(Long id, Long companyId, MessageStatus status, String overrideFirstName,
+public record MessageDto(Long id, MessageStatus status, String overrideFirstName,
                          String overrideLastName, AddressDto overrideAddress, PhoneNumberDto overridePhoneNumber,
                          String overrideEmail, String message, List<MessageStatusHistoryDto> statusHistory,
                          LocalDateTime createdDate, LocalDateTime updatedDate, String createdBy, String updatedBy) {

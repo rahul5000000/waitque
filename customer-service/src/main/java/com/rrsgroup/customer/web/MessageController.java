@@ -3,8 +3,10 @@ package com.rrsgroup.customer.web;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.dto.message.MessageDto;
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.entity.message.Message;
 import com.rrsgroup.customer.service.CustomerService;
+import com.rrsgroup.customer.service.QrCodeService;
 import com.rrsgroup.customer.service.message.MessageDtoMapper;
 import com.rrsgroup.customer.service.message.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,30 +16,36 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class MessageController {
     private final CustomerService customerService;
     private final MessageDtoMapper messageDtoMapper;
     private final MessageService messageService;
+    private final QrCodeService qrCodeService;
 
     @Autowired
-    public MessageController(CustomerService customerService, MessageDtoMapper messageDtoMapper, MessageService messageService) {
+    public MessageController(
+            CustomerService customerService,
+            MessageDtoMapper messageDtoMapper,
+            MessageService messageService,
+            QrCodeService qrCodeService) {
         this.customerService = customerService;
         this.messageDtoMapper = messageDtoMapper;
         this.messageService = messageService;
+        this.qrCodeService = qrCodeService;
     }
 
-    @PostMapping("/api/public/customers/{customerId}/messages")
-    public MessageDto sendMessage(@PathVariable("customerId") Long customerId, @RequestBody MessageDto request) {
-        // Get customer for company; validate customer exists
-        Optional<Customer> customerOptional = customerService.getCustomerById(customerId, request.companyId());
+    @PostMapping("/api/public/customers/qrCode/{qrCode}/messages")
+    public MessageDto sendMessage(@PathVariable("qrCode") UUID qrCode, @RequestBody MessageDto request) {
+        Optional<QrCode> qrCodeOptional = qrCodeService.getAssociatedQrCode(qrCode);
 
-        if(customerOptional.isEmpty()) {
-            throw new RecordNotFoundException("Customer does not exist by customerId=" + customerId + ", companyId=" + request.companyId());
+        if(qrCodeOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer does not exist with qrCode=" + qrCode);
         }
 
-        Message message = messageDtoMapper.map(request, customerOptional.get());
+        Message message = messageDtoMapper.map(request, qrCodeOptional.get().getCustomer());
         return messageDtoMapper.map(messageService.saveMessageAnonymous(message));
     }
 }

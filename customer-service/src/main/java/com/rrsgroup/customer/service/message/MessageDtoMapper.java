@@ -38,7 +38,7 @@ public class MessageDtoMapper {
         AddressDto addressDto = message.getOverrideAddress() == null ? null : commonDtoMapper.map(message.getOverrideAddress());
         PhoneNumberDto phoneNumberDto = message.getOverridePhoneNumber() == null ? null : commonDtoMapper.map(message.getOverridePhoneNumber());
 
-        return new MessageDto(message.getId(), message.getCustomer().getCrmConfig().getCompanyId(), message.getStatus(),
+        return new MessageDto(message.getId(), message.getStatus(),
                 message.getOverrideFirstName(), message.getOverrideLastName(), addressDto, phoneNumberDto,
                 message.getOverrideEmail(), message.getMessage(), null, message.getCreatedDate(),
                 message.getUpdatedDate(), message.getCreatedBy(), message.getUpdatedBy());
