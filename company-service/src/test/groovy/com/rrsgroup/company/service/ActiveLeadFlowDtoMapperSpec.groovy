@@ -1,6 +1,6 @@
 package com.rrsgroup.company.service
 
-import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.domain.LeadFlowStatus
 import com.rrsgroup.company.dto.ActiveLeadFlowListDto
 import com.rrsgroup.company.entity.LeadFlow
 import com.rrsgroup.company.entity.LeadFlowOrder
@@ -17,10 +17,10 @@ class ActiveLeadFlowDtoMapperSpec extends Specification {
     def "map should convert Page<LeadFlow> into ActiveLeadFlowListDto"() {
         given:
         def leadFlow1 = new LeadFlow(id: 1L, name: "Lead Flow A",
-                leadFlowOrder: new LeadFlowOrder(ordinal: 1, status: Status.ACTIVE),
+                leadFlowOrder: new LeadFlowOrder(ordinal: 1, status: LeadFlowStatus.ACTIVE),
                 icon: "icon-a.png")
         def leadFlow2 = new LeadFlow(id: 2L, name: "Lead Flow B",
-                leadFlowOrder: new LeadFlowOrder(ordinal: 2, status: Status.ACTIVE),
+                leadFlowOrder: new LeadFlowOrder(ordinal: 2, status: LeadFlowStatus.ACTIVE),
                 icon: "icon-b.png")
 
         def pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.asc("leadFlowOrder.ordinal")))

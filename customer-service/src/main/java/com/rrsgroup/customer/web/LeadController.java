@@ -1,0 +1,103 @@
+package com.rrsgroup.customer.web;
+
+import com.rrsgroup.common.exception.IllegalRequestException;
+import com.rrsgroup.common.exception.IllegalUpdateException;
+import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.customer.domain.LeadFlowStatus;
+import com.rrsgroup.customer.dto.LeadFlowDto;
+import com.rrsgroup.customer.dto.LeadFlowQuestionDto;
+import com.rrsgroup.customer.dto.lead.LeadAnswerDto;
+import com.rrsgroup.customer.dto.lead.LeadDto;
+import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.lead.Lead;
+import com.rrsgroup.customer.service.CustomerService;
+import com.rrsgroup.customer.service.LeadFlowService;
+import com.rrsgroup.customer.service.LeadService;
+import com.rrsgroup.customer.service.lead.LeadDtoMapper;
+import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@RestController
+@Log4j2
+public class LeadController {
+    private final LeadFlowService leadFlowService;
+    private final CustomerService customerService;
+    private final LeadDtoMapper leadDtoMapper;
+    private final LeadService leadService;
+
+    @Autowired
+    public LeadController(
+            LeadFlowService leadFlowService,
+            CustomerService customerService,
+            LeadDtoMapper leadDtoMapper,
+            LeadService leadService) {
+        this.leadFlowService = leadFlowService;
+        this.customerService = customerService;
+        this.leadDtoMapper = leadDtoMapper;
+        this.leadService = leadService;
+    }
+
+    @PostMapping("/api/public/customers/{customerId}/leads")
+    public LeadDto createLead(@PathVariable("customerId") Long customerId, @Valid @RequestBody LeadDto request) {
+        // Get lead flow for company; validate it exists and it is active
+        LeadFlowDto leadFlow = leadFlowService.getLeadFlow(request.leadFlowId(), request.companyId());
+
+        if(leadFlow.status() != LeadFlowStatus.ACTIVE) {
+            throw new IllegalUpdateException("Cannot create lead against an inactive lead flow");
+        }
+
+        // Get customer for company; validate customer exists
+        Optional<Customer> customerOptional = customerService.getCustomerById(customerId, request.companyId());
+
+        if(customerOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer does not exist by customerId=" + customerId + ", companyId=" + request.companyId());
+        }
+
+        // Validate answers for questionIds related to lead flow
+        Map<Long, LeadFlowQuestionDto> questionDtoMap =  leadFlow.questions().stream().collect(Collectors.toMap(LeadFlowQuestionDto::id, Function.identity()));
+        List<Long> invalidIds = request.answers().stream()
+                .map(LeadAnswerDto::getLeadFlowQuestionId)
+                .filter(id -> !questionDtoMap.containsKey(id))
+                .toList();
+
+        if(!invalidIds.isEmpty()) {
+            throw new IllegalRequestException("The following leadFlowQuestionIds in the answers do not have a matching question in the lead flow: " + invalidIds);
+        }
+
+        // Validate answers for questionIds are in the correct format
+        List<String> invalidTypeMessages = request.answers().stream().filter(answer -> {
+            LeadFlowQuestionDto question = questionDtoMap.get(answer.getLeadFlowQuestionId());
+            return !answer.getDataType().equals(question.dataType());
+        }).map(invalidTypeAnswer -> {
+            LeadFlowQuestionDto question = questionDtoMap.get(invalidTypeAnswer.getLeadFlowQuestionId());
+            return "Answer for leadFlowQuestionId=" + invalidTypeAnswer.getLeadFlowQuestionId() + " sent dataType=" + invalidTypeAnswer.getDataType() + ", but lead flow expected dataType=" + question.dataType();
+        }).toList();
+
+        if(!invalidTypeMessages.isEmpty()) {
+            throw new IllegalRequestException("The following answers were of the wrong type: " + invalidTypeMessages);
+        }
+
+        // Validate answers for all required questions exist in request
+        Map<Long, LeadAnswerDto> leadAnswerDtoToQuestionIdMap = request.answers().stream().collect(Collectors.toMap(LeadAnswerDto::getLeadFlowQuestionId, Function.identity()));
+        List<Long> missingRequiredQuestions = leadFlow.questions().stream().filter(LeadFlowQuestionDto::isRequired).map(LeadFlowQuestionDto::id).filter(requiredId -> !leadAnswerDtoToQuestionIdMap.containsKey(requiredId)).toList();
+
+        if(!missingRequiredQuestions.isEmpty()) {
+            throw new IllegalRequestException("The following leadFlowQuestionIds are required but not provided: " + invalidIds);
+        }
+
+        // Save lead
+        Lead lead = leadDtoMapper.map(request, customerOptional.get());
+        return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+    }
+}

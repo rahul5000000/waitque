@@ -5,7 +5,7 @@ import com.rrsgroup.common.dto.AdminUserDto
 import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
-import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.domain.LeadFlowStatus
 import com.rrsgroup.company.entity.LeadFlow
 import com.rrsgroup.company.service.ActiveLeadFlowDtoMapper
 import com.rrsgroup.company.service.LeadFlowDtoMapper
@@ -193,7 +193,7 @@ class LeadFlowControllerSpec extends Specification {
         leadFlowController.publicGetListOfLeadFlows(companyId, limit, page, sortField, sortDir)
 
         then:
-        1 * leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(Status.ACTIVE), limit, page, sortField, sortDir) >> mockPage
+        1 * leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(LeadFlowStatus.ACTIVE), limit, page, sortField, sortDir) >> mockPage
     }
 
     def "publicGetLeadFlow throws RecordNotFoundException if lead flow is not found"() {

@@ -1,7 +1,7 @@
 package com.rrsgroup.company.util
 
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
-import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.domain.LeadFlowStatus
 import com.rrsgroup.company.dto.LeadFlowDto
 import com.rrsgroup.company.dto.LeadFlowQuestionDto
 import com.rrsgroup.company.entity.Company
@@ -16,7 +16,7 @@ class LeadFlowMockGenerator extends Specification {
     }
 
     LeadFlowDto getLeadFlowDtoMock(Long id, Long companyId, Long predecessorId) {
-        def status = Status.INACTIVE
+        def status = LeadFlowStatus.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
         def buttonText = "Schedule"
@@ -48,7 +48,7 @@ class LeadFlowMockGenerator extends Specification {
     LeadFlow getLeadFlowMock(Long id, Long companyId) {
         def company = Mock(Company)
         company.getId() >> companyId
-        def status = Status.INACTIVE
+        def status = LeadFlowStatus.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
         def buttonText = "Schedule"

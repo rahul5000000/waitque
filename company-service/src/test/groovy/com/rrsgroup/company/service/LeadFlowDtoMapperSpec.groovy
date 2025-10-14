@@ -1,7 +1,7 @@
 package com.rrsgroup.company.service
 
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
-import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.domain.LeadFlowStatus
 import com.rrsgroup.company.dto.LeadFlowDto
 import com.rrsgroup.company.dto.LeadFlowQuestionDto
 import com.rrsgroup.company.entity.Company
@@ -19,7 +19,7 @@ class LeadFlowDtoMapperSpec extends Specification {
         def companyId = 2L
         def company = Mock(Company)
         company.getId() >> companyId
-        def status = Status.INACTIVE
+        def status = LeadFlowStatus.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
         def buttonText = "Schedule"
@@ -75,7 +75,7 @@ class LeadFlowDtoMapperSpec extends Specification {
         given:
         def id = 1L
         def companyId = 2L
-        def status = Status.INACTIVE
+        def status = LeadFlowStatus.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
         def buttonText = "Schedule"

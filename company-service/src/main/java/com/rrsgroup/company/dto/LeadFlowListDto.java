@@ -2,7 +2,7 @@ package com.rrsgroup.company.dto;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.PaginatedDto;
-import com.rrsgroup.company.domain.Status;
+import com.rrsgroup.company.domain.LeadFlowStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -22,7 +22,7 @@ public class LeadFlowListDto extends PaginatedDto {
     public static class LeadFlowListItem {
         private Long id;
         private String name;
-        private Status status;
+        private LeadFlowStatus status;
         private Integer ordinal;
     }
 }
