@@ -12,7 +12,7 @@ import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.LeadFlowService;
-import com.rrsgroup.customer.service.LeadService;
+import com.rrsgroup.customer.service.lead.LeadService;
 import com.rrsgroup.customer.service.lead.LeadDtoMapper;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;

@@ -1,45 +1,42 @@
-package com.rrsgroup.customer.entity.lead;
+package com.rrsgroup.customer.entity.message;
 
 import com.rrsgroup.common.entity.Address;
 import com.rrsgroup.common.entity.PhoneNumber;
-import com.rrsgroup.customer.domain.lead.LeadStatus;
+import com.rrsgroup.customer.domain.message.MessageStatus;
 import com.rrsgroup.customer.entity.Customer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "lead", schema = "customer")
+@Table(name = "message", schema = "customer")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Lead {
+public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
 
     @NotNull
-    private Long leadFlowId;
-    @NotNull
     @Enumerated(EnumType.STRING)
-    private LeadStatus status;
+    private MessageStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
 
-    @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<LeadAnswer> answers = new ArrayList<>();
-
+    @NotBlank
+    @Size(max = 2048)
+    private String message;
     private String overrideFirstName;
     private String overrideLastName;
 

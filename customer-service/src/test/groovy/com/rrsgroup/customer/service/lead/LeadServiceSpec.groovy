@@ -1,12 +1,10 @@
-package com.rrsgroup.customer.service
+package com.rrsgroup.customer.service.lead
 
 import com.rrsgroup.customer.domain.lead.LeadStatus
 import com.rrsgroup.customer.entity.lead.Lead
 import com.rrsgroup.customer.entity.lead.LeadAnswer
 import com.rrsgroup.customer.repository.LeadRepository
 import spock.lang.Specification
-
-import java.time.LocalDateTime
 
 class LeadServiceSpec extends Specification {
 
