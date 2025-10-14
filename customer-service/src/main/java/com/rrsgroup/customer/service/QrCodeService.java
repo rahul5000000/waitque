@@ -73,4 +73,8 @@ public class QrCodeService {
 
         return qrCode;
     }
+
+    public Optional<QrCode> getAssociatedQrCode(UUID qrCode) {
+        return qrCodeRepository.findByQrCodeAndCustomerIsNotNull(qrCode);
+    }
 }

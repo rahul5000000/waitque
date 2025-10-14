@@ -1,4 +1,4 @@
-package com.rrsgroup.customer.service;
+package com.rrsgroup.customer.service.lead;
 
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.entity.lead.Lead;

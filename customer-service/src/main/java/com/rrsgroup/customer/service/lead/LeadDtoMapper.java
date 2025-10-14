@@ -72,7 +72,7 @@ public class LeadDtoMapper {
     public LeadDto map(Lead lead) {
         AddressDto addressDto = lead.getOverrideAddress() == null ? null : commonDtoMapper.map(lead.getOverrideAddress());
         PhoneNumberDto phoneNumberDto = lead.getOverridePhoneNumber() == null ? null : commonDtoMapper.map(lead.getOverridePhoneNumber());
-        return new LeadDto(lead.getId(), lead.getCustomer().getCrmConfig().getCompanyId(), lead.getLeadFlowId(),
+        return new LeadDto(lead.getId(), lead.getLeadFlowId(),
                 lead.getStatus(), lead.getOverrideFirstName(), lead.getOverrideLastName(), addressDto, phoneNumberDto,
                 lead.getOverrideEmail(), lead.getAnswers().stream().map(this::map).toList(), null,
                 lead.getCreatedDate(), lead.getUpdatedDate(), lead.getCreatedBy(), lead.getUpdatedBy());

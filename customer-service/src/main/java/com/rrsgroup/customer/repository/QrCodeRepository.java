@@ -12,4 +12,5 @@ public interface QrCodeRepository extends JpaRepository<QrCode, Long> {
     List<QrCode> findAllByCustomerIn(List<Customer> customers);
     Optional<QrCode> findByCustomer(Customer customer);
     Optional<QrCode> findByQrCodeAndCompanyId(UUID qrCode, Long companyId);
+    Optional<QrCode> findByQrCodeAndCustomerIsNotNull(UUID qrCode);
 }
