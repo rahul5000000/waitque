@@ -2,10 +2,8 @@ package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.dto.message.MessageDto;
-import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.entity.message.Message;
-import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.QrCodeService;
 import com.rrsgroup.customer.service.message.MessageDtoMapper;
 import com.rrsgroup.customer.service.message.MessageService;
@@ -20,18 +18,15 @@ import java.util.UUID;
 
 @RestController
 public class MessageController {
-    private final CustomerService customerService;
     private final MessageDtoMapper messageDtoMapper;
     private final MessageService messageService;
     private final QrCodeService qrCodeService;
 
     @Autowired
     public MessageController(
-            CustomerService customerService,
             MessageDtoMapper messageDtoMapper,
             MessageService messageService,
             QrCodeService qrCodeService) {
-        this.customerService = customerService;
         this.messageDtoMapper = messageDtoMapper;
         this.messageService = messageService;
         this.qrCodeService = qrCodeService;

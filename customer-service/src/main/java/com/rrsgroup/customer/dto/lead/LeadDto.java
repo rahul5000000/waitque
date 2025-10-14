@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record LeadDto(Long id, Long companyId, Long leadFlowId, LeadStatus status, String overrideFirstName,
+public record LeadDto(Long id, Long leadFlowId, LeadStatus status, String overrideFirstName,
                       String overrideLastName, AddressDto overrideAddress, PhoneNumberDto overridePhoneNumber,
                       String overrideEmail, @Valid List<LeadAnswerDto> answers, List<LeadStatusHistoryDto> statusHistory,
                       LocalDateTime createdDate, LocalDateTime updatedDate, String createdBy, String updatedBy) {
