@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface LeadRepository extends JpaRepository<Lead, Long> {
     @Query("SELECT l FROM Lead l JOIN l.customer cust JOIN cust.crmConfig crmc WHERE crmc.companyId = :companyId")
@@ -16,4 +17,6 @@ public interface LeadRepository extends JpaRepository<Lead, Long> {
 
     @Query("SELECT l FROM Lead l JOIN l.customer cust JOIN cust.crmConfig crmc WHERE crmc.companyId = :companyId AND l.status IN (:statuses)")
     Page<Lead> findByCompanyIdAndStatusIn(@Param("companyId") Long companyId, @Param("statuses") Collection<LeadStatus> statuses, Pageable pageable);
+
+    Optional<Lead> findByIdAndCustomer_CrmConfig_CompanyId(Long id, Long companyId);
 }

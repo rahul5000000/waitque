@@ -131,4 +131,15 @@ public class LeadController {
 
         return leadDtoMapper.map(pageOfLeads);
     }
+
+    @GetMapping("/api/admin/leads/{leadId}")
+    public LeadDto getLead(@AuthenticationPrincipal AdminUserDto user, @PathVariable("leadId") Long leadId) {
+        Optional<Lead> leadOptional = leadService.getLeadById(leadId, user);
+
+        if(leadOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead not found by leadId=" + leadId);
+        }
+
+        return leadDtoMapper.map(leadOptional.get());
+    }
 }

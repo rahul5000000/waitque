@@ -87,12 +87,27 @@ public class LeadDtoMapper {
     }
 
     public LeadDto map(Lead lead) {
+        Optional<CrmCustomer> crmCustomerOptional = customerCrmIntegrationService.getCrmCustomer(lead.getCustomer().getCrmCustomerId(), lead.getCustomer().getCrmConfig());
+
+        if(crmCustomerOptional.isEmpty()) {
+            log.error("Did not find matching crmCustomer for customerId={}, crmCustomerId={}", lead.getCustomer().getId(), lead.getCustomer().getCrmCustomerId());
+        }
+
+        Optional<LeadFlowDto> leadFlowOptional = leadFlowService.getLeadFlow(lead.getLeadFlowId(), lead.getCustomer().getCrmConfig().getCompanyId());
+
+        if(leadFlowOptional.isEmpty()) {
+            log.error("Did not find matching leadFlow for leadFlowId={}", lead.getLeadFlowId());
+        }
+
+        CrmCustomer crmCustomer = crmCustomerOptional.get();
+        LeadFlowDto leadFlow = leadFlowOptional.get();
+
         AddressDto addressDto = lead.getOverrideAddress() == null ? null : commonDtoMapper.map(lead.getOverrideAddress());
         PhoneNumberDto phoneNumberDto = lead.getOverridePhoneNumber() == null ? null : commonDtoMapper.map(lead.getOverridePhoneNumber());
         return new LeadDto(lead.getId(), lead.getLeadFlowId(),
                 lead.getStatus(), lead.getOverrideFirstName(), lead.getOverrideLastName(), addressDto, phoneNumberDto,
-                lead.getOverrideEmail(), lead.getAnswers().stream().map(this::map).toList(), null,
-                lead.getCreatedDate(), lead.getUpdatedDate(), lead.getCreatedBy(), lead.getUpdatedBy());
+                lead.getOverrideEmail(), lead.getAnswers().stream().map(this::map).toList(), crmCustomer, leadFlow,
+                null, lead.getCreatedDate(), lead.getUpdatedDate(), lead.getCreatedBy(), lead.getUpdatedBy());
     }
 
     public LeadListDto map(Page<Lead> pageOfLeads) {
