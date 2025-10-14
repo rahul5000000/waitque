@@ -6,6 +6,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/rrs-waitque
+      client:
+        registration:
+          customer-service:
+            client-id: customer-service
+            client-secret: ${CUSTOMER_SERVICE_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            token-uri: http://localhost:8080/realms/rrs-waitque/protocol/openid-connect/token
   datasource:
     url: jdbc:postgresql://localhost:5432/waitque
     username: waitque_api
@@ -30,6 +40,9 @@ spring:
   config:
     activate:
       on-profile: dev
+microservices:
+  company-service:
+    base-url: http://localhost:8082
 ---
 spring:
   config:
@@ -53,6 +66,17 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak:8080/realms/rrs-waitque
+      client:
+        registration:
+          company-service:
+            client-id: customer-service
+            client-secret: ${CUSTOMER_SERVICE_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/rrs-waitque/protocol/openid-connect/token
 
-self:
-  base-url: http://customer-service:8080
+microservices:
+  company-service:
+    base-url: http://company-service:8082

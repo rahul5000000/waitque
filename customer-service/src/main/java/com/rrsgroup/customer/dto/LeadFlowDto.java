@@ -1,6 +1,6 @@
-package com.rrsgroup.company.dto;
+package com.rrsgroup.customer.dto;
 
-import com.rrsgroup.company.domain.LeadFlowStatus;
+import com.rrsgroup.customer.domain.LeadFlowStatus;
 
 import java.util.List;
 

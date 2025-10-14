@@ -49,4 +49,8 @@ public class CustomerService {
     public Optional<Customer> getCustomerById(Long customerId, CompanyUserDto userDto) {
         return customerRepository.findByIdAndCrmConfig_CompanyId(customerId, userDto.getCompanyId());
     }
+
+    public Optional<Customer> getCustomerById(Long customerId, Long companyId) {
+        return customerRepository.findByIdAndCrmConfig_CompanyId(customerId, companyId);
+    }
 }

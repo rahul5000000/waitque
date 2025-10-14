@@ -5,7 +5,7 @@ import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
-import com.rrsgroup.company.domain.Status;
+import com.rrsgroup.company.domain.LeadFlowStatus;
 import com.rrsgroup.company.dto.ActiveLeadFlowListDto;
 import com.rrsgroup.company.dto.LeadFlowDto;
 import com.rrsgroup.company.dto.LeadFlowListDto;
@@ -15,10 +15,8 @@ import com.rrsgroup.company.service.LeadFlowDtoMapper;
 import com.rrsgroup.company.service.LeadFlowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class LeadFlowController {
     @GetMapping("/api/admin/flows")
     public LeadFlowListDto getListOfLeadFlows(
             @AuthenticationPrincipal AdminUserDto user,
-            @RequestParam(name = "status", required = false) List<Status> statuses,
+            @RequestParam(name = "status", required = false) List<LeadFlowStatus> statuses,
             @RequestParam(name = "limit") Integer limit,
             @RequestParam(name = "page") Integer page,
             @RequestParam(name = "sortField", required = false, defaultValue = "ordinal") String sortField,
@@ -109,11 +107,11 @@ public class LeadFlowController {
             @RequestParam(name = "page") Integer page,
             @RequestParam(name = "sortField", required = false, defaultValue = "ordinal") String sortField,
             @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") SortDirection sortDir) {
-        Page<LeadFlow> pageOfLeadFlows = leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(Status.ACTIVE), limit, page, sortField, sortDir);
+        Page<LeadFlow> pageOfLeadFlows = leadFlowService.getCompanyListOfLeadFlows(companyId, List.of(LeadFlowStatus.ACTIVE), limit, page, sortField, sortDir);
         return activeLeadFlowDtoMapper.map(pageOfLeadFlows);
     }
 
-    @GetMapping("/api/public/companies/{companyId}/flows/{leadFlowId}")
+    @GetMapping({"/api/public/companies/{companyId}/flows/{leadFlowId}", "/api/system/companies/{companyId}/flows/{leadFlowId}"})
     public LeadFlowDto publicGetLeadFlow(@PathVariable(name = "companyId") Long companyId, @PathVariable(name = "leadFlowId") Long leadFlowId) {
         LeadFlow leadFlow = leadFlowService.getLeadFlow(leadFlowId, companyId);
 

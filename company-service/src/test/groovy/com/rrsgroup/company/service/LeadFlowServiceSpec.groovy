@@ -4,7 +4,7 @@ import com.rrsgroup.common.dto.UserDto
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
-import com.rrsgroup.company.domain.Status
+import com.rrsgroup.company.domain.LeadFlowStatus
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.entity.LeadFlow
 import com.rrsgroup.company.entity.LeadFlowOrder
@@ -55,7 +55,7 @@ class LeadFlowServiceSpec extends Specification {
         def companyId = 2L
         def company = Mock(Company)
         company.getId() >> companyId
-        def status = Status.INACTIVE
+        def status = LeadFlowStatus.INACTIVE
         def name = "name"
         def iconUrl = "test.jpg"
         def buttonText = "Schedule"
@@ -233,7 +233,7 @@ class LeadFlowServiceSpec extends Specification {
         }
         def existingLeadFlow = new LeadFlow(
                 id: leadFlowId,
-                leadFlowOrder: new LeadFlowOrder(status: Status.ACTIVE)
+                leadFlowOrder: new LeadFlowOrder(status: LeadFlowStatus.ACTIVE)
         )
 
         when:
@@ -242,13 +242,13 @@ class LeadFlowServiceSpec extends Specification {
         then:
         1 * leadFlowRepository.findByIdAndCompanyId(leadFlowId, companyId) >> existingLeadFlow
         1 * leadFlowRepository.saveAndFlush(_ as LeadFlow) >> { LeadFlow lf ->
-            assert lf.leadFlowOrder.status == Status.INACTIVE
+            assert lf.leadFlowOrder.status == LeadFlowStatus.INACTIVE
             assert lf.updatedBy == user.userId
             assert lf.updatedDate != null
             return lf
         }
 
-        result.leadFlowOrder.status == Status.INACTIVE
+        result.leadFlowOrder.status == LeadFlowStatus.INACTIVE
         result.updatedBy == user.userId
         result.updatedDate instanceof LocalDateTime
     }

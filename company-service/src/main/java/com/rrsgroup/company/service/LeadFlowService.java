@@ -4,7 +4,7 @@ import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
-import com.rrsgroup.company.domain.Status;
+import com.rrsgroup.company.domain.LeadFlowStatus;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.entity.LeadFlow;
 import com.rrsgroup.company.repository.LeadFlowRepository;
@@ -99,7 +99,7 @@ public class LeadFlowService {
         return companyOptional.get();
     }
 
-    public Page<LeadFlow> getCompanyListOfLeadFlows(Long companyId, List<Status> statuses, int limit, int page, String sortField, SortDirection sortDir) {
+    public Page<LeadFlow> getCompanyListOfLeadFlows(Long companyId, List<LeadFlowStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {
         String namespacedSortField = namespaceSortField(sortField);
 
         Pageable pageable = PageRequest.of(
@@ -142,7 +142,7 @@ public class LeadFlowService {
         String updatedByUserId = updatedBy.getUserId();
 
         // Update existing lead flow to mark it inactive
-        existingLeadFlow.getLeadFlowOrder().setStatus(Status.INACTIVE);
+        existingLeadFlow.getLeadFlowOrder().setStatus(LeadFlowStatus.INACTIVE);
         existingLeadFlow.setUpdatedBy(updatedByUserId);
         existingLeadFlow.setUpdatedDate(updatedDate);
         leadFlowRepository.saveAndFlush(existingLeadFlow);
@@ -166,7 +166,7 @@ public class LeadFlowService {
         LocalDateTime updatedDate = LocalDateTime.now();
         String updatedByUserId = updatedBy.getUserId();
 
-        existingLeadFlow.getLeadFlowOrder().setStatus(Status.INACTIVE);
+        existingLeadFlow.getLeadFlowOrder().setStatus(LeadFlowStatus.INACTIVE);
         existingLeadFlow.setUpdatedBy(updatedByUserId);
         existingLeadFlow.setUpdatedDate(updatedDate);
         return leadFlowRepository.saveAndFlush(existingLeadFlow);

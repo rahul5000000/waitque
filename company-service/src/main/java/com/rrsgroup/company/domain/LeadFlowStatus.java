@@ -1,6 +1,6 @@
 package com.rrsgroup.company.domain;
 
-public enum Status {
+public enum LeadFlowStatus {
     ACTIVE,
     INACTIVE
 }
