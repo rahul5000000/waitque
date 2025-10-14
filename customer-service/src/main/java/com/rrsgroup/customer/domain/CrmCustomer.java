@@ -11,4 +11,5 @@ public class CrmCustomer {
     private String lastName;
     private CrmAddress address;
     private CrmPhoneNumber phoneNumber;
+    private String email;
 }

@@ -1,13 +1,17 @@
 package com.rrsgroup.customer.web;
 
+import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.LeadFlowStatus;
+import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.dto.LeadFlowDto;
 import com.rrsgroup.customer.dto.LeadFlowQuestionDto;
 import com.rrsgroup.customer.dto.lead.LeadAnswerDto;
 import com.rrsgroup.customer.dto.lead.LeadDto;
+import com.rrsgroup.customer.dto.lead.LeadListDto;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.entity.lead.Lead;
@@ -19,10 +23,9 @@ import com.rrsgroup.customer.service.lead.LeadDtoMapper;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +69,13 @@ public class LeadController {
         Customer customer = qrCodeOptional.get().getCustomer();
 
         // Get lead flow for company; validate it exists and it is active
-        LeadFlowDto leadFlow = leadFlowService.getLeadFlow(request.leadFlowId(), customer.getCrmConfig().getCompanyId());
+        Optional<LeadFlowDto> leadFlowOptional = leadFlowService.getLeadFlow(request.leadFlowId(), customer.getCrmConfig().getCompanyId());
+
+        if(leadFlowOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead flow does not exist by leadFlowId=" + request.leadFlowId() + ", companyId=" + customer.getCrmConfig().getCompanyId());
+        }
+
+        LeadFlowDto leadFlow = leadFlowOptional.get();
 
         if(leadFlow.status() != LeadFlowStatus.ACTIVE) {
             throw new IllegalUpdateException("Cannot create lead against an inactive lead flow");
@@ -107,5 +116,19 @@ public class LeadController {
         // Save lead
         Lead lead = leadDtoMapper.map(request, customer);
         return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+    }
+
+    @GetMapping("/api/admin/leads")
+    public LeadListDto getListOfLeads(
+            @AuthenticationPrincipal AdminUserDto user,
+            @RequestParam(name = "status", required = false) List<LeadStatus> statuses,
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "id") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "DESC") SortDirection sortDir) {
+        Long companyId = user.getCompanyId();
+        Page<Lead> pageOfLeads = leadService.getCompanyListOfLeads(companyId, statuses, limit, page, sortField, sortDir);
+
+        return leadDtoMapper.map(pageOfLeads);
     }
 }

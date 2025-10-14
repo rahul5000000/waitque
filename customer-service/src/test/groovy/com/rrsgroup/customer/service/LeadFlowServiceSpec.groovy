@@ -38,16 +38,16 @@ class LeadFlowServiceSpec extends Specification {
             block() >> expected
         }
 
-        result == expected
+        result.get() == expected
     }
 
-    def "should throw RecordNotFoundException when 404 returned"() {
+    def "should return an empty Optional when 404 returned"() {
         given:
         Long leadFlowId = 1L
         Long companyId = 5L
 
         when:
-        service.getLeadFlow(leadFlowId, companyId)
+        def result = service.getLeadFlow(leadFlowId, companyId)
 
         then:
         1 * webClient.get() >> requestHeadersUriSpec
@@ -57,7 +57,6 @@ class LeadFlowServiceSpec extends Specification {
             throw new WebClientResponseException.NotFound("not found", null, null, null, null)
         }
 
-        def ex = thrown(RecordNotFoundException)
-        ex.message == "Lead flow does not exist by leadFlowId=1, companyId=5"
+        result.isEmpty() == true
     }
 }
