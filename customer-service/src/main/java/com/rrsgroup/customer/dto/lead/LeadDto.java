@@ -13,6 +13,6 @@ import java.util.List;
 public record LeadDto(Long id, Long leadFlowId, LeadStatus status, String overrideFirstName,
                       String overrideLastName, AddressDto overrideAddress, PhoneNumberDto overridePhoneNumber,
                       String overrideEmail, @Valid List<LeadAnswerDto> answers, CrmCustomer crmCustomer,
-                      LeadFlowDto leadFlowDto, List<LeadStatusHistoryDto> statusHistory,
+                      LeadFlowDto leadFlow, List<LeadStatusHistoryDto> statusHistory,
                       LocalDateTime createdDate, LocalDateTime updatedDate, String createdBy, String updatedBy) {
 }

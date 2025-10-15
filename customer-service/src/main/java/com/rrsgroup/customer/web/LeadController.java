@@ -59,28 +59,28 @@ public class LeadController {
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
     public LeadDto createLead(@PathVariable("qrCode") UUID qrCode, @Valid @RequestBody LeadDto request) {
-        // Get customer by QR code; validate customer exists
-        Optional<QrCode> qrCodeOptional = qrCodeService.getAssociatedQrCode(qrCode);
+        Customer customer = getCustomerFromQrCode(qrCode);
+        LeadFlowDto leadFlow = getActiveLeadFlow(request.leadFlowId(), customer.getCrmConfig().getCompanyId());
 
-        if(qrCodeOptional.isEmpty()) {
-            throw new RecordNotFoundException("Customer does not exist with qrCode=" + qrCode);
+        validateAnswersMatchQuestions(request, leadFlow);
+        validateRequiredQuestionsAreAnswered(request, leadFlow);
+
+        // Save lead
+        Lead lead = leadDtoMapper.map(request, customer);
+        return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+    }
+
+    private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
+        // Validate answers for all required questions exist in request
+        Map<Long, LeadAnswerDto> leadAnswerDtoToQuestionIdMap = request.answers().stream().collect(Collectors.toMap(LeadAnswerDto::getLeadFlowQuestionId, Function.identity()));
+        List<Long> missingRequiredQuestions = leadFlow.questions().stream().filter(LeadFlowQuestionDto::isRequired).map(LeadFlowQuestionDto::id).filter(requiredId -> !leadAnswerDtoToQuestionIdMap.containsKey(requiredId)).toList();
+
+        if(!missingRequiredQuestions.isEmpty()) {
+            throw new IllegalRequestException("The following leadFlowQuestionIds are required but not provided: " + missingRequiredQuestions);
         }
+    }
 
-        Customer customer = qrCodeOptional.get().getCustomer();
-
-        // Get lead flow for company; validate it exists and it is active
-        Optional<LeadFlowDto> leadFlowOptional = leadFlowService.getLeadFlow(request.leadFlowId(), customer.getCrmConfig().getCompanyId());
-
-        if(leadFlowOptional.isEmpty()) {
-            throw new RecordNotFoundException("Lead flow does not exist by leadFlowId=" + request.leadFlowId() + ", companyId=" + customer.getCrmConfig().getCompanyId());
-        }
-
-        LeadFlowDto leadFlow = leadFlowOptional.get();
-
-        if(leadFlow.status() != LeadFlowStatus.ACTIVE) {
-            throw new IllegalUpdateException("Cannot create lead against an inactive lead flow");
-        }
-
+    private void validateAnswersMatchQuestions(LeadDto request, LeadFlowDto leadFlow) {
         // Validate answers for questionIds related to lead flow
         Map<Long, LeadFlowQuestionDto> questionDtoMap =  leadFlow.questions().stream().collect(Collectors.toMap(LeadFlowQuestionDto::id, Function.identity()));
         List<Long> invalidIds = request.answers().stream()
@@ -104,18 +104,33 @@ public class LeadController {
         if(!invalidTypeMessages.isEmpty()) {
             throw new IllegalRequestException("The following answers were of the wrong type: " + invalidTypeMessages);
         }
+    }
 
-        // Validate answers for all required questions exist in request
-        Map<Long, LeadAnswerDto> leadAnswerDtoToQuestionIdMap = request.answers().stream().collect(Collectors.toMap(LeadAnswerDto::getLeadFlowQuestionId, Function.identity()));
-        List<Long> missingRequiredQuestions = leadFlow.questions().stream().filter(LeadFlowQuestionDto::isRequired).map(LeadFlowQuestionDto::id).filter(requiredId -> !leadAnswerDtoToQuestionIdMap.containsKey(requiredId)).toList();
+    private LeadFlowDto getActiveLeadFlow(Long leadFlowId, Long companyId) {
+        // Get lead flow for company; validate it exists and it is active
+        Optional<LeadFlowDto> leadFlowOptional = leadFlowService.getLeadFlow(leadFlowId, companyId);
 
-        if(!missingRequiredQuestions.isEmpty()) {
-            throw new IllegalRequestException("The following leadFlowQuestionIds are required but not provided: " + invalidIds);
+        if(leadFlowOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead flow does not exist by leadFlowId=" + leadFlowId + ", companyId=" + companyId);
         }
 
-        // Save lead
-        Lead lead = leadDtoMapper.map(request, customer);
-        return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+        LeadFlowDto leadFlow = leadFlowOptional.get();
+
+        if(leadFlow.status() != LeadFlowStatus.ACTIVE) {
+            throw new IllegalUpdateException("Cannot create lead against an inactive lead flow");
+        }
+        return leadFlow;
+    }
+
+    private Customer getCustomerFromQrCode(UUID qrCode) {
+        // Get customer by QR code; validate customer exists
+        Optional<QrCode> qrCodeOptional = qrCodeService.getAssociatedQrCode(qrCode);
+
+        if(qrCodeOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer does not exist with qrCode=" + qrCode);
+        }
+
+        return qrCodeOptional.get().getCustomer();
     }
 
     @GetMapping("/api/admin/leads")
