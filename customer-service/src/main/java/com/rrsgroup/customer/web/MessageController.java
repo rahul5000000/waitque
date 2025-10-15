@@ -4,6 +4,7 @@ import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.message.MessageStatus;
+import com.rrsgroup.customer.dto.lead.LeadDto;
 import com.rrsgroup.customer.dto.message.MessageDto;
 import com.rrsgroup.customer.dto.message.MessageListDto;
 import com.rrsgroup.customer.entity.QrCode;
@@ -61,5 +62,16 @@ public class MessageController {
         Page<Message> pageOfMessages = messageService.getCompanyListOfMessages(companyId, statuses, limit, page, sortField, sortDir);
 
         return messageDtoMapper.map(pageOfMessages);
+    }
+
+    @GetMapping("/api/admin/messages/{messageId}")
+    public MessageDto getMessage(@AuthenticationPrincipal AdminUserDto user, @PathVariable("messageId") Long messageId) {
+        Optional<Message> messageOptional = messageService.getMessageById(messageId, user);
+
+        if(messageOptional.isEmpty()) {
+            throw new RecordNotFoundException("Message not found by messageId=" + messageId);
+        }
+
+        return messageDtoMapper.map(messageOptional.get());
     }
 }

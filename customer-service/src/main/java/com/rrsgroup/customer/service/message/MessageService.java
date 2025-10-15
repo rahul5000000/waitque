@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.service.message;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.domain.message.MessageStatus;
 import com.rrsgroup.customer.entity.lead.Lead;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MessageService {
@@ -49,5 +51,9 @@ public class MessageService {
         } else {
             return messageRepository.findByCompanyIdAndStatusIn(companyId, statuses, pageable);
         }
+    }
+
+    public Optional<Message> getMessageById(Long id, CompanyUserDto userDto) {
+        return messageRepository.findByIdAndCustomer_CrmConfig_CompanyId(id, userDto.getCompanyId());
     }
 }
