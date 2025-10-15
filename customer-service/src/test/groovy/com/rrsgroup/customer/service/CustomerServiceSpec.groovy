@@ -24,7 +24,7 @@ class CustomerServiceSpec extends Specification {
         def crmConfig = new CrmConfig(id: 100L)
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber)
+        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
         def companyUser = Mock(CompanyUserDto) {
             getUserId() >> "user-1"
         }
@@ -54,7 +54,7 @@ class CustomerServiceSpec extends Specification {
         def crmConfig = new CrmConfig(id: 10L)
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber)
+        def crmCustomer = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
         def expectedCustomer = new Customer(id: 99L, crmCustomerId: "crm-456")
 
         and:
@@ -73,8 +73,8 @@ class CustomerServiceSpec extends Specification {
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
         def crmCustomers = [
-                new CrmCustomer("crm-1", "A", "B", crmAddress, crmPhoneNumber),
-                new CrmCustomer("crm-2", "C", "D", crmAddress, crmPhoneNumber)
+                new CrmCustomer("crm-1", "A", "B", crmAddress, crmPhoneNumber, "a.b@test.com"),
+                new CrmCustomer("crm-2", "C", "D", crmAddress, crmPhoneNumber, "c.d@test.com")
         ]
         def expectedCustomers = [
                 new Customer(id: 1L, crmCustomerId: "crm-1"),

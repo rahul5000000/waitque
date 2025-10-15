@@ -106,4 +106,9 @@ public class CustomerCrmIntegrationService {
 
         return crmService;
     }
+
+    public Optional<CrmCustomer> getCrmCustomer(String crmCustomerId, CrmConfig crmConfig) {
+        CrmService crmService = getCrmServiceForCrmConfig(crmConfig);
+        return crmService.getCustomerById(crmCustomerId);
+    }
 }

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.util.Optional;
+
 @Service
 public class LeadFlowService {
     private final WebClient webClient;
@@ -21,15 +23,16 @@ public class LeadFlowService {
         this.webClient = webClient;
     }
 
-    public LeadFlowDto getLeadFlow(Long leadFlowId, Long companyId) {
+    public Optional<LeadFlowDto> getLeadFlow(Long leadFlowId, Long companyId) {
         try {
-            return webClient.get()
+            return Optional.ofNullable(webClient.get()
                     .uri(companyServiceBaseUrl + "/api/system/companies/" + companyId + "/flows/" + leadFlowId)
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<LeadFlowDto>() {})
-                    .block();
+                    .bodyToMono(new ParameterizedTypeReference<LeadFlowDto>() {
+                    })
+                    .block());
         } catch (WebClientResponseException.NotFound e) {
-            throw new RecordNotFoundException("Lead flow does not exist by leadFlowId=" + leadFlowId + ", companyId=" + companyId);
+            return Optional.empty();
         }
     }
 }

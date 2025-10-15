@@ -1,12 +1,20 @@
 package com.rrsgroup.customer.service.lead;
 
+import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.repository.LeadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LeadService {
@@ -35,5 +43,22 @@ public class LeadService {
         });
 
         return leadRepository.save(lead);
+    }
+
+    public Page<Lead> getCompanyListOfLeads(Long companyId, List<LeadStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {
+        Pageable pageable = PageRequest.of(
+                page,
+                limit,
+                sortDir == SortDirection.ASC ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+
+        if(statuses == null || statuses.isEmpty()) {
+            return leadRepository.findByCompanyId(companyId, pageable);
+        } else {
+            return leadRepository.findByCompanyIdAndStatusIn(companyId, statuses, pageable);
+        }
+    }
+
+    public Optional<Lead> getLeadById(Long id, CompanyUserDto userDto) {
+        return leadRepository.findByIdAndCustomer_CrmConfig_CompanyId(id, userDto.getCompanyId());
     }
 }

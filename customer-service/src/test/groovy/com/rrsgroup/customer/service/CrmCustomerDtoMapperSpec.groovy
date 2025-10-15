@@ -15,8 +15,8 @@ class CrmCustomerDtoMapperSpec extends Specification {
         given:
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer1 = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber)
-        def crmCustomer2 = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber)
+        def crmCustomer1 = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer2 = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
 
         def customer1 = new Customer(id: 1L)
         def customer2 = new Customer(id: 2L)
