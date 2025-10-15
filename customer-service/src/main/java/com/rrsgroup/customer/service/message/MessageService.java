@@ -1,13 +1,20 @@
 package com.rrsgroup.customer.service.message;
 
+import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.domain.message.MessageStatus;
+import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.entity.message.Message;
 import com.rrsgroup.customer.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -29,5 +36,18 @@ public class MessageService {
         message.setUpdatedBy(createdBy);
 
         return messageRepository.save(message);
+    }
+
+    public Page<Message> getCompanyListOfMessages(Long companyId, List<MessageStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {
+        Pageable pageable = PageRequest.of(
+                page,
+                limit,
+                sortDir == SortDirection.ASC ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+
+        if(statuses == null || statuses.isEmpty()) {
+            return messageRepository.findByCompanyId(companyId, pageable);
+        } else {
+            return messageRepository.findByCompanyIdAndStatusIn(companyId, statuses, pageable);
+        }
     }
 }
