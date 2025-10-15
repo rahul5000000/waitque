@@ -2,9 +2,7 @@ package com.rrsgroup.customer.service.message;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.CompanyUserDto;
-import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.domain.message.MessageStatus;
-import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.entity.message.Message;
 import com.rrsgroup.customer.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,6 @@
 package com.rrsgroup.customer.repository;
 
 import com.rrsgroup.customer.domain.message.MessageStatus;
-import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.entity.message.Message;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
