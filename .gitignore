@@ -9,3 +9,4 @@
 /user-service/target/
 /customer-service/target/
 /.env
+/.env.test
