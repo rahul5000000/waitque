@@ -85,3 +85,27 @@ microservices:
     base-url: http://localhost:8082
   customer-service:
     base-url: http://customer-service:8080
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/waitque
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+      client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/rrs-waitque/protocol/openid-connect/token
+
+microservices:
+  self:
+    base-url: http://localhost:8082
+  customer-service:
+    base-url: http://customer-service:8083

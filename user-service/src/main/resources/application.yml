@@ -46,3 +46,20 @@ spring:
 
 self:
   base-url: http://user-service:8081
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/waitque
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+
+self:
+  base-url: http://user-service:8081

@@ -4,6 +4,8 @@ set -e
 # List of modules to build
 modules=("user-service" "company-service" "customer-service")
 
+cd "$(dirname "$0")/.."
+
 for module in "${modules[@]}"; do
     echo "Building Docker image for $module..."
 

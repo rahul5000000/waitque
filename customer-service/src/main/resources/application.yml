@@ -96,3 +96,25 @@ spring:
 microservices:
   company-service:
     base-url: http://company-service:8082
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/waitque
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+      client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/rrs-waitque/protocol/openid-connect/token
+
+microservices:
+  company-service:
+    base-url: http://company-service:8082

@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_PASSWORD: WvGpGcSc59RgzH
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -18,11 +18,47 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak?currentSchema=keycloak
       KC_DB_USERNAME: keycloak_user
-      KC_DB_PASSWORD: hGpHM3C8bdH3pz
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
     ports:
       - "8080:8080"
     depends_on:
       - postgres
+
+  user-service:
+    image: user-service:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
+    depends_on:
+      - postgres
+      - keycloak
+
+  company-service:
+    image: company-service:latest
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
+      - COMPANY_SERVICE_CLIENT_SECRET=${COMPANY_SERVICE_CLIENT_SECRET}
+    depends_on:
+      - postgres
+      - keycloak
+
+  customer-service:
+    image: customer-service:latest
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
+      - CUSTOMER_SERVICE_CLIENT_SECRET=${CUSTOMER_SERVICE_CLIENT_SECRET}
+    depends_on:
+      - postgres
+      - keycloak
 
 volumes:
   postgres_data:
