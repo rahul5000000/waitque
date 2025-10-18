@@ -6,6 +6,12 @@ modules=("user-service" "company-service" "customer-service")
 
 cd "$(dirname "$0")/.."
 
+echo "Compiling modules..."
+
+mvn clean package
+
+echo "Compiled modules!"
+
 for module in "${modules[@]}"; do
     echo "Building Docker image for $module..."
 

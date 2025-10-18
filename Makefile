@@ -65,6 +65,7 @@ clean:
 
 test:
 	@echo "$(GREEN)Running integration tests inside Docker network...$(RESET)"
-	$(DOCKER_COMPOSE) -p $(PROJECT_NAME) up --abort-on-container-exit --build test-runner
-	$(DOCKER_COMPOSE) -p $(PROJECT_NAME) down -v
+# 	$(DOCKER_COMPOSE) -p $(PROJECT_NAME) up --abort-on-container-exit --build test-runner
+	$(DOCKER_COMPOSE) -p $(PROJECT_NAME) up --build test-runner
+# 	$(DOCKER_COMPOSE) -p $(PROJECT_NAME) down -v
 	@echo "$(GREEN)✅ Tests completed and environment cleaned.$(RESET)"

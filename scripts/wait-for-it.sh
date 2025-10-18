@@ -4,7 +4,7 @@
 set -e
 
 HOSTPORT=$1
-TIMEOUT=${2:-30}
+TIMEOUT=$3
 HOST=$(echo $HOSTPORT | cut -d: -f1)
 PORT=$(echo $HOSTPORT | cut -d: -f2)
 
