@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
 
 class UserServiceIntegrationIT extends IntegrationTestSpec {
-    def userServiceBase = "http://localhost:8081"
+    def userServiceBase = "http://localhost:8084"
 
     def restTemplate = new RestTemplate()
 

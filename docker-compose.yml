@@ -28,7 +28,7 @@ services:
   user-service:
     image: user-service:latest
     ports:
-      - "8081:8081"
+      - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
