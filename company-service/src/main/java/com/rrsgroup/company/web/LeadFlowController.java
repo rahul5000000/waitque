@@ -100,7 +100,7 @@ public class LeadFlowController {
         return leadFlowDtoMapper.map(leadFlowService.inactivateLeadFlow(leadFlowId, companyId, user));
     }
 
-    @GetMapping("/api/public/companies/{companyId}/flows")
+    @GetMapping("/api/system/companies/{companyId}/flows")
     public ActiveLeadFlowListDto publicGetListOfLeadFlows(
             @PathVariable(name = "companyId") Long companyId,
             @RequestParam(name = "limit") Integer limit,
@@ -111,7 +111,7 @@ public class LeadFlowController {
         return activeLeadFlowDtoMapper.map(pageOfLeadFlows);
     }
 
-    @GetMapping({"/api/public/companies/{companyId}/flows/{leadFlowId}", "/api/system/companies/{companyId}/flows/{leadFlowId}"})
+    @GetMapping({"/api/system/companies/{companyId}/flows/{leadFlowId}"})
     public LeadFlowDto publicGetLeadFlow(@PathVariable(name = "companyId") Long companyId, @PathVariable(name = "leadFlowId") Long leadFlowId) {
         LeadFlow leadFlow = leadFlowService.getLeadFlow(leadFlowId, companyId);
 

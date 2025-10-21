@@ -23,9 +23,8 @@ class LeadControllerSpec extends Specification {
     CustomerService customerService = Mock()
     LeadDtoMapper leadDtoMapper = Mock()
     LeadService leadService = Mock()
-    QrCodeService qrCodeService = Mock()
 
-    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService, qrCodeService)
+    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService)
 
     def "validateRequiredQuestionsAreAnswered throws when required question missing"() {
         given:
@@ -129,31 +128,6 @@ class LeadControllerSpec extends Specification {
 
         then:
         result == leadFlow
-    }
-
-    def "getCustomerFromQrCode throws when qrCode not found"() {
-        given:
-        qrCodeService.getAssociatedQrCode(_) >> Optional.empty()
-
-        when:
-        controller."getCustomerFromQrCode"(UUID.randomUUID())
-
-        then:
-        thrown(RecordNotFoundException)
-    }
-
-    def "getCustomerFromQrCode returns customer when qrCode found"() {
-        given:
-        def customer = new Customer()
-        def qr = new QrCode()
-        qr.setCustomer(customer)
-        qrCodeService.getAssociatedQrCode(_) >> Optional.of(qr)
-
-        when:
-        def result = controller."getCustomerFromQrCode"(UUID.randomUUID())
-
-        then:
-        result == customer
     }
 
     private LeadFlowDto generateLeadFlow() {
