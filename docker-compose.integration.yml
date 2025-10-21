@@ -39,7 +39,7 @@ services:
       - postgres
       - keycloak
     ports:
-      - "8081:8081"
+      - "8084:8084"
     networks:
       - test-net
 
@@ -93,7 +93,7 @@ services:
         echo "🕒 Waiting for dependencies to be ready..." &&
         /scripts/wait-for-it.sh postgres:5432 -t 60 &&
         /scripts/wait-for-it.sh keycloak:8080 -t 60 &&
-        /scripts/wait-for-it.sh user-service:8081 -t 60 &&
+        /scripts/wait-for-it.sh user-service:8084 -t 60 &&
         /scripts/wait-for-it.sh company-service:8082 -t 60 &&
         /scripts/wait-for-it.sh customer-service:8083 -t 60 &&
         echo "✅ All services are up! Running integration tests..." &&
