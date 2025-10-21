@@ -7,10 +7,12 @@ import com.rrsgroup.customer.dto.AssociateQrCodeDto
 import com.rrsgroup.customer.dto.CustomerDto
 import com.rrsgroup.customer.entity.Customer
 import com.rrsgroup.customer.entity.QrCode
+import com.rrsgroup.customer.service.CompanyService
 import com.rrsgroup.customer.service.CrmCustomerDtoMapper
 import com.rrsgroup.customer.service.CustomerCrmIntegrationService
 import com.rrsgroup.customer.service.CustomerDtoMapper
 import com.rrsgroup.customer.service.CustomerService
+import com.rrsgroup.customer.service.LeadFlowService
 import com.rrsgroup.customer.service.QrCodeService
 import spock.lang.Specification
 
@@ -21,13 +23,17 @@ class CustomerControllerSpec extends Specification {
     def customerService = Mock(CustomerService)
     def qrCodeService = Mock(QrCodeService)
     def customerDtoMapper = Mock(CustomerDtoMapper)
+    def companyService = Mock(CompanyService)
+    def leadFlowService = Mock(LeadFlowService)
 
     def controller = new CustomerController(
             crmCustomerDtoMapper,
             integrationService,
             customerService,
             qrCodeService,
-            customerDtoMapper
+            customerDtoMapper,
+            companyService,
+            leadFlowService
     )
 
     def fieldUserDto = Mock(FieldUserDto) {

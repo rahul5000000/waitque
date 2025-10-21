@@ -1,14 +1,14 @@
 package com.rrsgroup.customer.web;
 
+import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.FieldUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
-import com.rrsgroup.customer.dto.AssociateQrCodeDto;
-import com.rrsgroup.customer.dto.CustomerDto;
-import com.rrsgroup.customer.dto.CustomersSearchResultDto;
+import com.rrsgroup.customer.dto.*;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.service.*;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Log4j2
 @RestController
@@ -29,6 +30,8 @@ public class CustomerController {
     private final CustomerService customerService;
     private final QrCodeService qrCodeService;
     private final CustomerDtoMapper customerDtoMapper;
+    private final CompanyService companyService;
+    private final LeadFlowService leadFlowService;
 
     @Autowired
     public CustomerController(
@@ -36,12 +39,16 @@ public class CustomerController {
             CustomerCrmIntegrationService integrationService,
             CustomerService customerService,
             QrCodeService qrCodeService,
-            CustomerDtoMapper customerDtoMapper) {
+            CustomerDtoMapper customerDtoMapper,
+            CompanyService companyService,
+            LeadFlowService leadFlowService) {
         this.crmCustomerDtoMapper = crmCustomerDtoMapper;
         this.integrationService = integrationService;
         this.customerService = customerService;
         this.qrCodeService = qrCodeService;
         this.customerDtoMapper = customerDtoMapper;
+        this.companyService = companyService;
+        this.leadFlowService = leadFlowService;
     }
 
     @PostMapping(value = "/api/field/customers/search", consumes = "application/x-www-form-urlencoded")
@@ -119,5 +126,65 @@ public class CustomerController {
         qrCodeService.disassociateQrCode(qrCodeForCustomerOptional.get());
 
         return customerDtoMapper.map(customer);
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/company")
+    public CompanyDto getCompanyForCustomer(@PathVariable("qrCode") UUID qrCode) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        Optional<CompanyDto> companyOptional = companyService.getCompany(customer.getCrmConfig().getCompanyId());
+
+        if(companyOptional.isEmpty()) {
+            throw new RecordNotFoundException("Company not found for customer with qrCode=" + qrCode);
+        }
+
+        return companyOptional.get();
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/company/flows")
+    public ActiveLeadFlowListDto publicGetListOfLeadFlows(
+            @PathVariable(name = "qrCode") UUID qrCode,
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "ordinal") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") SortDirection sortDir) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        Optional<ActiveLeadFlowListDto> leadFlowListOptional = leadFlowService.getLeadFlows(
+                customer.getCrmConfig().getCompanyId(),
+                limit,
+                page,
+                sortField,
+                sortDir);
+
+        if(leadFlowListOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead flows not found for company associated with qrCode=" + qrCode);
+        }
+
+        return leadFlowListOptional.get();
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/company/leadFlows/{leadFlowId}")
+    public LeadFlowDto publicGetLeadFlow(
+            @PathVariable(name = "qrCode") UUID qrCode,
+            @PathVariable(name = "leadFlowId") Long leadFlowId) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        Optional<LeadFlowDto> leadFlowOptional = leadFlowService.getLeadFlow(leadFlowId, customer.getCrmConfig().getCompanyId());
+
+        if(leadFlowOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead flow not found with leadFlowId=" + leadFlowId + ", qrCode=" + qrCode);
+        }
+
+        return leadFlowOptional.get();
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/me")
+    public PublicCustomerDetailDto publicGetCustomer(@PathVariable(name = "qrCode") UUID qrCode) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        Optional<CrmCustomer> crmCustomerOptional = integrationService.getCrmCustomer(customer.getCrmCustomerId(), customer.getCrmConfig());
+
+        if(crmCustomerOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer information not found for qrCode=" + qrCode);
+        }
+
+        return customerDtoMapper.map(customer, crmCustomerOptional.get());
     }
 }

@@ -15,9 +15,10 @@ import java.time.LocalDateTime
 class CustomerServiceSpec extends Specification {
 
     def customerRepository = Mock(CustomerRepository)
+    def qrCodeService = Mock(QrCodeService)
 
     @Subject
-    def service = new CustomerService(customerRepository)
+    def service = new CustomerService(customerRepository, qrCodeService)
 
     def "should create a new customer and save it with correct fields"() {
         given:

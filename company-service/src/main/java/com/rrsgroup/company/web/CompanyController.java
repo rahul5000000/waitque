@@ -69,7 +69,7 @@ public class CompanyController {
         return companyDtoMapper.map(pageOfCompanies);
     }
 
-    @GetMapping({"/api/internal/companies/{companyId}", "/api/public/companies/{companyId}/companyInfo"})
+    @GetMapping({"/api/internal/companies/{companyId}", "/api/system/companies/{companyId}"})
     public CompanyDto getCompany(@PathVariable(name = "companyId") Long companyId) {
         return companyDtoMapper.map(getCompanySafe(companyId));
     }

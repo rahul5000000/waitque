@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.service;
 
-import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.customer.dto.ActiveLeadFlowListDto;
 import com.rrsgroup.customer.dto.LeadFlowDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,20 @@ public class LeadFlowService {
                     .uri(companyServiceBaseUrl + "/api/system/companies/" + companyId + "/flows/" + leadFlowId)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<LeadFlowDto>() {
+                    })
+                    .block());
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<ActiveLeadFlowListDto> getLeadFlows(Long companyId, Integer limit, Integer page,
+                                                        String sortField, SortDirection sortDir) {
+        try {
+            return Optional.ofNullable(webClient.get()
+                    .uri(companyServiceBaseUrl + "/api/system/companies/" + companyId + "/flows?limit="+limit+"&page="+page+"&sortField="+sortField+"&sortDir="+sortDir)
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<ActiveLeadFlowListDto>() {
                     })
                     .block());
         } catch (WebClientResponseException.NotFound e) {

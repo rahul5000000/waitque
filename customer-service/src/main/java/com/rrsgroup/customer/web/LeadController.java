@@ -13,13 +13,11 @@ import com.rrsgroup.customer.dto.lead.LeadAnswerDto;
 import com.rrsgroup.customer.dto.lead.LeadDto;
 import com.rrsgroup.customer.dto.lead.LeadListDto;
 import com.rrsgroup.customer.entity.Customer;
-import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.LeadFlowService;
-import com.rrsgroup.customer.service.QrCodeService;
-import com.rrsgroup.customer.service.lead.LeadService;
 import com.rrsgroup.customer.service.lead.LeadDtoMapper;
+import com.rrsgroup.customer.service.lead.LeadService;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,25 +39,22 @@ public class LeadController {
     private final CustomerService customerService;
     private final LeadDtoMapper leadDtoMapper;
     private final LeadService leadService;
-    private final QrCodeService qrCodeService;
 
     @Autowired
     public LeadController(
             LeadFlowService leadFlowService,
             CustomerService customerService,
             LeadDtoMapper leadDtoMapper,
-            LeadService leadService,
-            QrCodeService qrCodeService) {
+            LeadService leadService) {
         this.leadFlowService = leadFlowService;
         this.customerService = customerService;
         this.leadDtoMapper = leadDtoMapper;
         this.leadService = leadService;
-        this.qrCodeService = qrCodeService;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
     public LeadDto createLead(@PathVariable("qrCode") UUID qrCode, @Valid @RequestBody LeadDto request) {
-        Customer customer = getCustomerFromQrCode(qrCode);
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
         LeadFlowDto leadFlow = getActiveLeadFlow(request.leadFlowId(), customer.getCrmConfig().getCompanyId());
 
         validateAnswersMatchQuestions(request, leadFlow);
@@ -120,17 +115,6 @@ public class LeadController {
             throw new IllegalUpdateException("Cannot create lead against an inactive lead flow");
         }
         return leadFlow;
-    }
-
-    private Customer getCustomerFromQrCode(UUID qrCode) {
-        // Get customer by QR code; validate customer exists
-        Optional<QrCode> qrCodeOptional = qrCodeService.getAssociatedQrCode(qrCode);
-
-        if(qrCodeOptional.isEmpty()) {
-            throw new RecordNotFoundException("Customer does not exist with qrCode=" + qrCode);
-        }
-
-        return qrCodeOptional.get().getCustomer();
     }
 
     @GetMapping("/api/admin/leads")

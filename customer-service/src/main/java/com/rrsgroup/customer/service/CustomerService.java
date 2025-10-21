@@ -1,9 +1,11 @@
 package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.CompanyUserDto;
+import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,14 +13,17 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final QrCodeService qrCodeService;
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, QrCodeService qrCodeService) {
         this.customerRepository = customerRepository;
+        this.qrCodeService = qrCodeService;
     }
 
     public Customer createCustomer(CrmConfig crmConfig, CrmCustomer crmCustomer, CompanyUserDto createdBy) {
@@ -52,5 +57,25 @@ public class CustomerService {
 
     public Optional<Customer> getCustomerById(Long customerId, Long companyId) {
         return customerRepository.findByIdAndCrmConfig_CompanyId(customerId, companyId);
+    }
+
+    public Optional<Customer> getCustomerByQrCode(UUID qrCode) {
+        Optional<QrCode> qrCodeOptional = qrCodeService.getAssociatedQrCode(qrCode);
+
+        if(qrCodeOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(qrCodeOptional.get().getCustomer());
+    }
+
+    public Customer getCustomerByQrCodeSafe(UUID qrCode) {
+        Optional<Customer> customerOptional = getCustomerByQrCode(qrCode);
+
+        if(customerOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer does not exist with qrCode=" + qrCode);
+        }
+
+        return customerOptional.get();
     }
 }
