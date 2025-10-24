@@ -11,7 +11,9 @@ import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.domain.LeadFlowQuestionDataType
 import com.rrsgroup.customer.domain.LeadFlowStatus
 import com.rrsgroup.customer.domain.lead.LeadStatus
+import com.rrsgroup.customer.dto.LeadFlowBooleanQuestionDto
 import com.rrsgroup.customer.dto.LeadFlowDto
+import com.rrsgroup.customer.dto.LeadFlowQuestionAnswerDto
 import com.rrsgroup.customer.dto.LeadFlowQuestionDto
 import com.rrsgroup.customer.dto.lead.LeadAnswerDto
 import com.rrsgroup.customer.dto.lead.LeadBooleanAnswerDto
@@ -311,8 +313,8 @@ class LeadDtoMapperSpec extends Specification {
         def question2IsRequired = false
 
         List<LeadFlowQuestionDto> questionDtos = new ArrayList<>()
-        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType, question1IsRequired))
-        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType, question2IsRequired))
+        questionDtos.add(new LeadFlowBooleanQuestionDto(question1Id, question1, question1DataType, question1IsRequired, "No", "Yes"))
+        questionDtos.add(new LeadFlowQuestionAnswerDto(question2Id, question2, question2DataType, question2IsRequired))
 
         return new LeadFlowDto(id, companyId, status, name, iconUrl, buttonText, title, confirmationMessageHeader,
                 confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos, null)

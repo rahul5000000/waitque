@@ -68,7 +68,7 @@ public class LeadController {
     private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
         // Validate answers for all required questions exist in request
         Map<Long, LeadAnswerDto> leadAnswerDtoToQuestionIdMap = request.answers().stream().collect(Collectors.toMap(LeadAnswerDto::getLeadFlowQuestionId, Function.identity()));
-        List<Long> missingRequiredQuestions = leadFlow.questions().stream().filter(LeadFlowQuestionDto::isRequired).map(LeadFlowQuestionDto::id).filter(requiredId -> !leadAnswerDtoToQuestionIdMap.containsKey(requiredId)).toList();
+        List<Long> missingRequiredQuestions = leadFlow.questions().stream().filter(LeadFlowQuestionDto::getIsRequired).map(LeadFlowQuestionDto::getId).filter(requiredId -> !leadAnswerDtoToQuestionIdMap.containsKey(requiredId)).toList();
 
         if(!missingRequiredQuestions.isEmpty()) {
             throw new IllegalRequestException("The following leadFlowQuestionIds are required but not provided: " + missingRequiredQuestions);
@@ -77,7 +77,7 @@ public class LeadController {
 
     private void validateAnswersMatchQuestions(LeadDto request, LeadFlowDto leadFlow) {
         // Validate answers for questionIds related to lead flow
-        Map<Long, LeadFlowQuestionDto> questionDtoMap =  leadFlow.questions().stream().collect(Collectors.toMap(LeadFlowQuestionDto::id, Function.identity()));
+        Map<Long, LeadFlowQuestionDto> questionDtoMap =  leadFlow.questions().stream().collect(Collectors.toMap(LeadFlowQuestionDto::getId, Function.identity()));
         List<Long> invalidIds = request.answers().stream()
                 .map(LeadAnswerDto::getLeadFlowQuestionId)
                 .filter(id -> !questionDtoMap.containsKey(id))
@@ -90,10 +90,10 @@ public class LeadController {
         // Validate answers for questionIds are in the correct format
         List<String> invalidTypeMessages = request.answers().stream().filter(answer -> {
             LeadFlowQuestionDto question = questionDtoMap.get(answer.getLeadFlowQuestionId());
-            return !answer.getDataType().equals(question.dataType());
+            return !answer.getDataType().equals(question.getDataType());
         }).map(invalidTypeAnswer -> {
             LeadFlowQuestionDto question = questionDtoMap.get(invalidTypeAnswer.getLeadFlowQuestionId());
-            return "Answer for leadFlowQuestionId=" + invalidTypeAnswer.getLeadFlowQuestionId() + " sent dataType=" + invalidTypeAnswer.getDataType() + ", but lead flow expected dataType=" + question.dataType();
+            return "Answer for leadFlowQuestionId=" + invalidTypeAnswer.getLeadFlowQuestionId() + " sent dataType=" + invalidTypeAnswer.getDataType() + ", but lead flow expected dataType=" + question.getDataType();
         }).toList();
 
         if(!invalidTypeMessages.isEmpty()) {

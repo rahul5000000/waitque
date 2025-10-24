@@ -129,7 +129,7 @@ abstract class IntegrationTestSpec extends Specification {
 
         // If not, create it
         def url = "${companyServiceBase}/api/admin/flows"
-        def body = "{\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"iconUrl\":\"test.jpg\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"ordinal\":1,\"questions\":[{\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}]}\n"
+        def body = "{\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"icon\":\"test-icon\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"ordinal\":1,\"questions\":[{\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}]}\n"
         def request = new HttpEntity<>(body, headers)
         def response = restTemplate.exchange(url, HttpMethod.POST, request, String)
 

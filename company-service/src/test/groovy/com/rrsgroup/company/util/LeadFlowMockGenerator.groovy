@@ -2,7 +2,9 @@ package com.rrsgroup.company.util
 
 import com.rrsgroup.company.domain.LeadFlowQuestionDataType
 import com.rrsgroup.company.domain.LeadFlowStatus
+import com.rrsgroup.company.dto.LeadFlowBooleanQuestionDto
 import com.rrsgroup.company.dto.LeadFlowDto
+import com.rrsgroup.company.dto.LeadFlowQuestionAnswerDto
 import com.rrsgroup.company.dto.LeadFlowQuestionDto
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.entity.LeadFlow
@@ -36,8 +38,8 @@ class LeadFlowMockGenerator extends Specification {
         def question2IsRequired = false
 
         List<LeadFlowQuestionDto> questionDtos = new ArrayList<>()
-        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType, question1IsRequired))
-        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType, question2IsRequired))
+        questionDtos.add(new LeadFlowBooleanQuestionDto(question1Id, question1, question1DataType, question1IsRequired, "No", "Yes"))
+        questionDtos.add(new LeadFlowQuestionAnswerDto(question2Id, question2, question2DataType, question2IsRequired))
 
         def dto = new LeadFlowDto(id, companyId, status, name, iconUrl, buttonText, title, confirmationMessageHeader,
                 confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos, predecessorId)

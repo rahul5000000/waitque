@@ -2,10 +2,8 @@ package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.util.PageableWrapper;
-import com.rrsgroup.company.dto.ActiveLeadFlowListDto;
-import com.rrsgroup.company.dto.LeadFlowDto;
-import com.rrsgroup.company.dto.LeadFlowListDto;
-import com.rrsgroup.company.dto.LeadFlowQuestionDto;
+import com.rrsgroup.company.domain.LeadFlowQuestionDataType;
+import com.rrsgroup.company.dto.*;
 import com.rrsgroup.company.entity.LeadFlow;
 import com.rrsgroup.company.entity.LeadFlowOrder;
 import com.rrsgroup.company.entity.LeadFlowQuestion;
@@ -35,11 +33,21 @@ public class LeadFlowDtoMapper {
     }
 
     public LeadFlowQuestionDto map(LeadFlowQuestion question) {
-        return new LeadFlowQuestionDto(question.getId(), question.getQuestion(), question.getDataType(), question.getIsRequired());
+        return switch (question.getDataType()) {
+            case BOOLEAN -> new LeadFlowBooleanQuestionDto(question.getId(), question.getQuestion(), question.getDataType(), question.getIsRequired(), question.getFalseText(), question.getTrueText());
+            default -> new LeadFlowQuestionAnswerDto(question.getId(), question.getQuestion(), question.getDataType(), question.getIsRequired());
+        };
     }
 
     public LeadFlowQuestion map(LeadFlowQuestionDto dto) {
-        return LeadFlowQuestion.builder().id(dto.id()).question(dto.question()).dataType(dto.dataType()).isRequired(dto.isRequired()).build();
+        LeadFlowQuestion.LeadFlowQuestionBuilder builder = LeadFlowQuestion.builder().id(dto.getId()).question(dto.getQuestion()).dataType(dto.getDataType()).isRequired(dto.getIsRequired());
+
+        if(dto.getDataType() == LeadFlowQuestionDataType.BOOLEAN) {
+            builder.falseText(((LeadFlowBooleanQuestionDto)dto).getFalseText());
+            builder.trueText(((LeadFlowBooleanQuestionDto)dto).getTrueText());
+        }
+
+        return builder.build();
     }
 
     public LeadFlowQuestion map(LeadFlowQuestionDto dto, LeadFlow leadFlow) {
@@ -50,7 +58,7 @@ public class LeadFlowDtoMapper {
     }
 
     public LeadFlow map(LeadFlowDto dto) {
-        LeadFlow leadFlow = LeadFlow.builder().id(dto.id()).name(dto.name()).icon(dto.iconUrl())
+        LeadFlow leadFlow = LeadFlow.builder().id(dto.id()).name(dto.name()).icon(dto.icon())
                 .buttonText(dto.buttonText()).title(dto.title())
                 .confirmationMessageHeader(dto.confirmationMessageHeader())
                 .confirmationMessage1(dto.confirmationMessage1())

@@ -156,8 +156,8 @@ class LeadControllerSpec extends Specification {
         def question2IsRequired = false
 
         List<LeadFlowQuestionDto> questionDtos = new ArrayList<>()
-        questionDtos.add(new LeadFlowQuestionDto(question1Id, question1, question1DataType, question1IsRequired))
-        questionDtos.add(new LeadFlowQuestionDto(question2Id, question2, question2DataType, question2IsRequired))
+        questionDtos.add(new LeadFlowBooleanQuestionDto(question1Id, question1, question1DataType, question1IsRequired, "No", "Yes"))
+        questionDtos.add(new LeadFlowQuestionAnswerDto(question2Id, question2, question2DataType, question2IsRequired))
 
         return new LeadFlowDto(id, companyId, status, name, iconUrl, buttonText, title, confirmationMessageHeader,
                 confirmationMessage1, confirmationMessage2, confirmationMessage3, ordinal, questionDtos, null)
