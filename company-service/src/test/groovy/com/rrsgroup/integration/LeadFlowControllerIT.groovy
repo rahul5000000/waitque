@@ -96,7 +96,7 @@ class LeadFlowControllerIT extends IntegrationTestSpec {
         response.statusCode == HttpStatus.OK
 
         def json = new JsonSlurper().parseText(response.body)
-        def expectedJson = new JsonSlurper().parseText("{\"id\":1,\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"iconUrl\":\"test.jpg\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"confirmationMessage2\":null,\"confirmationMessage3\":null,\"ordinal\":1,\"questions\":[{\"id\":1,\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"id\":2,\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}],\"predecessorId\":null}")
+        def expectedJson = new JsonSlurper().parseText("{\"id\":1,\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"icon\":\"test-icon\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"confirmationMessage2\":null,\"confirmationMessage3\":null,\"ordinal\":1,\"questions\":[{\"id\":1,\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"id\":2,\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}],\"predecessorId\":null}")
         json == expectedJson
     }
 
@@ -162,7 +162,7 @@ class LeadFlowControllerIT extends IntegrationTestSpec {
         response.statusCode == HttpStatus.OK
 
         def json = new JsonSlurper().parseText(response.body)
-        def expectedJson = new JsonSlurper().parseText("{\"id\":1,\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"iconUrl\":\"test.jpg\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"confirmationMessage2\":null,\"confirmationMessage3\":null,\"ordinal\":1,\"questions\":[{\"id\":1,\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"id\":2,\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}],\"predecessorId\":null}")
+        def expectedJson = new JsonSlurper().parseText("{\"id\":1,\"companyId\":1,\"status\":\"ACTIVE\",\"name\":\"Test Lead Flow\",\"icon\":\"test-icon\",\"buttonText\":\"Schedule\",\"title\":\"Book Test\",\"confirmationMessageHeader\":\"Booked!\",\"confirmationMessage1\":\"We're on our way!\",\"confirmationMessage2\":null,\"confirmationMessage3\":null,\"ordinal\":1,\"questions\":[{\"id\":1,\"question\":\"Question 1\",\"dataType\":\"BOOLEAN\",\"isRequired\":true},{\"id\":2,\"question\":\"Question 2\",\"dataType\":\"TEXT\",\"isRequired\":false}],\"predecessorId\":null}")
         json == expectedJson
     }
 }

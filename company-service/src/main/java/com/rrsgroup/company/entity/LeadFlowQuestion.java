@@ -35,6 +35,8 @@ public class LeadFlowQuestion {
     private LeadFlowQuestionDataType dataType;
     @NotNull
     private Boolean isRequired;
+    private String falseText;
+    private String trueText;
     @NotNull
     private LocalDateTime createdDate;
     @NotNull
