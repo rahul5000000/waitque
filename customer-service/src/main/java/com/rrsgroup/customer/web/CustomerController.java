@@ -55,7 +55,8 @@ public class CustomerController {
     public CustomersSearchResultDto customersSearch(
             @AuthenticationPrincipal FieldUserDto fieldUserDto,
             @ModelAttribute CustomerSearchRequest request) {
-        if(StringUtils.isBlank(request.getFirstName())
+        if(StringUtils.isBlank(request.getCompanyName())
+                && StringUtils.isBlank(request.getFirstName())
                 && StringUtils.isBlank(request.getLastName())
                 && StringUtils.isBlank(request.getCrmCustomerId())
                 && StringUtils.isBlank(request.getAddress())

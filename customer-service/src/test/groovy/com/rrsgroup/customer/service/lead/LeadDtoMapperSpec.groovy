@@ -202,7 +202,7 @@ class LeadDtoMapperSpec extends Specification {
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer = new CrmCustomer("crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
 
         customerCrmIntegrationService.getCrmCustomer(_, _) >> Optional.of(crmCustomer)
@@ -236,7 +236,7 @@ class LeadDtoMapperSpec extends Specification {
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer = new CrmCustomer("crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
         def page = new PageImpl<>([lead], PageRequest.of(0, 10), 1)
 
@@ -270,7 +270,7 @@ class LeadDtoMapperSpec extends Specification {
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer = new CrmCustomer("crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
         def page = new PageImpl<>([lead], PageRequest.of(0, 10), 1)
 

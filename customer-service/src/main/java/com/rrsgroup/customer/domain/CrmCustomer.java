@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class CrmCustomer {
     private String crmCustomerId;
+    private String companyName;
     private String firstName;
     private String lastName;
     private CrmAddress address;

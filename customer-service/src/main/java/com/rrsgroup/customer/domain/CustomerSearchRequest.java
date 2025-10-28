@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerSearchRequest {
+    private String companyName;
     private String firstName;
     private String lastName;
     private String crmCustomerId;

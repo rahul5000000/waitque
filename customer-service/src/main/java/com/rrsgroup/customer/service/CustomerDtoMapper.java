@@ -27,6 +27,6 @@ public class CustomerDtoMapper {
     }
 
     public PublicCustomerDetailDto map(Customer customer, CrmCustomer crmCustomer) {
-        return new PublicCustomerDetailDto(customer.getId(), crmCustomer.getFirstName(), crmCustomer.getLastName());
+        return new PublicCustomerDetailDto(customer.getId(), crmCustomer.getCompanyName(), crmCustomer.getFirstName(), crmCustomer.getLastName());
     }
 }

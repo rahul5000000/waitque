@@ -19,6 +19,7 @@ public class CustomersSearchResultDto {
     @AllArgsConstructor
     public static class CustomersSearchResultItem {
         private Long id;
+        private String companyName;
         private String firstName;
         private String lastName;
         private String crmCustomerId;
