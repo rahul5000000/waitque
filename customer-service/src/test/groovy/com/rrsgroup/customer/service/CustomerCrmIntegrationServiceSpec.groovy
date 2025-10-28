@@ -3,6 +3,7 @@ package com.rrsgroup.customer.service
 import com.rrsgroup.common.dto.FieldUserDto
 import com.rrsgroup.customer.domain.CrmAddress
 import com.rrsgroup.customer.domain.CrmCustomer
+import com.rrsgroup.customer.domain.CrmCustomerType
 import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.domain.CrmType
 import com.rrsgroup.customer.domain.CustomerSearchRequest
@@ -47,8 +48,8 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
         and: "CRM services return results"
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer1 = new CrmCustomer("crm-1", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
-        def crmCustomer2 = new CrmCustomer("crm-2", null, "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.d@test.com")
+        def crmCustomer1 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-1", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer2 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-2", null, "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.d@test.com")
         crmService1.searchCustomers(request) >> [crmCustomer1]
         crmService2.searchCustomers(request) >> [crmCustomer2]
 
@@ -88,7 +89,7 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-xyz", null, "Alice", "Brown", crmAddress, crmPhoneNumber, "alice.b@test.com")
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-xyz", null, "Alice", "Brown", crmAddress, crmPhoneNumber, "alice.b@test.com")
         crmService.getCustomerById("crm-xyz") >> Optional.of(crmCustomer)
 
         customerService.getCustomerByCrmConfig(crmConfig, crmCustomer) >> null

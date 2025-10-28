@@ -16,6 +16,7 @@ public class CrmCustomerDtoMapper {
             CrmCustomer crmCustomer = searchRecord.getCrmCustomer();
             return new CustomersSearchResultDto.CustomersSearchResultItem(
                     customer.getId(),
+                    crmCustomer.getCustomerType(),
                     crmCustomer.getCompanyName(),
                     crmCustomer.getFirstName(),
                     crmCustomer.getLastName(),

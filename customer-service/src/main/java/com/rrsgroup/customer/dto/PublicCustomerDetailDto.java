@@ -1,4 +1,6 @@
 package com.rrsgroup.customer.dto;
 
-public record PublicCustomerDetailDto(Long id, String companyName, String firstName, String lastName) {
+import com.rrsgroup.customer.domain.CrmCustomerType;
+
+public record PublicCustomerDetailDto(Long id, CrmCustomerType customerType, String companyName, String firstName, String lastName) {
 }
