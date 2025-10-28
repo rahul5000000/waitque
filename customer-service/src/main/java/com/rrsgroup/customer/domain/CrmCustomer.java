@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CrmCustomer {
-    private CrmCustomerType customerType = CrmCustomerType.RESIDENTIAL;
+    private CrmCustomerType customerType;
     private String crmCustomerId;
     private String companyName;
     private String firstName;
