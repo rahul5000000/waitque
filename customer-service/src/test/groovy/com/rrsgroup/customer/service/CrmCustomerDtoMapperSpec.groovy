@@ -2,6 +2,7 @@ package com.rrsgroup.customer.service
 
 import com.rrsgroup.customer.domain.CrmAddress
 import com.rrsgroup.customer.domain.CrmCustomer
+import com.rrsgroup.customer.domain.CrmCustomerType
 import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.domain.CustomerSearchResult
 import com.rrsgroup.customer.entity.Customer
@@ -15,8 +16,8 @@ class CrmCustomerDtoMapperSpec extends Specification {
         given:
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer1 = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
-        def crmCustomer2 = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
+        def crmCustomer1 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer2 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-456", null, "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
 
         def customer1 = new Customer(id: 1L)
         def customer2 = new Customer(id: 2L)

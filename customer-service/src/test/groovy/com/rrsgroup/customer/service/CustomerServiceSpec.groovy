@@ -3,6 +3,7 @@ package com.rrsgroup.customer.service
 import com.rrsgroup.common.dto.CompanyUserDto
 import com.rrsgroup.customer.domain.CrmAddress
 import com.rrsgroup.customer.domain.CrmCustomer
+import com.rrsgroup.customer.domain.CrmCustomerType
 import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.entity.CrmConfig
 import com.rrsgroup.customer.entity.Customer
@@ -25,7 +26,7 @@ class CustomerServiceSpec extends Specification {
         def crmConfig = new CrmConfig(id: 100L)
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-123", "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
         def companyUser = Mock(CompanyUserDto) {
             getUserId() >> "user-1"
         }
@@ -55,7 +56,7 @@ class CustomerServiceSpec extends Specification {
         def crmConfig = new CrmConfig(id: 10L)
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer("crm-456", "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-456", null, "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
         def expectedCustomer = new Customer(id: 99L, crmCustomerId: "crm-456")
 
         and:
@@ -74,8 +75,8 @@ class CustomerServiceSpec extends Specification {
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
         def crmCustomers = [
-                new CrmCustomer("crm-1", "A", "B", crmAddress, crmPhoneNumber, "a.b@test.com"),
-                new CrmCustomer("crm-2", "C", "D", crmAddress, crmPhoneNumber, "c.d@test.com")
+                new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-1", null, "A", "B", crmAddress, crmPhoneNumber, "a.b@test.com"),
+                new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-2", null, "C", "D", crmAddress, crmPhoneNumber, "c.d@test.com")
         ]
         def expectedCustomers = [
                 new Customer(id: 1L, crmCustomerId: "crm-1"),

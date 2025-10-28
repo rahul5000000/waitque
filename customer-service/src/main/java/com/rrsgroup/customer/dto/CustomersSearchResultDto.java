@@ -1,5 +1,6 @@
 package com.rrsgroup.customer.dto;
 
+import com.rrsgroup.customer.domain.CrmCustomerType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class CustomersSearchResultDto {
     @AllArgsConstructor
     public static class CustomersSearchResultItem {
         private Long id;
+        private CrmCustomerType customerType;
+        private String companyName;
         private String firstName;
         private String lastName;
         private String crmCustomerId;
