@@ -3,8 +3,10 @@ package com.rrsgroup.company.web;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireType;
 import com.rrsgroup.company.dto.questionnaire.DefaultQuestionnaireRequestDto;
+import com.rrsgroup.company.dto.questionnaire.QuestionnaireDto;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.service.CompanyService;
+import com.rrsgroup.company.service.QuestionnaireDtoMapper;
 import com.rrsgroup.company.service.QuestionnaireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,18 +18,23 @@ import java.util.Optional;
 @RestController
 public class QuestionnaireController {
     private final CompanyService companyService;
-    private final  QuestionnaireService questionnaireService;
+    private final QuestionnaireService questionnaireService;
+    private final QuestionnaireDtoMapper questionnaireDtoMapper;
 
     @Autowired
-    public QuestionnaireController(CompanyService companyService, QuestionnaireService questionnaireService) {
+    public QuestionnaireController(
+            CompanyService companyService,
+            QuestionnaireService questionnaireService,
+            QuestionnaireDtoMapper questionnaireDtoMapper) {
         this.companyService = companyService;
         this.questionnaireService = questionnaireService;
+        this.questionnaireDtoMapper = questionnaireDtoMapper;
     }
 
     @PostMapping("/api/internal/questionnaires/default")
-    public void createDefaultQuestionnaire(@RequestBody DefaultQuestionnaireRequestDto request) {
+    public QuestionnaireDto createDefaultQuestionnaire(@RequestBody DefaultQuestionnaireRequestDto request) {
         Company company = getCompanySafe(request.companyId());
-        questionnaireService.createDefaultQuestionnaire(company, request.type());
+        return questionnaireDtoMapper.map(questionnaireService.createDefaultQuestionnaire(company, request.type()));
     }
 
     private Company getCompanySafe(Long companyId) {

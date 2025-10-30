@@ -50,7 +50,7 @@ public class QuestionnaireService {
 
         customerInfoPage.setQuestions(List.of(
                 createQuestion("Customer Name", QuestionnaireQuestionDataType.TEXT, true, customerInfoPage, now, createdBy),
-                createQuestion("Customer Logo", QuestionnaireQuestionDataType.IMAGE, true, customerInfoPage, now, createdBy)
+                createQuestion("Customer Logo", QuestionnaireQuestionDataType.IMAGE, false, customerInfoPage, now, createdBy)
         ));
 
         QuestionnairePage propertyDetailsPage = createPage("Property Details", ++pageNumber, now, createdBy, questionnaire);
@@ -59,7 +59,7 @@ public class QuestionnaireService {
                 createQuestion("Photos of Building", QuestionnaireQuestionDataType.IMAGE, false, propertyDetailsPage, now, createdBy),
                 createQuestion("Year Built", QuestionnaireQuestionDataType.NUMBER, false, propertyDetailsPage, now, createdBy),
                 createQuestion("Year Renovated", QuestionnaireQuestionDataType.NUMBER, false, propertyDetailsPage, now, createdBy),
-                createBooleanQuestion("Is Multi-Tenant?", QuestionnaireQuestionDataType.BOOLEAN, true, "No", "Yes", propertyDetailsPage, now, createdBy),
+                createBooleanQuestion("Is Multi-Tenant?", QuestionnaireQuestionDataType.BOOLEAN, false, "No", "Yes", propertyDetailsPage, now, createdBy),
                 createQuestion("Total Area (sqft)", QuestionnaireQuestionDataType.NUMBER, false, propertyDetailsPage, now, createdBy),
                 createQuestion("Number of Floors", QuestionnaireQuestionDataType.NUMBER, false, propertyDetailsPage, now, createdBy),
                 createQuestion("Number of Buildings", QuestionnaireQuestionDataType.NUMBER, false, propertyDetailsPage, now, createdBy),
