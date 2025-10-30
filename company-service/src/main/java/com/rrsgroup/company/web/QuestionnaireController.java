@@ -1,6 +1,7 @@
 package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.SuperUserDto;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireStatus;
@@ -88,5 +89,33 @@ public class QuestionnaireController {
         }
 
         return company.get();
+    }
+
+    @GetMapping({"/api/admin/questionnaires", "/api/field/questionnaires"})
+    public QuestionnaireListDto getListOfQuestionnaires(
+            @AuthenticationPrincipal CompanyUserDto user,
+            @RequestParam(name = "status", required = false) List<QuestionnaireStatus> statuses,
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "companyId") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "ASC") SortDirection sortDir
+    ) {
+        Long companyId = user.getCompanyId();
+        Page<Questionnaire> questionnairePage = questionnaireService.getListOfQuestionnaires(List.of(companyId), statuses, limit, page, sortField, sortDir);
+        return questionnaireDtoMapper.map(questionnairePage);
+    }
+
+    @GetMapping({"/api/admin/questionnaires/{questionnaireId}", "/api/field/questionnaires/{questionnaireId}"})
+    public QuestionnaireDto getQuestionnaire(
+            @AuthenticationPrincipal CompanyUserDto user,
+            @PathVariable("questionnaireId") Long questionnaireId) {
+        Long companyId = user.getCompanyId();
+        Optional<Questionnaire> questionnaireOptional = questionnaireService.getQuestionnaireById(questionnaireId, companyId);
+
+        if(questionnaireOptional.isEmpty()) {
+            throw new RecordNotFoundException("Questionnaire not found with id=" + questionnaireId);
+        }
+
+        return questionnaireDtoMapper.map(questionnaireOptional.get());
     }
 }
