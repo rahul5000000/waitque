@@ -1,5 +1,6 @@
 package com.rrsgroup.company.service;
 
+import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireQuestionDataType;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireStatus;
@@ -10,6 +11,10 @@ import com.rrsgroup.company.entity.questionnaire.QuestionnairePage;
 import com.rrsgroup.company.entity.questionnaire.QuestionnaireQuestion;
 import com.rrsgroup.company.repository.QuestionnaireRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -295,5 +300,18 @@ public class QuestionnaireService {
                 .createdBy(createdBy)
                 .updatedBy(createdBy)
                 .build();
+    }
+
+    public Page<Questionnaire> getListOfQuestionnaires(List<Long> companyIds, List<QuestionnaireStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {
+        Pageable pageable = PageRequest.of(
+                page,
+                limit,
+                sortDir == SortDirection.ASC ? Sort.by(sortField).ascending() : Sort.by(sortField).descending());
+
+        if(statuses == null || statuses.isEmpty()) {
+            return questionnaireRepository.findByCompanyIdIn(companyIds, pageable);
+        } else {
+            return questionnaireRepository.findByCompanyIdInAndStatusIn(companyIds, statuses, pageable);
+        }
     }
 }
