@@ -2,7 +2,6 @@ package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.util.PageableWrapper;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireQuestionDataType;
-import com.rrsgroup.company.dto.LeadFlowListDto;
 import com.rrsgroup.company.dto.questionnaire.*;
 import com.rrsgroup.company.entity.questionnaire.Questionnaire;
 import com.rrsgroup.company.entity.questionnaire.QuestionnairePage;
@@ -19,7 +18,7 @@ public class QuestionnaireDtoMapper {
             predecessorId = questionnaire.getPredecessor().getId();
         }
 
-        return new QuestionnaireDto(questionnaire.getId(), questionnaire.getCompany().getId(), questionnaire.getName(), questionnaire.getDescription(), questionnaire.getPages().stream().map(this::map).toList(), predecessorId);
+        return new QuestionnaireDto(questionnaire.getId(), questionnaire.getCompany().getId(), questionnaire.getStatus(), questionnaire.getName(), questionnaire.getDescription(), questionnaire.getPages().stream().map(this::map).toList(), predecessorId);
     }
 
     public QuestionnairePageDto map(QuestionnairePage page) {

@@ -1,7 +1,9 @@
 package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
+import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireQuestionDataType;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireStatus;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireType;
@@ -30,16 +32,16 @@ public class QuestionnaireService {
         this.questionnaireRepository = questionnaireRepository;
     }
 
-    public Questionnaire createDefaultQuestionnaire(Company company, QuestionnaireType type) {
+    public Questionnaire createDefaultQuestionnaire(Company company, QuestionnaireType type, UserDto createdBy) {
         return switch (type) {
-            case DEFAULT_RESTORATION -> createDefaultRestorationQuestionnaire(company);
+            case DEFAULT_RESTORATION -> createDefaultRestorationQuestionnaire(company, createdBy);
             default -> throw new IllegalRequestException("This method can only create default questionnaire types");
         };
     }
 
-    private Questionnaire createDefaultRestorationQuestionnaire(Company company) {
+    private Questionnaire createDefaultRestorationQuestionnaire(Company company, UserDto createdByUser) {
         LocalDateTime now = LocalDateTime.now();
-        String createdBy = "system";
+        String createdBy = createdByUser.getUserId();
         Questionnaire questionnaire = Questionnaire.builder()
                 .name("Default Restoration")
                 .company(company)
@@ -316,7 +318,25 @@ public class QuestionnaireService {
         }
     }
 
-    public Optional<Questionnaire> getQuestionnaireById(Long questionnaireId) {
-        return questionnaireRepository.findById(questionnaireId);
+    public Optional<Questionnaire> getQuestionnaireById(Long questionnaireId, Long companyId) {
+        return questionnaireRepository.findByIdAndCompanyId(questionnaireId, companyId);
+    }
+
+    public Questionnaire inactivateQuestionnaire(Long questionnaireId, Long companyId, UserDto updatedBy) {
+        Optional<Questionnaire> questionnaireOptional = getQuestionnaireById(questionnaireId, companyId);
+
+        if(questionnaireOptional.isEmpty()) {
+            throw new RecordNotFoundException("Questionnaire not found with id=" + questionnaireId);
+        }
+
+        LocalDateTime updatedDate = LocalDateTime.now();
+        String updatedByUserId = updatedBy.getUserId();
+
+        Questionnaire questionnaire = questionnaireOptional.get();
+        questionnaire.setStatus(QuestionnaireStatus.INACTIVE);
+        questionnaire.setUpdatedBy(updatedByUserId);
+        questionnaire.setUpdatedDate(updatedDate);
+
+        return questionnaireRepository.save(questionnaire);
     }
 }

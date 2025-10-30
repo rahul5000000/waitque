@@ -1,10 +1,9 @@
 package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.SuperUserDto;
 import com.rrsgroup.common.exception.RecordNotFoundException;
-import com.rrsgroup.company.domain.LeadFlowStatus;
 import com.rrsgroup.company.domain.questionnaire.QuestionnaireStatus;
-import com.rrsgroup.company.domain.questionnaire.QuestionnaireType;
 import com.rrsgroup.company.dto.questionnaire.DefaultQuestionnaireRequestDto;
 import com.rrsgroup.company.dto.questionnaire.QuestionnaireDto;
 import com.rrsgroup.company.dto.questionnaire.QuestionnaireListDto;
@@ -15,6 +14,7 @@ import com.rrsgroup.company.service.QuestionnaireDtoMapper;
 import com.rrsgroup.company.service.QuestionnaireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,10 +36,13 @@ public class QuestionnaireController {
         this.questionnaireDtoMapper = questionnaireDtoMapper;
     }
 
-    @PostMapping("/api/internal/questionnaires/default")
-    public QuestionnaireDto createDefaultQuestionnaire(@RequestBody DefaultQuestionnaireRequestDto request) {
-        Company company = getCompanySafe(request.companyId());
-        return questionnaireDtoMapper.map(questionnaireService.createDefaultQuestionnaire(company, request.type()));
+    @PostMapping("/api/internal/companies/{companyId}/questionnaires/default")
+    public QuestionnaireDto createDefaultQuestionnaire(
+            @AuthenticationPrincipal SuperUserDto user,
+            @PathVariable("companyId") Long companyId,
+            @RequestBody DefaultQuestionnaireRequestDto request) {
+        Company company = getCompanySafe(companyId);
+        return questionnaireDtoMapper.map(questionnaireService.createDefaultQuestionnaire(company, request.type(), user));
     }
 
     @GetMapping("/api/internal/questionnaires")
@@ -55,15 +58,26 @@ public class QuestionnaireController {
         return questionnaireDtoMapper.map(questionnairePage);
     }
 
-    @GetMapping("/api/internal/questionnaires/{questionnaireId}")
-    public QuestionnaireDto superUserGetQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId) {
-        Optional<Questionnaire> questionnaireOptional = questionnaireService.getQuestionnaireById(questionnaireId);
+    @GetMapping("/api/internal/companies/{companyId}/questionnaires/{questionnaireId}")
+    public QuestionnaireDto superUserGetQuestionnaire(
+            @PathVariable("companyId") Long companyId,
+            @PathVariable("questionnaireId") Long questionnaireId) {
+        Optional<Questionnaire> questionnaireOptional = questionnaireService.getQuestionnaireById(questionnaireId, companyId);
 
         if(questionnaireOptional.isEmpty()) {
             throw new RecordNotFoundException("Questionnaire not found with id=" + questionnaireId);
         }
 
         return questionnaireDtoMapper.map(questionnaireOptional.get());
+    }
+
+    @DeleteMapping("/api/internal/companies/{companyId}/questionnaires/{questionnaireId}")
+    public QuestionnaireDto superUserDeleteQuestionnaire(
+            @AuthenticationPrincipal SuperUserDto user,
+            @PathVariable("companyId") Long companyId,
+            @PathVariable("questionnaireId") Long questionnaireId) {
+        Questionnaire deletedQuestionnaire = questionnaireService.inactivateQuestionnaire(questionnaireId, companyId, user);
+        return questionnaireDtoMapper.map(deletedQuestionnaire);
     }
 
     private Company getCompanySafe(Long companyId) {
