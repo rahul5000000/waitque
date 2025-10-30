@@ -55,6 +55,17 @@ public class QuestionnaireController {
         return questionnaireDtoMapper.map(questionnairePage);
     }
 
+    @GetMapping("/api/internal/questionnaires/{questionnaireId}")
+    public QuestionnaireDto superUserGetQuestionnaire(@PathVariable("questionnaireId") Long questionnaireId) {
+        Optional<Questionnaire> questionnaireOptional = questionnaireService.getQuestionnaireById(questionnaireId);
+
+        if(questionnaireOptional.isEmpty()) {
+            throw new RecordNotFoundException("Questionnaire not found with id=" + questionnaireId);
+        }
+
+        return questionnaireDtoMapper.map(questionnaireOptional.get());
+    }
+
     private Company getCompanySafe(Long companyId) {
         Optional<Company> company = companyService.getCompany(companyId);
 

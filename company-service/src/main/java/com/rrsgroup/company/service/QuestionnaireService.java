@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuestionnaireService {
@@ -313,5 +314,9 @@ public class QuestionnaireService {
         } else {
             return questionnaireRepository.findByCompanyIdInAndStatusIn(companyIds, statuses, pageable);
         }
+    }
+
+    public Optional<Questionnaire> getQuestionnaireById(Long questionnaireId) {
+        return questionnaireRepository.findById(questionnaireId);
     }
 }
