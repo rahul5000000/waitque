@@ -43,7 +43,7 @@ public class QuestionnaireService {
         LocalDateTime now = LocalDateTime.now();
         String createdBy = createdByUser.getUserId();
         Questionnaire questionnaire = Questionnaire.builder()
-                .name("Default Restoration")
+                .name("Business Emergency Plan")
                 .company(company)
                 .status(QuestionnaireStatus.ACTIVE)
                 .description("Automatically created Business Emergency Plan questionnaire for restoration firms")

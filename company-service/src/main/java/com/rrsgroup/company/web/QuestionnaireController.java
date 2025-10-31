@@ -59,7 +59,7 @@ public class QuestionnaireController {
         return questionnaireDtoMapper.map(questionnairePage);
     }
 
-    @GetMapping("/api/internal/companies/{companyId}/questionnaires/{questionnaireId}")
+    @GetMapping({"/api/internal/companies/{companyId}/questionnaires/{questionnaireId}", "/api/system/companies/{companyId}/questionnaires/{questionnaireId}"})
     public QuestionnaireDto superUserGetQuestionnaire(
             @PathVariable("companyId") Long companyId,
             @PathVariable("questionnaireId") Long questionnaireId) {
