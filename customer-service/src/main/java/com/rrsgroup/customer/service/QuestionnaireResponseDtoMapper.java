@@ -1,5 +1,6 @@
 package com.rrsgroup.customer.service;
 
+import com.rrsgroup.common.util.PageableWrapper;
 import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.dto.questionnaire.QuestionnaireDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.*;
@@ -8,6 +9,7 @@ import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -88,5 +90,28 @@ public class QuestionnaireResponseDtoMapper {
             case EMAIL -> new QuestionnaireResponseEmailAnswerDto(answer.getId(), answer.getQuestionnaireQuestionId(), answer.getEmailAnswer());
             default -> throw new IllegalStateException("Unknown data type: " + answer.getDataType());
         };
+    }
+
+    public QuestionnaireResponseListDto map(Page<QuestionnaireResponse> pageOfQuestionnaireResponses) {
+        PageableWrapper pageable = new PageableWrapper(pageOfQuestionnaireResponses.getPageable());
+        return new QuestionnaireResponseListDto(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageOfQuestionnaireResponses.getTotalElements(),
+                pageable.getSortField(),
+                pageable.getSortDir(),
+                pageOfQuestionnaireResponses.getContent().stream().map(response -> {
+                    Optional<QuestionnaireDto> questionnaireOptional = questionnaireService.getQuestionnaire(response.getQuestionnaireId(), response.getCustomer().getCrmConfig().getCompanyId());
+
+                    if(questionnaireOptional.isEmpty()) {
+                        log.error("Did not find matching questionnaire for questionnaireId={}", response.getQuestionnaireId());
+                    }
+
+                    QuestionnaireDto questionnaire = questionnaireOptional.get();
+
+                    return new QuestionnaireResponseListDto.QuestionnaireResponseListItem(response.getId(), questionnaire.name(),
+                            response.getStatus(), response.getCreatedDate(), response.getUpdatedDate());
+                }).toList()
+        );
     }
 }
