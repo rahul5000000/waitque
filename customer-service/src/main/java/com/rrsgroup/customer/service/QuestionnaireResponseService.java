@@ -3,11 +3,9 @@ package com.rrsgroup.customer.service;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.FieldUserDto;
-import com.rrsgroup.customer.domain.lead.LeadStatus;
-import com.rrsgroup.customer.domain.questionnaire.QuestionnaireStatus;
 import com.rrsgroup.customer.domain.questionnaireresponse.QuestionnaireResponseStatus;
-import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
+import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import com.rrsgroup.customer.repository.QuestionnaireResponseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -63,5 +62,47 @@ public class QuestionnaireResponseService {
 
     public Optional<QuestionnaireResponse> getQuestionnaireResponseForCustomer(Long questionnaireResponseId, Long customerId, CompanyUserDto userDto) {
         return questionnaireResponseRepository.findByIdAndCustomer_IdAndCustomer_CrmConfig_CompanyId(questionnaireResponseId, customerId, userDto.getCompanyId());
+    }
+
+    public QuestionnaireResponse updateQuestionnaireResponse(QuestionnaireResponse response, QuestionnaireResponse existingQuestionnaireResponse, FieldUserDto updatedByUser) {
+        LocalDateTime now = LocalDateTime.now();
+        String updatedBy = updatedByUser.getUserId();
+
+        response.setPredecessor(existingQuestionnaireResponse);
+        response.setCreatedBy(existingQuestionnaireResponse.getCreatedBy());
+        response.setCreatedDate(existingQuestionnaireResponse.getCreatedDate());
+        response.setUpdatedBy(updatedBy);
+        response.setUpdatedDate(now);
+
+        response.getAnswers().stream().filter(answer -> answer.getId() != null)
+                .forEach(answer -> {
+                    Optional<QuestionnaireResponseAnswer> existingAnswerOptional = existingQuestionnaireResponse.getAnswers().stream().filter(answer1 -> Objects.equals(answer1.getId(), answer.getId())).findFirst();
+
+                    if(existingAnswerOptional.isPresent()) {
+                        // This is an existing question
+                        answer.setCreatedBy(existingAnswerOptional.get().getCreatedBy());
+                        answer.setCreatedDate(existingAnswerOptional.get().getCreatedDate());
+                        answer.setUpdatedBy(updatedBy);
+                        answer.setUpdatedDate(now);
+                    } else {
+                        // This is an edge case where the question has an ID, but it doesn't match and existing question
+                        answer.setCreatedBy(updatedByUser.getUserId());
+                        answer.setCreatedDate(now);
+                        answer.setUpdatedBy(updatedBy);
+                        answer.setUpdatedDate(now);
+                    }
+                });
+        // This is a new question
+        response.getAnswers().stream().filter(answer -> answer.getId() == null)
+                .forEach(answer -> {
+                    answer.setCreatedBy(updatedByUser.getUserId());
+                    answer.setCreatedDate(now);
+                    answer.setUpdatedBy(updatedBy);
+                    answer.setUpdatedDate(now);
+                });
+
+        existingQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.INACTIVE);
+
+        return questionnaireResponseRepository.saveAll(List.of(response, existingQuestionnaireResponse)).get(0);
     }
 }

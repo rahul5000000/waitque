@@ -14,6 +14,7 @@ import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseListDto;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
+import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.QuestionnaireResponseDtoMapper;
 import com.rrsgroup.customer.service.QuestionnaireResponseService;
@@ -24,8 +25,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -143,12 +146,44 @@ public class QuestionnaireResponseController {
     public QuestionnaireResponseDto getQuestionnaireResponse(@AuthenticationPrincipal FieldUserDto fieldUserDto,
                                                              @PathVariable("customerId") Long customerId,
                                                              @PathVariable("responseId") Long responseId) {
+        return dtoMapper.map(getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId));
+    }
+
+    private QuestionnaireResponse getQuestionnaireResponseSafe(FieldUserDto fieldUserDto, Long customerId, Long responseId) {
         Optional<QuestionnaireResponse> questionnaireResponseOptional = questionnaireResponseService.getQuestionnaireResponseForCustomer(responseId, customerId, fieldUserDto);
 
         if(questionnaireResponseOptional.isEmpty()) {
             throw new RecordNotFoundException("Questionnaire response not found by responseId=" + responseId + ", customerId="+customerId + ", companyId=" + fieldUserDto.getCompanyId());
         }
 
-        return dtoMapper.map(questionnaireResponseOptional.get());
+        return questionnaireResponseOptional.get();
+    }
+
+    @PutMapping("/api/field/customers/{customerId}/questionnaires/*/responses/{responseId}")
+    public QuestionnaireResponseDto updateQuestionnaireResponse(@AuthenticationPrincipal FieldUserDto fieldUserDto,
+                                                                @PathVariable("customerId") Long customerId,
+                                                                @PathVariable("responseId") Long responseId,
+                                                                @Valid @RequestBody QuestionnaireResponseDto request) {
+        if(request.id() != null && !request.id().equals(responseId)) {
+            throw new IllegalUpdateException("The ID in the request body does not match the id in the URL");
+        }
+
+        QuestionnaireResponse existingQuestionnaireResponse = getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId);
+
+        if(!existingQuestionnaireResponse.getQuestionnaireId().equals(request.questionnaireId())) {
+            throw new IllegalUpdateException("The questionnaireId cannot be updated");
+        }
+
+        Customer customer = existingQuestionnaireResponse.getCustomer();
+        Long questionnaireId = existingQuestionnaireResponse.getQuestionnaireId();
+        QuestionnaireDto questionnaire = getActiveQuestionnaire(questionnaireId, customer.getCrmConfig().getCompanyId());
+
+        validateAnswersMatchQuestions(request, questionnaire);
+        validateRequiredQuestionsAreAnswered(request, questionnaire);
+
+        QuestionnaireResponse questionnaireResponse = dtoMapper.map(request, customer);
+        questionnaireResponse.setQuestionnaireId(questionnaireId);
+
+        return dtoMapper.map(questionnaireResponseService.updateQuestionnaireResponse(questionnaireResponse, existingQuestionnaireResponse, fieldUserDto));
     }
 }
