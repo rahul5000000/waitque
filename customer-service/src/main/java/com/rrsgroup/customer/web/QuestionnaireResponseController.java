@@ -14,7 +14,6 @@ import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseListDto;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
-import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.QuestionnaireResponseDtoMapper;
 import com.rrsgroup.customer.service.QuestionnaireResponseService;
@@ -25,10 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -185,5 +182,13 @@ public class QuestionnaireResponseController {
         questionnaireResponse.setQuestionnaireId(questionnaireId);
 
         return dtoMapper.map(questionnaireResponseService.updateQuestionnaireResponse(questionnaireResponse, existingQuestionnaireResponse, fieldUserDto));
+    }
+
+    @DeleteMapping("/api/field/customers/{customerId}/questionnaires/*/responses/{responseId}")
+    public QuestionnaireResponseDto deleteQuestionnaireResponse(@AuthenticationPrincipal FieldUserDto fieldUserDto,
+                                                                @PathVariable("customerId") Long customerId,
+                                                                @PathVariable("responseId") Long responseId) {
+        QuestionnaireResponse existingQuestionnaireResponse = getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId);
+        return dtoMapper.map(questionnaireResponseService.markQuestionnaireResponseInactive(existingQuestionnaireResponse, fieldUserDto));
     }
 }

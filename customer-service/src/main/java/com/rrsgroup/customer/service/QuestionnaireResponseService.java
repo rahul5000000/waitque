@@ -105,4 +105,15 @@ public class QuestionnaireResponseService {
 
         return questionnaireResponseRepository.saveAll(List.of(response, existingQuestionnaireResponse)).get(0);
     }
+
+    public QuestionnaireResponse markQuestionnaireResponseInactive(QuestionnaireResponse existingQuestionnaireResponse, FieldUserDto updatedByUser) {
+        LocalDateTime now = LocalDateTime.now();
+        String updatedBy = updatedByUser.getUserId();
+
+        existingQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.INACTIVE);
+        existingQuestionnaireResponse.setUpdatedBy(updatedBy);
+        existingQuestionnaireResponse.setUpdatedDate(now);
+
+        return questionnaireResponseRepository.save(existingQuestionnaireResponse);
+    }
 }

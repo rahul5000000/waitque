@@ -25,6 +25,7 @@ public class QuestionnaireResponseListDto extends PaginatedDto {
         private Long id;
         private String questionnaireName;
         private QuestionnaireResponseStatus status;
+        private Long predecessorId;
         private LocalDateTime createdDate;
         private LocalDateTime updatedDate;
     }

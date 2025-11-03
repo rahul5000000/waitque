@@ -72,9 +72,10 @@ public class QuestionnaireResponseDtoMapper {
 
         CrmCustomer crmCustomer = crmCustomerOptional.get();
         QuestionnaireDto questionnaire = questionnaireOptional.get();
+        Long predecessorId = response.getPredecessor() != null ? response.getPredecessor().getId() : null;
 
         return new QuestionnaireResponseDto(response.getId(), response.getQuestionnaireId(), response.getStatus(),
-                questionnaire,  crmCustomer, response.getAnswers().stream().map(this::map).toList(),
+                questionnaire,  crmCustomer, response.getAnswers().stream().map(this::map).toList(), predecessorId,
                 response.getCreatedDate(), response.getUpdatedDate(), response.getCreatedBy(), response.getUpdatedBy());
     }
 
@@ -108,9 +109,10 @@ public class QuestionnaireResponseDtoMapper {
                     }
 
                     QuestionnaireDto questionnaire = questionnaireOptional.get();
+                    Long predecessorId = response.getPredecessor() != null ? response.getPredecessor().getId() : null;
 
                     return new QuestionnaireResponseListDto.QuestionnaireResponseListItem(response.getId(), questionnaire.name(),
-                            response.getStatus(), response.getCreatedDate(), response.getUpdatedDate());
+                            response.getStatus(), predecessorId, response.getCreatedDate(), response.getUpdatedDate());
                 }).toList()
         );
     }
