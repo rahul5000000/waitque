@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record QuestionnaireResponseDto(Long id, Long questionnaireId, QuestionnaireResponseStatus status,
-                                       QuestionnaireDto questionnaire, CrmCustomer crmCustomer, List<QuestionnaireResponseAnswerDto> answers,
+                                       QuestionnaireDto questionnaire, CrmCustomer crmCustomer,
+                                       List<QuestionnaireResponseAnswerDto> answers, Long predecessorId,
                                        LocalDateTime createdDate, LocalDateTime updatedDate, String createdBy, String updatedBy) {
 }

@@ -1,6 +1,5 @@
 package com.rrsgroup.customer.entity.questionnaireresponse;
 
-import com.rrsgroup.customer.domain.questionnaire.QuestionnaireStatus;
 import com.rrsgroup.customer.domain.questionnaireresponse.QuestionnaireResponseStatus;
 import com.rrsgroup.customer.entity.Customer;
 import jakarta.persistence.*;
@@ -38,6 +37,10 @@ public class QuestionnaireResponse {
 
     @OneToMany(mappedBy = "questionnaireResponse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<QuestionnaireResponseAnswer> answers = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "predecessor_id")
+    private QuestionnaireResponse predecessor;
 
     @NotNull
     private LocalDateTime createdDate;
