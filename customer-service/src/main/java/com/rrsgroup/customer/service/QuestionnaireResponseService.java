@@ -60,8 +60,8 @@ public class QuestionnaireResponseService {
         }
     }
 
-    public Optional<QuestionnaireResponse> getQuestionnaireResponseForCustomer(Long questionnaireResponseId, Long customerId, CompanyUserDto userDto) {
-        return questionnaireResponseRepository.findByIdAndCustomer_IdAndCustomer_CrmConfig_CompanyId(questionnaireResponseId, customerId, userDto.getCompanyId());
+    public Optional<QuestionnaireResponse> getQuestionnaireResponseForCustomer(Long questionnaireResponseId, Long customerId, Long companyId) {
+        return questionnaireResponseRepository.findByIdAndCustomer_IdAndCustomer_CrmConfig_CompanyId(questionnaireResponseId, customerId, companyId);
     }
 
     public QuestionnaireResponse updateQuestionnaireResponse(QuestionnaireResponse response, QuestionnaireResponse existingQuestionnaireResponse, FieldUserDto updatedByUser) {
