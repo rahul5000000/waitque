@@ -278,3 +278,29 @@ output "db_secret_arn" {
   description = "Waitque Secrets Manager secret ARN"
   value       = aws_secretsmanager_secret.db_credentials.arn
 }
+
+output "db_address" {
+  description = "RDS instance address (hostname only)"
+  value       = aws_db_instance.postgres.address
+}
+
+output "db_port" {
+  description = "RDS instance port"
+  value       = aws_db_instance.postgres.port
+}
+
+output "db_security_group_id" {
+  description = "RDS security group ID"
+  value       = aws_security_group.db_sg.id
+}
+
+# These assume you created them with the PostgreSQL provider approach
+output "keycloak_secret_arn" {
+  description = "Keycloak database credentials secret ARN"
+  value       = aws_secretsmanager_secret.keycloak_credentials.arn
+}
+
+output "waitque_secret_arn" {
+  description = "Waitque API database credentials secret ARN"
+  value       = aws_secretsmanager_secret.waitque_credentials.arn
+}
