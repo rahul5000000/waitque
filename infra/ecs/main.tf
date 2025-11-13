@@ -163,22 +163,6 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow inter-service communication"
   }
 
-  ingress {
-      from_port   = 8080
-      to_port     = 8080
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "HTTP from internet"
-    }
-
-  ingress {
-     from_port   = 9000
-     to_port     = 9000
-     protocol    = "tcp"
-     cidr_blocks = ["0.0.0.0/0"]
-     description = "Keycloak management port"
-    }
-
   egress {
     from_port   = 0
     to_port     = 0
