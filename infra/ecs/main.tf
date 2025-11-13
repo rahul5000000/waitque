@@ -324,26 +324,6 @@ resource "aws_lb_target_group" "customer_service" {
   }
 }
 
-resource "aws_lb" "keycloak_nlb" {
-  name               = "keycloak-nlb"
-  load_balancer_type = "network"
-  subnets            = data.aws_subnets.default.ids
-}
-
-resource "aws_lb_target_group" "keycloak_nlb_tg" {
-  port        = 8080
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default.id
-  target_type = "ip"
-}
-
-resource "aws_lb_target_group" "keycloak_nlb_tg_9000" {
-  port        = 9000
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default.id
-  target_type = "ip"
-}
-
 # Listeners
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
@@ -422,28 +402,6 @@ resource "aws_lb_listener_rule" "customer_service" {
     path_pattern {
       values = ["/api/customers/*"]
     }
-  }
-}
-
-resource "aws_lb_listener" "keycloak_nlb_listener" {
-  load_balancer_arn = aws_lb.keycloak_nlb.arn
-  port              = 8080
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.keycloak_nlb_tg.arn
-  }
-}
-
-resource "aws_lb_listener" "keycloak_nlb_listener_9000" {
-  load_balancer_arn = aws_lb.keycloak_nlb.arn
-  port              = 9000
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.keycloak_nlb_tg_9000.arn
   }
 }
 
@@ -986,24 +944,11 @@ resource "aws_ecs_service" "keycloak" {
     container_port   = 8080
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.keycloak_nlb_tg.arn
-    container_name   = "keycloak"
-    container_port   = 8080
-  }
-
-  load_balancer {
-      target_group_arn = aws_lb_target_group.keycloak_nlb_tg_9000.arn
-      container_name   = "keycloak"
-      container_port   = 9000
-    }
-
   service_registries {
     registry_arn = aws_service_discovery_service.keycloak.arn
   }
 
-#   depends_on = [aws_lb_listener.http]
-  depends_on = [aws_lb_target_group.keycloak_nlb_tg, aws_lb_listener.keycloak_nlb_listener, aws_lb_listener.keycloak_nlb_listener_9000]
+  depends_on = [aws_lb_listener.http]
 
   tags = {
     Name        = "waitque-keycloak-service"
@@ -1116,7 +1061,7 @@ output "alb_url" {
 
 output "keycloak_url" {
   description = "Keycloak URL"
-  value       = "http://${aws_lb.main.dns_name}/auth"
+  value       = "http://${aws_lb.main.dns_name}"
 }
 
 output "ecr_repositories" {
