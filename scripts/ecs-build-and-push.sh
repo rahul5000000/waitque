@@ -67,6 +67,12 @@ build_and_push() {
   cd ..
 }
 
+echo "Compiling modules..."
+
+mvn clean package
+
+echo "Compiled modules!"
+
 # Build and push each service
 build_and_push "user-service" "./user-service" "$USER_SERVICE_REPO"
 build_and_push "company-service" "./company-service" "$COMPANY_SERVICE_REPO"

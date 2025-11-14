@@ -215,6 +215,33 @@ resource "postgresql_grant" "waitque_db" {
   privileges  = ["ALL"]
 }
 
+# Allow the waitque_api user to access and create objects in the waitque schema
+resource "postgresql_grant" "waitque_schema_usage_create" {
+  database    = postgresql_database.waitque.name
+  schema      = postgresql_schema.waitque.name
+  role        = postgresql_role.waitque_api.name
+  object_type = "schema"
+  privileges  = ["USAGE", "CREATE"]
+}
+
+# Allow table-level operations inside the waitque schema
+resource "postgresql_grant" "waitque_tables_all" {
+  database    = postgresql_database.waitque.name
+  schema      = postgresql_schema.waitque.name
+  role        = postgresql_role.waitque_api.name
+  object_type = "table"
+  privileges  = ["ALL"]
+}
+
+# Allow sequence operations inside the waitque schema
+resource "postgresql_grant" "waitque_sequences_all" {
+  database    = postgresql_database.waitque.name
+  schema      = postgresql_schema.waitque.name
+  role        = postgresql_role.waitque_api.name
+  object_type = "sequence"
+  privileges  = ["ALL"]
+}
+
 resource "postgresql_default_privileges" "waitque_tables" {
   database    = postgresql_database.waitque.name
   role        = postgresql_role.waitque_api.name

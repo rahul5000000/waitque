@@ -325,25 +325,9 @@ resource "aws_lb_listener" "http" {
 }
 
 # Listener Rules
-resource "aws_lb_listener_rule" "keycloak" {
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.keycloak.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/*", "/realms/*", "/admin/*", "/health*"]
-    }
-  }
-}
-
 resource "aws_lb_listener_rule" "user_service" {
   listener_arn = aws_lb_listener.http.arn
-  priority     = 200
+  priority     = 100
 
   action {
     type             = "forward"
@@ -359,7 +343,7 @@ resource "aws_lb_listener_rule" "user_service" {
 
 resource "aws_lb_listener_rule" "company_service" {
   listener_arn = aws_lb_listener.http.arn
-  priority     = 300
+  priority     = 200
 
   action {
     type             = "forward"
@@ -375,7 +359,7 @@ resource "aws_lb_listener_rule" "company_service" {
 
 resource "aws_lb_listener_rule" "customer_service" {
   listener_arn = aws_lb_listener.http.arn
-  priority     = 400
+  priority     = 300
 
   action {
     type             = "forward"
@@ -385,6 +369,22 @@ resource "aws_lb_listener_rule" "customer_service" {
   condition {
     path_pattern {
       values = ["/api/customers/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "keycloak" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 400
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.keycloak.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/*", "/realms/*", "/admin/*", "/health*"]
     }
   }
 }
@@ -655,6 +655,14 @@ resource "aws_ecs_task_definition" "keycloak" {
         value = aws_lb.main.dns_name
       },
       {
+          name = "KC_HOSTNAME_URL"
+          value = "http://${aws_lb.main.dns_name}"
+        },
+      {
+          name = "KC_HOSTNAME_ADMIN_URL"
+          value = "http://${aws_lb.main.dns_name}"
+        },
+      {
           name  = "KC_HOSTNAME_STRICT_HTTPS"
           value = "false"
         },
@@ -751,15 +759,15 @@ resource "aws_ecs_task_definition" "user_service" {
     environment = [
       {
         name  = "SPRING_PROFILES_ACTIVE"
-        value = "docker"
+        value = "ecs-${var.environment}"
       },
       {
         name  = "DB_HOST"
         value = data.terraform_remote_state.rds.outputs.db_address
       },
       {
-        name  = "KEYCLOAK_URL"
-        value = "http://keycloak.waitque.local:8080"
+        name  = "KEYCLOAK_ALB_URL"
+        value = "http://${aws_lb.main.dns_name}"
       }
     ]
 
@@ -963,6 +971,8 @@ resource "aws_ecs_service" "user_service" {
     aws_lb_listener.http,
     aws_ecs_service.keycloak
   ]
+
+  health_check_grace_period_seconds = 240
 
   tags = {
     Name        = "waitque-user-service"
