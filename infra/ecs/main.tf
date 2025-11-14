@@ -336,7 +336,7 @@ resource "aws_lb_listener_rule" "user_service" {
 
   condition {
     path_pattern {
-      values = ["/api/users/*"]
+      values = ["/1/*"]
     }
   }
 }
@@ -352,7 +352,7 @@ resource "aws_lb_listener_rule" "company_service" {
 
   condition {
     path_pattern {
-      values = ["/api/companies/*"]
+      values = ["/2/*"]
     }
   }
 }
@@ -368,7 +368,7 @@ resource "aws_lb_listener_rule" "customer_service" {
 
   condition {
     path_pattern {
-      values = ["/api/customers/*"]
+      values = ["/3/*"]
     }
   }
 }
