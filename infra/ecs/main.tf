@@ -815,15 +815,19 @@ resource "aws_ecs_task_definition" "company_service" {
     environment = [
       {
         name  = "SPRING_PROFILES_ACTIVE"
-        value = "docker"
+        value = "ecs-${var.environment}"
       },
       {
         name  = "DB_HOST"
         value = data.terraform_remote_state.rds.outputs.db_address
       },
       {
-        name  = "KEYCLOAK_URL"
-        value = "http://keycloak.waitque.local:8080"
+        name  = "KEYCLOAK_ALB_URL"
+        value = "http://${aws_lb.main.dns_name}"
+      },
+      {
+        name  = "ALB_URL"
+        value = "http://${aws_lb.main.dns_name}"
       }
     ]
 
@@ -875,15 +879,19 @@ resource "aws_ecs_task_definition" "customer_service" {
     environment = [
       {
         name  = "SPRING_PROFILES_ACTIVE"
-        value = "docker"
+        value = "ecs-${var.environment}"
       },
       {
         name  = "DB_HOST"
         value = data.terraform_remote_state.rds.outputs.db_address
       },
       {
-        name  = "KEYCLOAK_URL"
-        value = "http://keycloak.waitque.local:8080"
+        name  = "KEYCLOAK_ALB_URL"
+        value = "http://${aws_lb.main.dns_name}"
+      },
+      {
+        name  = "ALB_URL"
+        value = "http://${aws_lb.main.dns_name}"
       }
     ]
 
@@ -1004,6 +1012,8 @@ resource "aws_ecs_service" "company_service" {
     aws_ecs_service.keycloak
   ]
 
+  health_check_grace_period_seconds = 240
+
   tags = {
     Name        = "waitque-company-service"
     Environment = var.environment
@@ -1033,6 +1043,8 @@ resource "aws_ecs_service" "customer_service" {
     aws_lb_listener.http,
     aws_ecs_service.keycloak
   ]
+
+  health_check_grace_period_seconds = 240
 
   tags = {
     Name        = "waitque-customer-service"
