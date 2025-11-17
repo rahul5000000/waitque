@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -139,6 +140,21 @@ public class QuestionnaireResponseController {
         return dtoMapper.map(pageOfQuestionnaireResponses);
     }
 
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/questionnaires/*/responses")
+    public QuestionnaireResponseListDto publicSearchQuestionnaireResponses(
+            @PathVariable(name = "qrCode") UUID qrCode,
+            @RequestParam(name = "status", required = false) List<QuestionnaireResponseStatus> statuses,
+            @RequestParam(name = "limit") Integer limit,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "sortField", required = false, defaultValue = "id") String sortField,
+            @RequestParam(name = "sortDir", required = false, defaultValue = "DESC") SortDirection sortDir
+    ) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        Page<QuestionnaireResponse> pageOfQuestionnaireResponses = questionnaireResponseService.getCustomerListOfQuestionnaireResponses(customer.getId(), customer.getCrmConfig().getCompanyId(), statuses, limit, page, sortField, sortDir);
+
+        return dtoMapper.map(pageOfQuestionnaireResponses);
+    }
+
     @GetMapping("/api/field/customers/{customerId}/questionnaires/*/responses/{responseId}")
     public QuestionnaireResponseDto getQuestionnaireResponse(@AuthenticationPrincipal FieldUserDto fieldUserDto,
                                                              @PathVariable("customerId") Long customerId,
@@ -146,11 +162,22 @@ public class QuestionnaireResponseController {
         return dtoMapper.map(getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId));
     }
 
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/questionnaires/*/responses/{responseId}")
+    public QuestionnaireResponseDto publicGetQuestionnaireResponse(@PathVariable(name = "qrCode") UUID qrCode,
+                                                             @PathVariable("responseId") Long responseId) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        return dtoMapper.map(getQuestionnaireResponseSafe(customer.getCrmConfig().getCompanyId(), customer.getId(), responseId));
+    }
+
     private QuestionnaireResponse getQuestionnaireResponseSafe(FieldUserDto fieldUserDto, Long customerId, Long responseId) {
-        Optional<QuestionnaireResponse> questionnaireResponseOptional = questionnaireResponseService.getQuestionnaireResponseForCustomer(responseId, customerId, fieldUserDto);
+        return getQuestionnaireResponseSafe(fieldUserDto.getCompanyId(), customerId, responseId);
+    }
+
+    private QuestionnaireResponse getQuestionnaireResponseSafe(Long companyId, Long customerId, Long responseId) {
+        Optional<QuestionnaireResponse> questionnaireResponseOptional = questionnaireResponseService.getQuestionnaireResponseForCustomer(responseId, customerId, companyId);
 
         if(questionnaireResponseOptional.isEmpty()) {
-            throw new RecordNotFoundException("Questionnaire response not found by responseId=" + responseId + ", customerId="+customerId + ", companyId=" + fieldUserDto.getCompanyId());
+            throw new RecordNotFoundException("Questionnaire response not found by responseId=" + responseId + ", customerId="+customerId + ", companyId=" + companyId);
         }
 
         return questionnaireResponseOptional.get();
