@@ -33,7 +33,10 @@ echo -e "\n${YELLOW}🔐 Logging into ECR...${NC}"
 aws ecr get-login-password --region $AWS_REGION | \
   docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-# Function to build and push
+# Enable buildx
+docker buildx create --use || true
+
+# Function to build and push amd64 image
 build_and_push() {
   local SERVICE_NAME=$1
   local SERVICE_DIR=$2
@@ -50,17 +53,15 @@ build_and_push() {
 
   cd $SERVICE_DIR
 
-  # Build the image
-  docker build -t $SERVICE_NAME:latest -f $DOCKERFILE .
+  echo -e "${YELLOW}📦 Building amd64-only image for $SERVICE_NAME...${NC}"
 
-  # Tag for ECR
-  docker tag $SERVICE_NAME:latest $ECR_REPO:latest
-  docker tag $SERVICE_NAME:latest $ECR_REPO:$TAG
-
-  # Push to ECR
-  echo -e "${YELLOW}📤 Pushing $SERVICE_NAME to ECR...${NC}"
-  docker push $ECR_REPO:latest
-  docker push $ECR_REPO:$TAG
+  docker buildx build \
+    --platform linux/amd64 \
+    -t $ECR_REPO:latest \
+    -t $ECR_REPO:$TAG \
+    -f $DOCKERFILE \
+    --push \
+    .
 
   echo -e "${GREEN}✅ $SERVICE_NAME pushed successfully${NC}"
 
