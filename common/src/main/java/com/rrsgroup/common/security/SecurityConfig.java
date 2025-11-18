@@ -46,7 +46,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        if ("dev".equals(activeProfile)) {
+        if ("dev".equals(activeProfile) || "docker".equals(activeProfile)) {
             config.setAllowedOrigins(List.of("http://localhost:8081"));
         } else {
             config.setAllowedOrigins(List.of("https://waitque.com"));
