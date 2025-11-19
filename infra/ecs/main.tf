@@ -489,6 +489,24 @@ resource "aws_iam_role" "ecs_task_role" {
   }
 }
 
+resource "aws_iam_policy" "backend_upload_policy" {
+  name = "backend-upload-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = ["s3:PutObject", "s3:PutObjectAcl"],
+      Resource = "${module.waitque-upload-bucket.bucket_arn}/*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.backend_upload_policy.arn
+}
+
 # -------------------------------
 # Secrets Manager for Application Secrets
 # -------------------------------
@@ -1050,6 +1068,28 @@ resource "aws_ecs_service" "customer_service" {
     Name        = "waitque-customer-service"
     Environment = var.environment
   }
+}
+
+# -------------------------------
+# S3 Bucket
+# -------------------------------
+
+module "waitque-upload-bucket" {
+  source = "../s3-cloudfront"
+
+  bucket_name        = "waitque-upload-bucket"
+  backend_role_arn   = aws_iam_role.ecs_task_execution_role.arn
+
+  # optional overrides
+  expire_noncurrent_days = 7
+  default_root_object    = "index.html"
+  force_destroy          = false
+
+  # North America geo restriction (these are the defaults anyway)
+  geo_whitelist = [
+    "US",
+    "CA"
+  ]
 }
 
 # -------------------------------
