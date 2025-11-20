@@ -5,10 +5,13 @@ import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.service.S3Service;
 import com.rrsgroup.common.util.ImageWrapper;
+import com.rrsgroup.company.domain.UploadFileType;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
 import com.rrsgroup.company.dto.QrCodeDto;
+import com.rrsgroup.company.dto.UploadUrlDto;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.service.CompanyDtoMapper;
 import com.rrsgroup.company.service.CompanyService;
@@ -20,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -31,16 +36,19 @@ public class CompanyController {
     private final CompanyDtoMapper companyDtoMapper;
     private final QrCodeService qrCodeService;
     private final FrontEndLinkService frontEndLinkService;
+    private final S3Service s3Service;
 
     public CompanyController(
             CompanyService companyService,
             CompanyDtoMapper companyDtoMapper,
             QrCodeService qrCodeService,
-            FrontEndLinkService frontEndLinkService) {
+            FrontEndLinkService frontEndLinkService,
+            S3Service s3Service) {
         this.companyService = companyService;
         this.companyDtoMapper = companyDtoMapper;
         this.qrCodeService = qrCodeService;
         this.frontEndLinkService = frontEndLinkService;
+        this.s3Service = s3Service;
     }
 
     @PostMapping("/api/internal/companies")
@@ -150,5 +158,21 @@ public class CompanyController {
                 zos.closeEntry();
             }
         }
+    }
+
+    @GetMapping("/api/internal/companies/{companyId}/logoUploadUrl")
+    public UploadUrlDto generateLogoUploadUrl(
+            @PathVariable(name = "companyId") Long companyId,
+            @RequestParam(name = "fileName") String fileName,
+            @RequestParam(name = "contentType") String contentType) {
+        Company company = getCompanySafe(companyId);
+
+        int validity = 300;
+        LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
+        String bucketKey = companyService.getBucketKeyForFile(company, UploadFileType.LOGO, fileName);
+
+        URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
+
+        return new UploadUrlDto(url.toString(), validUntil);
     }
 }

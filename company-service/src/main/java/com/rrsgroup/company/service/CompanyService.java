@@ -1,7 +1,9 @@
 package com.rrsgroup.company.service;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
+import com.rrsgroup.company.domain.UploadFileType;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +45,13 @@ public class CompanyService {
             throw new IllegalUpdateException("Id must be set to update the record");
         }
         return repository.save(updateRequest);
+    }
+
+    public String getBucketKeyForFile(Company company, UploadFileType fileType, String fileName) {
+        if(fileType == UploadFileType.LOGO) {
+            return company.getId() + "/" + fileType.getFolder() + "/" + fileName;
+        } else {
+            throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
+        }
     }
 }
