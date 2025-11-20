@@ -7,6 +7,7 @@ import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.common.service.S3Service;
 import com.rrsgroup.common.util.ImageWrapper;
+import com.rrsgroup.company.domain.FileStage;
 import com.rrsgroup.company.domain.UploadFileType;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
@@ -169,7 +170,7 @@ public class CompanyController {
 
         int validity = 300;
         LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
-        String bucketKey = companyService.getBucketKeyForFile(company, UploadFileType.LOGO, fileName);
+        String bucketKey = companyService.getBucketKeyForFileAndStage(company, UploadFileType.LOGO, fileName, FileStage.RAW);
 
         URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
 

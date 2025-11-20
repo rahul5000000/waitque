@@ -9,6 +9,7 @@ import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
 import com.rrsgroup.common.service.CommonDtoMapper
+import com.rrsgroup.common.service.S3Service
 import com.rrsgroup.common.util.ImageWrapper
 import com.rrsgroup.company.dto.CompanyDto
 import com.rrsgroup.company.dto.QrCodeDto
@@ -38,8 +39,9 @@ class CompanyControllerSpec extends Specification {
     def commonMockGenerator = new CommonMockGenerator()
     def qrCodeService = Mock(QrCodeService)
     def frontEndLinkService = Mock(FrontEndLinkService)
+    def s3Service = Mock(S3Service)
 
-    def controller = new CompanyController(companyService, mapper, qrCodeService, frontEndLinkService)
+    def controller = new CompanyController(companyService, mapper, qrCodeService, frontEndLinkService, s3Service)
 
     def "createCompany throws a BAD REQUEST exception for requests that contain IDs"() {
         given:
