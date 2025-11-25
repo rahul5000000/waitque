@@ -9,10 +9,7 @@ import com.rrsgroup.common.service.S3Service;
 import com.rrsgroup.common.util.ImageWrapper;
 import com.rrsgroup.company.domain.FileStage;
 import com.rrsgroup.company.domain.UploadFileType;
-import com.rrsgroup.company.dto.CompanyDto;
-import com.rrsgroup.company.dto.CompanyListDto;
-import com.rrsgroup.company.dto.QrCodeDto;
-import com.rrsgroup.company.dto.UploadUrlDto;
+import com.rrsgroup.company.dto.*;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.service.CompanyDtoMapper;
 import com.rrsgroup.company.service.CompanyService;
@@ -175,5 +172,15 @@ public class CompanyController {
         URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
 
         return new UploadUrlDto(url.toString(), validUntil);
+    }
+
+    @PutMapping("/api/system/companies/{companyId}/logoUrl")
+    public CompanyDto updateCompanyLogoUrl(
+            @PathVariable(name = "companyId") Long companyId,
+            @RequestBody LogoUrlUpdateDto request) {
+        Company company = getCompanySafe(companyId);
+
+        company.setLogoUrl(request.logoUrl());
+        return companyDtoMapper.map(companyService.updateCompany(company));
     }
 }

@@ -176,6 +176,22 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+resource "aws_security_group" "lambda_sg" {
+  name        = "lambda-sg"
+  description = "Security group for Lambda to talk to ECS services"
+  vpc_id      = data.aws_vpc.default.id
+
+  # Lambda needs OUTBOUND traffic to reach ECS tasks
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # No inbound rules needed – Lambda never accepts inbound connections
+}
+
 # Allow ECS to access RDS
 resource "aws_security_group_rule" "rds_from_ecs" {
   type                     = "ingress"
@@ -503,7 +519,7 @@ resource "aws_iam_policy" "backend_upload_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+  role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.backend_upload_policy.arn
 }
 
@@ -602,6 +618,44 @@ resource "aws_service_discovery_private_dns_namespace" "main" {
 
 resource "aws_service_discovery_service" "keycloak" {
   name = "keycloak"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "company_service" {
+  name = "company-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "customer_service" {
+  name = "customer-service"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
@@ -1025,6 +1079,10 @@ resource "aws_ecs_service" "company_service" {
     container_port   = 8082
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.company_service.arn
+  }
+
   depends_on = [
     aws_lb_listener.http,
     aws_ecs_service.keycloak
@@ -1055,6 +1113,10 @@ resource "aws_ecs_service" "customer_service" {
     target_group_arn = aws_lb_target_group.customer_service.arn
     container_name   = "customer-service"
     container_port   = 8083
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.customer_service.arn
   }
 
   depends_on = [
@@ -1128,4 +1190,17 @@ output "ecs_cluster_name" {
 output "service_discovery_namespace" {
   description = "Service discovery namespace"
   value       = aws_service_discovery_private_dns_namespace.main.name
+}
+
+# outputs.tf in VPC stack
+output "vpc_id" {
+  value = data.aws_vpc.default.id
+}
+
+output "vpc_subnet_ids" {
+  value = data.aws_subnets.default.ids
+}
+
+output "lambda_security_group_id" {
+  value = aws_security_group.lambda_sg.id
 }
