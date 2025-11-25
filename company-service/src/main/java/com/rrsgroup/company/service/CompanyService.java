@@ -50,7 +50,7 @@ public class CompanyService {
 
     public String getBucketKeyForFileAndStage(Company company, UploadFileType fileType, String fileName, FileStage stage) {
         if(fileType == UploadFileType.LOGO) {
-            return stage.toString() + "/" + company.getId() + "/" + fileType.getFolder() + "/" + fileName;
+            return stage.toString() + "/" + fileType.getFolder()+ "/" + company.getId() + "/" + fileName;
         } else {
             throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
         }
