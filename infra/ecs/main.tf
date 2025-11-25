@@ -176,6 +176,22 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+resource "aws_security_group" "lambda_sg" {
+  name        = "lambda-sg"
+  description = "Security group for Lambda to talk to ECS services"
+  vpc_id      = data.aws_vpc.default.id
+
+  # Lambda needs OUTBOUND traffic to reach ECS tasks
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # No inbound rules needed – Lambda never accepts inbound connections
+}
+
 # Allow ECS to access RDS
 resource "aws_security_group_rule" "rds_from_ecs" {
   type                     = "ingress"
@@ -489,6 +505,24 @@ resource "aws_iam_role" "ecs_task_role" {
   }
 }
 
+resource "aws_iam_policy" "backend_upload_policy" {
+  name = "backend-upload-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = ["s3:PutObject", "s3:PutObjectAcl"],
+      Resource = "${module.waitque-upload-bucket.bucket_arn}/*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.backend_upload_policy.arn
+}
+
 # -------------------------------
 # Secrets Manager for Application Secrets
 # -------------------------------
@@ -584,6 +618,44 @@ resource "aws_service_discovery_private_dns_namespace" "main" {
 
 resource "aws_service_discovery_service" "keycloak" {
   name = "keycloak"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "company_service" {
+  name = "company-service"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "customer_service" {
+  name = "customer-service"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
@@ -1007,6 +1079,10 @@ resource "aws_ecs_service" "company_service" {
     container_port   = 8082
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.company_service.arn
+  }
+
   depends_on = [
     aws_lb_listener.http,
     aws_ecs_service.keycloak
@@ -1039,6 +1115,10 @@ resource "aws_ecs_service" "customer_service" {
     container_port   = 8083
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.customer_service.arn
+  }
+
   depends_on = [
     aws_lb_listener.http,
     aws_ecs_service.keycloak
@@ -1050,6 +1130,28 @@ resource "aws_ecs_service" "customer_service" {
     Name        = "waitque-customer-service"
     Environment = var.environment
   }
+}
+
+# -------------------------------
+# S3 Bucket
+# -------------------------------
+
+module "waitque-upload-bucket" {
+  source = "../s3-cloudfront"
+
+  bucket_name        = "waitque-upload-bucket"
+  backend_role_arn   = aws_iam_role.ecs_task_execution_role.arn
+
+  # optional overrides
+  expire_noncurrent_days = 7
+  default_root_object    = "index.html"
+  force_destroy          = false
+
+  # North America geo restriction (these are the defaults anyway)
+  geo_whitelist = [
+    "US",
+    "CA"
+  ]
 }
 
 # -------------------------------
@@ -1088,4 +1190,17 @@ output "ecs_cluster_name" {
 output "service_discovery_namespace" {
   description = "Service discovery namespace"
   value       = aws_service_discovery_private_dns_namespace.main.name
+}
+
+# outputs.tf in VPC stack
+output "vpc_id" {
+  value = data.aws_vpc.default.id
+}
+
+output "vpc_subnet_ids" {
+  value = data.aws_subnets.default.ids
+}
+
+output "lambda_security_group_id" {
+  value = aws_security_group.lambda_sg.id
 }
