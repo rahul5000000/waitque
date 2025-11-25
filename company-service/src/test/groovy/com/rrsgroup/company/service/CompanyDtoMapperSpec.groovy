@@ -67,6 +67,8 @@ class CompanyDtoMapperSpec extends Specification {
     def "can map from Company, Address & PhoneNumber to CompanyDto"() {
         given:
         def company = companyMockGenerator.getCompanyMock()
+        def cdbBaseUrl  = "cdn.com"
+        mapper.cdnBaseUrl = cdbBaseUrl
 
         when:
         def result = mapper.map(company)
@@ -84,7 +86,7 @@ class CompanyDtoMapperSpec extends Specification {
         result.phoneNumber().id() == company.phoneNumber.id
         result.phoneNumber().countryCode() == company.phoneNumber.countryCode
         result.phoneNumber().phoneNumber() == company.phoneNumber.phoneNumber
-        result.logoUrl() == company.logoUrl
+        result.logoUrl() == cdbBaseUrl + "/" + company.logoUrl
         result.landingPrompt() == company.landingPrompt
         result.textColor() == company.textColor
         result.backgroundColor() == company.backgroundColor
