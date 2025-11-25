@@ -44,6 +44,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
       - COMPANY_SERVICE_CLIENT_SECRET=${COMPANY_SERVICE_CLIENT_SECRET}
+      - CDN_BASE_URL=http://dgzyzoic2eg8w.cloudfront.net
     depends_on:
       - postgres
       - keycloak

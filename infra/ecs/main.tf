@@ -900,6 +900,10 @@ resource "aws_ecs_task_definition" "company_service" {
       {
         name  = "ALB_URL"
         value = "http://${aws_lb.main.dns_name}"
+      },
+      {
+        name  = "CDN_BASE_URL"
+        value = "http://${module.waitque-upload-bucket.cdn_domain}"
       }
     ]
 

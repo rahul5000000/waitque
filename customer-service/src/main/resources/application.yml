@@ -28,6 +28,11 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: customer
           format_sql: true
+
+microservices:
+  company-service:
+    base-url: http://company-service:8082
+
 logging:
   level:
     org.springframework.security: INFO
@@ -136,7 +141,3 @@ spring:
   microservices:
     company-service:
       base-url: ${ALB_URL}/2
-
-microservices:
-  company-service:
-    base-url: http://company-service:8082

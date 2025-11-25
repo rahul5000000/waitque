@@ -7,13 +7,18 @@ import com.rrsgroup.common.service.CommonDtoMapper;
 import com.rrsgroup.company.dto.CompanyDto;
 import com.rrsgroup.company.dto.CompanyListDto;
 import com.rrsgroup.company.entity.Company;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyDtoMapper {
+    @Value("${CDN_BASE_URL}")
+    private String cdnBaseUrl;
+
     private final CommonDtoMapper commonDtoMapper;
 
     @Autowired
@@ -24,8 +29,12 @@ public class CompanyDtoMapper {
     public CompanyDto map(final Company company) {
         AddressDto addressDto = commonDtoMapper.map(company.getAddress());
         PhoneNumberDto phoneNumberDto = commonDtoMapper.map(company.getPhoneNumber());
+        String logoUrl = null;
+        if(StringUtils.isNotEmpty(company.getLogoUrl())) {
+            logoUrl = cdnBaseUrl + "/" + company.getLogoUrl();
+        }
 
-        return new CompanyDto(company.getId(), company.getName(), addressDto, phoneNumberDto, company.getLogoUrl(),
+        return new CompanyDto(company.getId(), company.getName(), addressDto, phoneNumberDto, logoUrl,
                 company.getLandingPrompt(), company.getTextColor(), company.getBackgroundColor(),
                 company.getPrimaryButtonColor(), company.getSecondaryButtonColor(), company.getWarningButtonColor(),
                 company.getDangerButtonColor());

@@ -27,6 +27,13 @@ spring:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: company
+
+microservices:
+  self:
+    base-url: http://localhost:8082
+  customer-service:
+    base-url: http://customer-service:8083
+
 logging:
   level:
     org.springframework.security: INFO
@@ -127,9 +134,3 @@ spring:
       base-url: ${ALB_URL}/2
     customer-service:
       base-url: ${ALB_URL}/3
-
-microservices:
-  self:
-    base-url: http://localhost:8082
-  customer-service:
-    base-url: http://customer-service:8083

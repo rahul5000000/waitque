@@ -182,5 +182,7 @@ public class CompanyController {
 
         company.setLogoUrl(request.logoUrl());
         return companyDtoMapper.map(companyService.updateCompany(company));
+
+        //TODO: Delete all but the current logo image from S3
     }
 }
