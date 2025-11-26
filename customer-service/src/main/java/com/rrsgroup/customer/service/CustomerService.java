@@ -1,8 +1,11 @@
 package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.CompanyUserDto;
+import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.CrmCustomer;
+import com.rrsgroup.customer.domain.FileStage;
+import com.rrsgroup.customer.domain.UploadFileType;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
@@ -77,5 +80,13 @@ public class CustomerService {
         }
 
         return customerOptional.get();
+    }
+
+    public String getBucketKeyForFileAndStage(UUID qrCode, UploadFileType fileType, String fileName, FileStage stage) {
+        if(fileType == UploadFileType.LEAD) {
+            return stage.toString() + "/" + fileType.getFolder()+ "/" + qrCode + "/" + fileName;
+        } else {
+            throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
+        }
     }
 }

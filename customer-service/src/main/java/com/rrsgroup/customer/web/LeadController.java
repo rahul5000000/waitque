@@ -5,10 +5,14 @@ import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.service.S3Service;
+import com.rrsgroup.customer.domain.FileStage;
 import com.rrsgroup.customer.domain.LeadFlowStatus;
+import com.rrsgroup.customer.domain.UploadFileType;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.dto.LeadFlowDto;
 import com.rrsgroup.customer.dto.LeadFlowQuestionDto;
+import com.rrsgroup.customer.dto.UploadUrlDto;
 import com.rrsgroup.customer.dto.lead.LeadAnswerDto;
 import com.rrsgroup.customer.dto.lead.LeadDto;
 import com.rrsgroup.customer.dto.lead.LeadListDto;
@@ -25,6 +29,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,17 +45,20 @@ public class LeadController {
     private final CustomerService customerService;
     private final LeadDtoMapper leadDtoMapper;
     private final LeadService leadService;
+    private final S3Service s3Service;
 
     @Autowired
     public LeadController(
             LeadFlowService leadFlowService,
             CustomerService customerService,
             LeadDtoMapper leadDtoMapper,
-            LeadService leadService) {
+            LeadService leadService,
+            S3Service s3Service) {
         this.leadFlowService = leadFlowService;
         this.customerService = customerService;
         this.leadDtoMapper = leadDtoMapper;
         this.leadService = leadService;
+        this.s3Service = s3Service;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
@@ -63,6 +72,25 @@ public class LeadController {
         // Save lead
         Lead lead = leadDtoMapper.map(request, customer);
         return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/leads/photoUploadUrl")
+    public UploadUrlDto generateLeadUploadUrl(
+            @PathVariable("qrCode") UUID qrCode,
+            @RequestParam(name = "fileName") String fileName,
+            @RequestParam(name = "contentType") String contentType) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+
+        log.info("Uploading photo with fileName={} for customerId={}", fileName, customer.getId());
+
+        int validity = 300;
+        LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
+        String bucketKey = customerService.getBucketKeyForFileAndStage(qrCode, UploadFileType.LEAD, fileName, FileStage.RAW);
+        String optimizedKey = customerService.getBucketKeyForFileAndStage(qrCode, UploadFileType.LEAD, fileName, FileStage.OPTIMIZED);
+
+        URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
+
+        return new UploadUrlDto(url.toString(), bucketKey, optimizedKey, validUntil);
     }
 
     private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
