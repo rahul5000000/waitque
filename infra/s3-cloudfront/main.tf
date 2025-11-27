@@ -144,6 +144,20 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   })
 }
 
+resource "aws_s3_bucket_cors_configuration" "cors" {
+  bucket = aws_s3_bucket.bucket.id
+
+  cors_rule {
+    id = "allow-presigned-uploads"
+
+    allowed_methods = ["PUT", "GET"]
+    allowed_origins = ["*"]        # you can restrict later
+    allowed_headers = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 ###############################################
 # Outputs
 ###############################################
