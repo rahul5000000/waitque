@@ -2,5 +2,5 @@ package com.rrsgroup.customer.dto;
 
 import java.time.LocalDateTime;
 
-public record UploadUrlDto(String url, String rawPath, String optimizedPath, LocalDateTime validUntil) {
+public record UploadUrlDto(String url, String rawPath, LocalDateTime validUntil) {
 }

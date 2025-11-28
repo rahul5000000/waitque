@@ -20,6 +20,7 @@ import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.LeadFlowService;
+import com.rrsgroup.customer.service.UploadUrlDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadService;
 import jakarta.validation.Valid;
@@ -46,6 +47,7 @@ public class LeadController {
     private final LeadDtoMapper leadDtoMapper;
     private final LeadService leadService;
     private final S3Service s3Service;
+    private final UploadUrlDtoMapper uploadUrlDtoMapper;
 
     @Autowired
     public LeadController(
@@ -53,12 +55,14 @@ public class LeadController {
             CustomerService customerService,
             LeadDtoMapper leadDtoMapper,
             LeadService leadService,
-            S3Service s3Service) {
+            S3Service s3Service,
+            UploadUrlDtoMapper uploadUrlDtoMapper) {
         this.leadFlowService = leadFlowService;
         this.customerService = customerService;
         this.leadDtoMapper = leadDtoMapper;
         this.leadService = leadService;
         this.s3Service = s3Service;
+        this.uploadUrlDtoMapper = uploadUrlDtoMapper;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
@@ -86,11 +90,10 @@ public class LeadController {
         int validity = 300;
         LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
         String bucketKey = customerService.getBucketKeyForFileAndStage(qrCode, UploadFileType.LEAD, fileName, FileStage.RAW);
-        String optimizedKey = customerService.getBucketKeyForFileAndStage(qrCode, UploadFileType.LEAD, fileName, FileStage.OPTIMIZED);
 
         URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
 
-        return new UploadUrlDto(url.toString(), bucketKey, optimizedKey, validUntil);
+        return uploadUrlDtoMapper.map(url, bucketKey, validUntil);
     }
 
     private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
