@@ -96,6 +96,19 @@ public class LeadController {
         return uploadUrlDtoMapper.map(url, bucketKey, validUntil);
     }
 
+    @DeleteMapping("/api/public/customers/qrCode/{qrCode}/leads/photoUpload")
+    public void deleteLeadPhotoUpload(@PathVariable("qrCode") UUID qrCode, @RequestParam("photoPath") String path) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+
+        log.info("Deleting photo with path={} for customerId={}", path, customer.getId());
+
+        if(!path.contains("/" + qrCode + "/")) {
+            throw new IllegalRequestException("Cannot delete photo for another customer");
+        }
+
+        s3Service.delete(S3Service.WAITQUE_UPLOAD_BUCKET, path);
+    }
+
     private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
         // Validate answers for all required questions exist in request
         Map<Long, LeadAnswerDto> leadAnswerDtoToQuestionIdMap = request.answers().stream().collect(Collectors.toMap(LeadAnswerDto::getLeadFlowQuestionId, Function.identity()));
