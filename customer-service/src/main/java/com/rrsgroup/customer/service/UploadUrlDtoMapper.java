@@ -13,6 +13,6 @@ public class UploadUrlDtoMapper {
     private String cdnBaseUrl;
 
     public UploadUrlDto map(URL url, String rawPath, LocalDateTime validUntil) {
-        return new UploadUrlDto(url.toString(), cdnBaseUrl + "/" + rawPath, validUntil);
+        return new UploadUrlDto(url.toString(), cdnBaseUrl, rawPath, validUntil);
     }
 }
