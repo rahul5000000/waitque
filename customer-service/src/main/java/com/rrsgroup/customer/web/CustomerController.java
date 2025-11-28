@@ -188,4 +188,10 @@ public class CustomerController {
 
         return customerDtoMapper.map(customer, crmCustomerOptional.get());
     }
+
+    @PostMapping("/api/public/customers/qrCode/{qrCode}/mobileLogs")
+    public void createMobileLogs(@PathVariable(name = "qrCode") UUID qrCode, @RequestBody MobileLogDto request) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+        log.log(request.level().getLog4jLevel(), "Mobile Logs: customer={}, platform={}, page={}, message={}, json={}", customer.getId(), request.platform(), request.page(), request.message(), request.json());
+    }
 }
