@@ -5,10 +5,14 @@ import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.service.S3Service;
+import com.rrsgroup.customer.domain.FileStage;
 import com.rrsgroup.customer.domain.LeadFlowStatus;
+import com.rrsgroup.customer.domain.UploadFileType;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.dto.LeadFlowDto;
 import com.rrsgroup.customer.dto.LeadFlowQuestionDto;
+import com.rrsgroup.customer.dto.UploadUrlDto;
 import com.rrsgroup.customer.dto.lead.LeadAnswerDto;
 import com.rrsgroup.customer.dto.lead.LeadDto;
 import com.rrsgroup.customer.dto.lead.LeadListDto;
@@ -16,6 +20,7 @@ import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.LeadFlowService;
+import com.rrsgroup.customer.service.UploadUrlDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadService;
 import jakarta.validation.Valid;
@@ -25,6 +30,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,17 +46,23 @@ public class LeadController {
     private final CustomerService customerService;
     private final LeadDtoMapper leadDtoMapper;
     private final LeadService leadService;
+    private final S3Service s3Service;
+    private final UploadUrlDtoMapper uploadUrlDtoMapper;
 
     @Autowired
     public LeadController(
             LeadFlowService leadFlowService,
             CustomerService customerService,
             LeadDtoMapper leadDtoMapper,
-            LeadService leadService) {
+            LeadService leadService,
+            S3Service s3Service,
+            UploadUrlDtoMapper uploadUrlDtoMapper) {
         this.leadFlowService = leadFlowService;
         this.customerService = customerService;
         this.leadDtoMapper = leadDtoMapper;
         this.leadService = leadService;
+        this.s3Service = s3Service;
+        this.uploadUrlDtoMapper = uploadUrlDtoMapper;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
@@ -63,6 +76,37 @@ public class LeadController {
         // Save lead
         Lead lead = leadDtoMapper.map(request, customer);
         return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+    }
+
+    @GetMapping("/api/public/customers/qrCode/{qrCode}/leads/photoUploadUrl")
+    public UploadUrlDto generateLeadUploadUrl(
+            @PathVariable("qrCode") UUID qrCode,
+            @RequestParam(name = "fileName") String fileName,
+            @RequestParam(name = "contentType") String contentType) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+
+        log.info("Uploading photo with fileName={} for customerId={}", fileName, customer.getId());
+
+        int validity = 300;
+        LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
+        String bucketKey = customerService.getBucketKeyForFileAndStage(qrCode, UploadFileType.LEAD, fileName, FileStage.RAW);
+
+        URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
+
+        return uploadUrlDtoMapper.map(url, bucketKey, validUntil);
+    }
+
+    @DeleteMapping("/api/public/customers/qrCode/{qrCode}/leads/photoUpload")
+    public void deleteLeadPhotoUpload(@PathVariable("qrCode") UUID qrCode, @RequestParam("photoPath") String path) {
+        Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
+
+        log.info("Deleting photo with path={} for customerId={}", path, customer.getId());
+
+        if(!path.contains("/" + qrCode + "/")) {
+            throw new IllegalRequestException("Cannot delete photo for another customer");
+        }
+
+        s3Service.delete(S3Service.WAITQUE_UPLOAD_BUCKET, path);
     }
 
     private void validateRequiredQuestionsAreAnswered(LeadDto request, LeadFlowDto leadFlow) {
