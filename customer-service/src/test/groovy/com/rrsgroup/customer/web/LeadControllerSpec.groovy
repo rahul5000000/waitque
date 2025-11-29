@@ -3,6 +3,7 @@ package com.rrsgroup.customer.web
 import com.rrsgroup.common.exception.IllegalRequestException
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.common.exception.RecordNotFoundException
+import com.rrsgroup.common.service.S3Service
 import com.rrsgroup.customer.domain.LeadFlowQuestionDataType
 import com.rrsgroup.customer.domain.LeadFlowStatus
 import com.rrsgroup.customer.domain.lead.LeadStatus
@@ -23,8 +24,10 @@ class LeadControllerSpec extends Specification {
     CustomerService customerService = Mock()
     LeadDtoMapper leadDtoMapper = Mock()
     LeadService leadService = Mock()
+    S3Service s3Service = Mock()
+    UploadUrlDtoMapper uploadUrlDtoMapper = Mock()
 
-    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService)
+    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService, s3Service, uploadUrlDtoMapper)
 
     def "validateRequiredQuestionsAreAnswered throws when required question missing"() {
         given:
