@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.EmailRequest;
+import com.rrsgroup.common.domain.EmailTemplate;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.entity.Email;
@@ -25,7 +26,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,7 +75,8 @@ public class MessageController {
         if(companyDto.messageNotificationEmail() != null) {
             try {
                 Email messageNotificationEmail = commonDtoMapper.map(companyDto.messageNotificationEmail());
-                EmailRequest emailRequest = new EmailRequest(messageNotificationEmail, "New Message Received", request.message());
+                String emailHtml = emailService.render(EmailTemplate.NEW_MESSAGE, Map.of("firstName", messageNotificationEmail.getFirstName(), "year", LocalDate.now().getYear()));
+                EmailRequest emailRequest = new EmailRequest(messageNotificationEmail, EmailTemplate.NEW_MESSAGE, emailHtml);
                 emailService.sendEmail(emailRequest);
             } catch (EmailSendException e) {
                 log.error("Failed to send new message email", e);
