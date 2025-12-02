@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "company", schema = "company")
 @Data
@@ -33,4 +36,7 @@ public class Company {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "phone_number_id", referencedColumnName = "id", unique = true)
     private PhoneNumber phoneNumber;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CompanyEmail> emails = new ArrayList<>();
 }
