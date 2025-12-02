@@ -1,108 +1,55 @@
+<!— email/new_message.html —>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        /* MOBILE RESPONSIVE */
-        @media only screen and (max-width: 600px) {
-            .container {
-                width: 100% !important;
-                padding: 20px !important;
-            }
-            .content {
-                padding: 24px !important;
-            }
-            h1 {
-                font-size: 24px !important;
-            }
-            p {
-                font-size: 16px !important;
-            }
-        }
-    </style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
-<body style="margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, sans-serif;">
+<body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Arial, sans-serif;">
 
-<!-- Outer Wrapper -->
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9f9f9;">
     <tr>
         <td align="center">
 
-            <!-- Main Container -->
-            <table class="container" width="600" cellpadding="0" cellspacing="0"
-                   style="background-color:#ffffff; margin-top:40px; border-radius:8px; overflow:hidden;">
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="background-color:#ffffff; margin-top:40px; margin-bottom:40px; border-radius:4px; overflow:hidden; border-top: 4px solid #58c7bc;">
 
                 <!-- Header -->
+                <th:block th:replace="email/fragments/header :: emailHeader"></th:block>
+
+                <!-- Email Body -->
                 <tr>
-                    <td style="background-color:#58c7bc; padding:32px; text-align:center;">
-                        <h1 style="margin:0; font-size:28px; color:#ffffff; font-weight:600;">
-                            Welcome to Waitque!
-                        </h1>
-                    </td>
-                </tr>
+                    <td style="padding:32px;">
+                        <p style="font-size:18px; color:#333;">Hi [[${firstName}]],</p>
 
-                <!-- Body -->
-                <tr>
-                    <td class="content" style="padding:32px;">
-
-                        <p style="font-size:18px; color:#333333;">
-                            Hi [[${firstName}]],
+                        <p style="font-size:16px; color:#555; line-height:1.6;">
+                            Welcome to <strong>Waitque</strong>! We're excited to have you.
                         </p>
 
-                        <p style="font-size:16px; color:#555555; line-height:1.6;">
-                            We're excited to have you on board! Your account has been successfully created, and you're all set to start using
-                            <strong>Waitque</strong>.
+                        <p style="font-size:16px; color:#555; line-height:1.6;">
+                            Click below to get started:
                         </p>
 
-                        <p style="font-size:16px; color:#555555; line-height:1.6;">
-                            Click the button below to get started:
-                        </p>
-
-                        <!-- CTA Button -->
-                        <table cellpadding="0" cellspacing="0" style="margin: 24px 0;">
-                            <tr>
-                                <td align="center">
-                                    <a href="[[${welcomeUrl}]]"
-                                       style="
-                                               background-color:#58c7bc;
-                                               color:#ffffff;
-                                               padding:14px 32px;
-                                               text-decoration:none;
-                                               border-radius:6px;
-                                               font-size:16px;
-                                               display:inline-block;
-                                           ">
-                                        Get Started
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-
-                        <p style="font-size:16px; color:#555555; line-height:1.6;">
-                            If you have any questions, feel free to reply directly to this email — we're here to help!
-                        </p>
-
-                        <p style="font-size:16px; color:#555555; line-height:1.6; margin-top:32px;">
-                            Cheers,<br>
-                            The Waitque Team
-                        </p>
-
+                        <a th:href="${welcomeUrl}"
+                           style="
+                             background-color:#58c7bc;
+                             color:#ffffff;
+                             padding:14px 32px;
+                             text-decoration:none;
+                             border-radius:6px;
+                             font-size:16px;
+                             display:inline-block;
+                             margin-top:20px;">
+                            Get Started
+                        </a>
                     </td>
                 </tr>
 
                 <!-- Footer -->
-                <tr>
-                    <td style="background-color:#f9f9f9; padding:20px; text-align:center; font-size:12px; color:#999999;">
-                        You’re receiving this email because you created an account on Waitque.<br>
-                        © [[${year}]] Waitque LLC. All rights reserved.
-                    </td>
-                </tr>
+                <th:block th:replace="email/fragments/footer :: emailFooter"></th:block>
 
             </table>
-
         </td>
     </tr>
 </table>

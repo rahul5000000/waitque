@@ -72,8 +72,13 @@ public class EmailService {
     }
 
     public String render(EmailTemplate template, Map<String, Object> model) {
-        Context context = new Context();
-        model.forEach(context::setVariable);
-        return templateEngine.process(template.getTemplateName(), context);
+        Context ctx = new Context();
+
+        if (model != null) {
+            model.forEach(ctx::setVariable);
+        }
+
+        // Render the base layout
+        return templateEngine.process(template.getTemplateName(), ctx);
     }
 }
