@@ -1,5 +1,6 @@
 package com.rrsgroup.customer.web;
 
+import com.rrsgroup.common.EmailRequest;
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.entity.Email;
@@ -71,7 +72,8 @@ public class MessageController {
         if(companyDto.messageNotificationEmail() != null) {
             try {
                 Email messageNotificationEmail = commonDtoMapper.map(companyDto.messageNotificationEmail());
-                emailService.sendEmail(request.message(), messageNotificationEmail);
+                EmailRequest emailRequest = new EmailRequest(messageNotificationEmail, "New Message Received", request.message());
+                emailService.sendEmail(emailRequest);
             } catch (EmailSendException e) {
                 log.error("Failed to send new message email", e);
                 // Swallow exception; there's nothing the customer needs to do about this

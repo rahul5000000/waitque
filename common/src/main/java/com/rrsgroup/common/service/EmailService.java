@@ -1,7 +1,7 @@
 package com.rrsgroup.common.service;
 
+import com.rrsgroup.common.EmailRequest;
 import com.rrsgroup.common.dto.UserDto;
-import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.common.entity.EmailHistory;
 import com.rrsgroup.common.exception.EmailSendException;
 import com.rrsgroup.common.repository.EmailHistoryRepository;
@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @Log4j2
@@ -26,26 +25,25 @@ public class EmailService {
         this.emailHistoryRepository = emailHistoryRepository;
     }
 
-    public void sendEmail(String message, Email toEmail) throws EmailSendException {
-        sendEmail(message, toEmail, null);
+    public void sendEmail(EmailRequest sendEmailRequest) throws EmailSendException {
+        sendEmail(sendEmailRequest, null);
     }
 
-    private void sendEmail(String message, Email toEmail, UserDto user) throws EmailSendException {
+    private void sendEmail(EmailRequest sendEmailRequest, UserDto user) throws EmailSendException {
         // TODO: Convert sending emails to an async process
         try {
-            String subject = "Hello from SES";
             SendEmailRequest request = SendEmailRequest.builder()
                     .source("rahul@therrsgroup.com")
                     .destination(Destination.builder()
-                            .toAddresses(toEmail.getEmail())
+                            .toAddresses(sendEmailRequest.toEmail().getEmail())
                             .build())
                     .message(Message.builder()
                             .subject(Content.builder()
-                                    .data(subject)
+                                    .data(sendEmailRequest.subject())
                                     .build())
                             .body(Body.builder()
                                     .text(Content.builder()
-                                            .data(message)
+                                            .data(sendEmailRequest.htmlBody())
                                             .build())
                                     .build())
                             .build())
@@ -53,9 +51,9 @@ public class EmailService {
 
             LocalDateTime now = LocalDateTime.now();
             String createdByUserId = user != null ? user.getUserId() : "anonymous";
-            EmailHistory history = EmailHistory.builder().email(toEmail).sendTime(now).subject(subject)
-                    .content(message).createdDate(now).updatedDate(now).createdBy(createdByUserId)
-                    .updatedBy(createdByUserId).build();
+            EmailHistory history = EmailHistory.builder().email(sendEmailRequest.toEmail()).sendTime(now)
+                    .subject(sendEmailRequest.subject()).content(sendEmailRequest.htmlBody()).createdDate(now)
+                    .updatedDate(now).createdBy(createdByUserId).updatedBy(createdByUserId).build();
             emailHistoryRepository.save(history);
 
             sesClient.sendEmail(request);
