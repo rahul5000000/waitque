@@ -17,6 +17,7 @@ import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
 import com.rrsgroup.customer.entity.message.Message;
 import com.rrsgroup.customer.service.CompanyService;
+import com.rrsgroup.customer.service.NotificationService;
 import com.rrsgroup.customer.service.QrCodeService;
 import com.rrsgroup.customer.service.message.MessageDtoMapper;
 import com.rrsgroup.customer.service.message.MessageService;
@@ -38,24 +39,18 @@ public class MessageController {
     private final MessageDtoMapper messageDtoMapper;
     private final MessageService messageService;
     private final QrCodeService qrCodeService;
-    private final EmailService emailService;
-    private final CompanyService companyService;
-    private final CommonDtoMapper commonDtoMapper;
+    private final NotificationService notificationService;
 
     @Autowired
     public MessageController(
             MessageDtoMapper messageDtoMapper,
             MessageService messageService,
             QrCodeService qrCodeService,
-            EmailService emailService,
-            CompanyService companyService,
-            CommonDtoMapper commonDtoMapper) {
+            NotificationService notificationService) {
         this.messageDtoMapper = messageDtoMapper;
         this.messageService = messageService;
         this.qrCodeService = qrCodeService;
-        this.emailService = emailService;
-        this.companyService = companyService;
-        this.commonDtoMapper = commonDtoMapper;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/messages")
@@ -67,36 +62,13 @@ public class MessageController {
         }
 
         Customer customer = qrCodeOptional.get().getCustomer();
-        CompanyDto companyDto = getCompanyForCustomer(customer);
 
         Message message = messageDtoMapper.map(request, customer);
         MessageDto response = messageDtoMapper.map(messageService.saveMessageAnonymous(message));
 
-        if(companyDto.messageNotificationEmail() != null) {
-            try {
-                Email messageNotificationEmail = commonDtoMapper.map(companyDto.messageNotificationEmail());
-                String emailHtml = emailService.render(EmailTemplate.NEW_MESSAGE, Map.of("firstName", messageNotificationEmail.getFirstName(), "year", LocalDate.now().getYear()));
-                EmailRequest emailRequest = new EmailRequest(messageNotificationEmail, EmailTemplate.NEW_MESSAGE, emailHtml);
-                emailService.sendEmail(emailRequest);
-            } catch (EmailSendException e) {
-                log.error("Failed to send new message email", e);
-                // Swallow exception; there's nothing the customer needs to do about this
-            }
-        } else {
-            log.warn("companyId={} is not configured with an message notification email address", companyDto.id());
-        }
+        notificationService.sendNotification(message, customer);
 
         return response;
-    }
-
-    private CompanyDto getCompanyForCustomer(Customer customer) {
-        Optional<CompanyDto> companyOptional = companyService.getCompany(customer.getCrmConfig().getCompanyId());
-
-        if(companyOptional.isEmpty()) {
-            throw new RecordNotFoundException("Company not found for customerId" + customer.getId());
-        }
-
-        return companyOptional.get();
     }
 
     @GetMapping("/api/admin/messages")
