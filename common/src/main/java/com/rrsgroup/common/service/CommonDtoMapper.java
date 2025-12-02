@@ -41,10 +41,10 @@ public class CommonDtoMapper {
     }
 
     public EmailDto map(final Email email) {
-        return new EmailDto(email.getEmail(), email.getFirstName(), email.getLastName());
+        return new EmailDto(email.getId(), email.getEmail(), email.getFirstName(), email.getLastName());
     }
 
     public Email map(final EmailDto dto) {
-        return Email.builder().email(dto.email()).firstName(dto.firstName()).lastName(dto.lastName()).build();
+        return Email.builder().id(dto.id()).email(dto.email()).firstName(dto.firstName()).lastName(dto.lastName()).build();
     }
 }

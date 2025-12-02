@@ -2,8 +2,10 @@ package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
+import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.common.exception.EmailSendException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.service.CommonDtoMapper;
 import com.rrsgroup.common.service.EmailService;
 import com.rrsgroup.customer.domain.message.MessageStatus;
 import com.rrsgroup.customer.dto.CompanyDto;
@@ -34,6 +36,7 @@ public class MessageController {
     private final QrCodeService qrCodeService;
     private final EmailService emailService;
     private final CompanyService companyService;
+    private final CommonDtoMapper commonDtoMapper;
 
     @Autowired
     public MessageController(
@@ -41,12 +44,14 @@ public class MessageController {
             MessageService messageService,
             QrCodeService qrCodeService,
             EmailService emailService,
-            CompanyService companyService) {
+            CompanyService companyService,
+            CommonDtoMapper commonDtoMapper) {
         this.messageDtoMapper = messageDtoMapper;
         this.messageService = messageService;
         this.qrCodeService = qrCodeService;
         this.emailService = emailService;
         this.companyService = companyService;
+        this.commonDtoMapper = commonDtoMapper;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/messages")
@@ -65,7 +70,8 @@ public class MessageController {
 
         if(companyDto.messageNotificationEmail() != null) {
             try {
-                emailService.sendEmail(request.message(), companyDto.messageNotificationEmail().email());
+                Email messageNotificationEmail = commonDtoMapper.map(companyDto.messageNotificationEmail());
+                emailService.sendEmail(request.message(), messageNotificationEmail);
             } catch (EmailSendException e) {
                 log.error("Failed to send new message email", e);
                 // Swallow exception; there's nothing the customer needs to do about this
