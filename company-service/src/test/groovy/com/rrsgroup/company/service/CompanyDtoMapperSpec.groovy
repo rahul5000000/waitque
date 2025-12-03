@@ -2,8 +2,10 @@ package com.rrsgroup.company.service
 
 import com.rrsgroup.common.domain.SortDirection
 import com.rrsgroup.common.dto.AddressDto
+import com.rrsgroup.common.dto.EmailDto
 import com.rrsgroup.common.dto.PhoneNumberDto
 import com.rrsgroup.common.service.CommonDtoMapper
+import com.rrsgroup.company.domain.EmailType
 import com.rrsgroup.company.dto.CompanyDto
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.util.CompanyMockGenerator
@@ -45,8 +47,12 @@ class CompanyDtoMapperSpec extends Specification {
         def addressDto = new AddressDto(addressId, address1, address2, city, state, zipcode, country)
         def phoneNumberDto = new PhoneNumberDto(phoneNumberId, countryCode, phoneNumber)
 
+        def messageEmailDto = new EmailDto(1L, "test@test.com", "John", "Doe")
+        def leadEmailDto = new EmailDto(2L, "test2@test.com", "Jane", "Doe")
+
         def dto = new CompanyDto(companyId, name, addressDto, phoneNumberDto, logoUrl, landingPrompt, textColor,
-                backgroundColor, primaryButtonColor, secondaryButtonColor, warningButtonColor, dangerButtonColor)
+                backgroundColor, primaryButtonColor, secondaryButtonColor, warningButtonColor, dangerButtonColor,
+                messageEmailDto, leadEmailDto);
 
         when:
         def result = mapper.map(dto)
@@ -62,6 +68,8 @@ class CompanyDtoMapperSpec extends Specification {
         result.getSecondaryButtonColor() == secondaryButtonColor
         result.getWarningButtonColor() == warningButtonColor
         result.getDangerButtonColor() == dangerButtonColor
+        result.getEmails().stream().anyMatch {email -> email.type == EmailType.MESSAGE_NOTIFICATION}
+        result.getEmails().stream().anyMatch {email -> email.type == EmailType.LEAD_NOTIFICATION}
     }
 
     def "can map from Company, Address & PhoneNumber to CompanyDto"() {

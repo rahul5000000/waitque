@@ -1,0 +1,43 @@
+<!— email/new_message.html —>
+<th:block th:replace="email/fragments/header :: emailHeader"></th:block>
+<!-- Content Start -->
+<p style="font-size:24px; color:#58c7bc;">
+    [[${customerName}]] has sent you a new message!
+</p>
+
+<p style="font-size:14px; color:#333;">Hi [[${firstName}]],</p>
+
+<p style="font-size:14px; color:#555;">
+    Below are details of the message:
+</p>
+
+<table style="padding: 8px; background-color:#f4f4f4; border-radius: 4px;">
+    <tr>
+        <td style="font-weight: 600; text-align: right;">Customer:</td>
+        <td>[[${customerName}]]</td>
+    </tr>
+    <tr>
+        <td style="font-weight: 600; text-align: right;">Date Sent:</td>
+        <td>[[${#temporals.format(messageDate, 'MMM dd, yyyy hh:mm a')}]]</td>
+    </tr>
+    <tr>
+        <td style="font-weight: 600; text-align: right;">Message:</td>
+        <td>[[${message}]]</td>
+    </tr>
+</table>
+
+<a href="${messageUrl}"
+   style="
+     background-color:#58c7bc;
+     color:#ffffff;
+     padding:14px 32px;
+     text-decoration:none;
+     border-radius:6px;
+     font-size:16px;
+     display:inline-block;
+     margin-top:40px;
+     margin-bottom:20px;">
+    View Message
+</a>
+<!-- Content End -->
+<th:block th:replace="email/fragments/footer :: emailFooter"></th:block>

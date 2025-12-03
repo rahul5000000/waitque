@@ -1,10 +1,13 @@
 package com.rrsgroup.company.service
 
 import com.rrsgroup.common.domain.SortDirection
+import com.rrsgroup.common.dto.SuperUserDto
+import com.rrsgroup.common.dto.UserDto
 import com.rrsgroup.common.entity.Address
 import com.rrsgroup.common.entity.PhoneNumber
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.entity.CompanyEmail
 import com.rrsgroup.company.repository.CompanyRepository
 import com.rrsgroup.company.util.CompanyMockGenerator
 import org.springframework.data.domain.PageRequest
@@ -45,13 +48,17 @@ class CompanyServiceSpec extends Specification {
         def phoneNumberDomain = new PhoneNumber(phoneNumberId, countryCode, phoneNumber)
 
         def company = new Company(null, name, logoUrl, landingPrompt, textColor, backgroundColor, primaryButtonColor,
-                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain)
+                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain, new ArrayList<CompanyEmail>())
 
         def savedCompany = new Company(companyId, name, logoUrl, landingPrompt, textColor, backgroundColor, primaryButtonColor,
-                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain)
+                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain, new ArrayList<CompanyEmail>())
+
+        def user = Mock(SuperUserDto.class) {
+            getUserId() >> "userId"
+        }
 
         when:
-        def result = companyService.createCompany(company)
+        def result = companyService.createCompany(company, user)
 
         then:
         1 * repository.save(company) >> savedCompany
@@ -93,12 +100,16 @@ class CompanyServiceSpec extends Specification {
         def company = companyMockGenerator.getCompanyMock()
         def updatedCompany = companyMockGenerator.getCompanyMock()
         updatedCompany.setName(company.getName() + "Updated")
+        def user = Mock(UserDto.class) {
+            getUserId() >> "userId"
+        }
 
         when:
-        def result = companyService.updateCompany(company)
+        def result = companyService.updateCompany(company, user)
 
         then:
         1 * repository.save(company) >> updatedCompany
+        1 * repository.findById(1231) >> Optional.of(company)
         0 * _
         result != null
         result.getName() == company.getName() + "Updated"
@@ -108,9 +119,12 @@ class CompanyServiceSpec extends Specification {
         given:
         def company = companyMockGenerator.getCompanyMock()
         company.setId(null)
+        def user = Mock(UserDto.class) {
+            getUserId() >> "userId"
+        }
 
         when:
-        def result = companyService.updateCompany(company)
+        def result = companyService.updateCompany(company, user)
 
         then:
         thrown(IllegalUpdateException)

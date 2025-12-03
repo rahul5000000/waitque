@@ -1,8 +1,10 @@
 package com.rrsgroup.company.util
 
+import com.rrsgroup.common.dto.EmailDto
 import com.rrsgroup.common.entity.Address
 import com.rrsgroup.common.entity.PhoneNumber
 import com.rrsgroup.company.entity.Company
+import com.rrsgroup.company.entity.CompanyEmail
 import spock.lang.Specification
 
 class CompanyMockGenerator extends Specification {
@@ -34,6 +36,6 @@ class CompanyMockGenerator extends Specification {
         def phoneNumberDomain = new PhoneNumber(phoneNumberId, countryCode, phoneNumber)
 
         return new Company(companyId, name, logoUrl, landingPrompt, textColor, backgroundColor, primaryButtonColor,
-                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain)
+                secondaryButtonColor, warningButtonColor, dangerButtonColor, address, phoneNumberDomain, new ArrayList<CompanyEmail>());
     }
 }

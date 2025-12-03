@@ -2,6 +2,9 @@ package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.AdminUserDto;
+import com.rrsgroup.common.dto.SuperUserDto;
+import com.rrsgroup.common.dto.SystemUserDto;
+import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
@@ -50,7 +53,7 @@ public class CompanyController {
     }
 
     @PostMapping("/api/internal/companies")
-    public CompanyDto createCompany(@RequestBody CompanyDto request) {
+    public CompanyDto createCompany(@AuthenticationPrincipal SuperUserDto user, @RequestBody CompanyDto request) {
         if(request.id() != null) {
             throw new IllegalRequestException("The 'id' field shall not be populated in a create company request");
         }
@@ -59,7 +62,7 @@ public class CompanyController {
             throw new IllegalRequestException("The 'name' field shall not be blank in a create company request");
         }
 
-        Company savedCompany = companyService.createCompany(companyDtoMapper.map(request));
+        Company savedCompany = companyService.createCompany(companyDtoMapper.map(request), user);
 
         return companyDtoMapper.map(savedCompany);
     }
@@ -91,22 +94,22 @@ public class CompanyController {
     }
 
     @PutMapping("/api/internal/companies/{companyId}")
-    public CompanyDto updateCompany(@PathVariable(name = "companyId") Long companyId, @RequestBody CompanyDto updateRequest) {
+    public CompanyDto updateCompany(
+            @AuthenticationPrincipal SuperUserDto user,
+            @PathVariable(name = "companyId") Long companyId,
+            @RequestBody CompanyDto updateRequest) {
         if(updateRequest.id() != null &&  !updateRequest.id().equals(companyId)) {
             throw new IllegalRequestException("The companyId in the URL does not match the companyId in the request body");
         }
 
-        return updateCompanyInternal(companyId, updateRequest);
+        return updateCompanyInternal(companyId, updateRequest, user);
     }
 
-    private CompanyDto updateCompanyInternal(Long companyId, CompanyDto updateRequest) {
-        // Confirm company exists
-        getCompanySafe(companyId);
-
+    private CompanyDto updateCompanyInternal(Long companyId, CompanyDto updateRequest, UserDto userDto) {
         Company updateCompanyRequest = companyDtoMapper.map(updateRequest);
         updateCompanyRequest.setId(companyId); // Set the ID in case it wasn't already set
 
-        return companyDtoMapper.map(companyService.updateCompany(updateCompanyRequest));
+        return companyDtoMapper.map(companyService.updateCompany(updateCompanyRequest, userDto));
     }
 
     @GetMapping("/api/admin/config/companyInfo")
@@ -122,7 +125,7 @@ public class CompanyController {
             throw new IllegalUpdateException("The companyId in the request body is not the user's company");
         }
 
-        return updateCompanyInternal(companyId, updateRequest);
+        return updateCompanyInternal(companyId, updateRequest, user);
     }
 
     @GetMapping(value = "/api/admin/config/qrcode", produces = "application/zip")
@@ -176,12 +179,13 @@ public class CompanyController {
 
     @PutMapping("/api/system/companies/{companyId}/logoUrl")
     public CompanyDto updateCompanyLogoUrl(
+            @AuthenticationPrincipal SystemUserDto user,
             @PathVariable(name = "companyId") Long companyId,
             @RequestBody LogoUrlUpdateDto request) {
         Company company = getCompanySafe(companyId);
 
         company.setLogoUrl(request.logoUrl());
-        return companyDtoMapper.map(companyService.updateCompany(company));
+        return companyDtoMapper.map(companyService.updateCompany(company, user));
 
         //TODO: Delete all but the current logo image from S3
     }

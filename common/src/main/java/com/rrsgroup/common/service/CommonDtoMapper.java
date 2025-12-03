@@ -1,8 +1,10 @@
 package com.rrsgroup.common.service;
 
 import com.rrsgroup.common.dto.AddressDto;
+import com.rrsgroup.common.dto.EmailDto;
 import com.rrsgroup.common.dto.PhoneNumberDto;
 import com.rrsgroup.common.entity.Address;
+import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.common.entity.PhoneNumber;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +38,13 @@ public class CommonDtoMapper {
     
     public PhoneNumber map(final PhoneNumberDto dto) {
         return new PhoneNumber(dto.id(), dto.countryCode(), dto.phoneNumber());
+    }
+
+    public EmailDto map(final Email email) {
+        return new EmailDto(email.getId(), email.getEmail(), email.getFirstName(), email.getLastName());
+    }
+
+    public Email map(final EmailDto dto) {
+        return Email.builder().id(dto.id()).email(dto.email()).firstName(dto.firstName()).lastName(dto.lastName()).build();
     }
 }
