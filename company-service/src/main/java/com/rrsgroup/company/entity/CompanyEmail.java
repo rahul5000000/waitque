@@ -4,10 +4,7 @@ import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.company.domain.EmailStatus;
 import com.rrsgroup.company.domain.EmailType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "company_email", schema = "company")
@@ -15,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode
+@ToString
 public class CompanyEmail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -32,5 +31,6 @@ public class CompanyEmail {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Company company;
 }

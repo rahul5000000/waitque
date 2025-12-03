@@ -67,6 +67,10 @@ public class CompanyService {
     }
 
     public Company updateCompany(Company updateRequest, UserDto user) {
+        if(updateRequest.getId() == null) {
+            throw new IllegalUpdateException("Id must be set to update the record");
+        }
+
         Optional<Company> existingCompanyOptional = getCompany(updateRequest.getId());
 
         if(existingCompanyOptional.isEmpty()) {
@@ -74,10 +78,6 @@ public class CompanyService {
         }
 
         Company existingCompany = existingCompanyOptional.get();
-
-        if(updateRequest.getId() == null) {
-            throw new IllegalUpdateException("Id must be set to update the record");
-        }
 
         List<CompanyEmail> newEmails = updateRequest.getEmails().stream().filter(companyEmail -> existingCompany.getEmails().stream().noneMatch(existingCompanyEmail -> existingCompanyEmail.getType().equals(companyEmail.getType()) && existingCompanyEmail.getStatus().equals(companyEmail.getStatus()) && existingCompanyEmail.getEmail().getEmail().equals(companyEmail.getEmail().getEmail()))).toList();
         List<CompanyEmail> deletedEmails = existingCompany.getEmails().stream().filter(existingCompanyEmail -> updateRequest.getEmails().stream().noneMatch(companyEmail -> companyEmail.getType().equals(existingCompanyEmail.getType()) && companyEmail.getStatus().equals(existingCompanyEmail.getStatus()) && companyEmail.getEmail().getEmail().equals(existingCompanyEmail.getEmail().getEmail()))).toList();
