@@ -1,7 +1,8 @@
 package com.rrsgroup.common.domain;
 
 public enum EmailTemplate {
-    NEW_MESSAGE("New Customer Message", "email/new_message");
+    NEW_MESSAGE("New Customer Message", "email/new_message"),
+    NEW_LEAD("New Lead Created", "email/new_lead");
 
     private String subject;
     private String templateName;

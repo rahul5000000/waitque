@@ -96,6 +96,19 @@ public class CompanyService {
             setAuditFieldsOnUpdatedEmail(deletedEmail.getEmail(), user, now);
         });
 
+        // Migrate audit fields for keep emails
+        updateRequest.getEmails().stream().forEach(companyEmail -> {
+            Optional<CompanyEmail> existingEmailOptional = existingCompany.getEmails().stream().filter(existingCompanyEmail -> existingCompanyEmail.getType().equals(companyEmail.getType()) && existingCompanyEmail.getStatus().equals(companyEmail.getStatus()) && existingCompanyEmail.getEmail().getEmail().equals(companyEmail.getEmail().getEmail())).findFirst();
+
+            if(existingEmailOptional.isPresent()) {
+                CompanyEmail existingEmail = existingEmailOptional.get();
+                companyEmail.getEmail().setCreatedDate(existingEmail.getEmail().getCreatedDate());
+                companyEmail.getEmail().setCreatedBy(existingEmail.getEmail().getCreatedBy());
+                companyEmail.getEmail().setUpdatedDate(existingEmail.getEmail().getUpdatedDate());
+                companyEmail.getEmail().setUpdatedBy(existingEmail.getEmail().getUpdatedBy());
+            }
+        });
+
         updateRequest.getEmails().addAll(deletedEmails);
 
         return repository.save(updateRequest);

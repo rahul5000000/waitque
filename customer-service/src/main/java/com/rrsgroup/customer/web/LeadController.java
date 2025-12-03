@@ -20,6 +20,7 @@ import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.service.CustomerService;
 import com.rrsgroup.customer.service.LeadFlowService;
+import com.rrsgroup.customer.service.NotificationService;
 import com.rrsgroup.customer.service.UploadUrlDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadDtoMapper;
 import com.rrsgroup.customer.service.lead.LeadService;
@@ -48,6 +49,7 @@ public class LeadController {
     private final LeadService leadService;
     private final S3Service s3Service;
     private final UploadUrlDtoMapper uploadUrlDtoMapper;
+    private final NotificationService notificationService;
 
     @Autowired
     public LeadController(
@@ -56,13 +58,15 @@ public class LeadController {
             LeadDtoMapper leadDtoMapper,
             LeadService leadService,
             S3Service s3Service,
-            UploadUrlDtoMapper uploadUrlDtoMapper) {
+            UploadUrlDtoMapper uploadUrlDtoMapper,
+            NotificationService notificationService) {
         this.leadFlowService = leadFlowService;
         this.customerService = customerService;
         this.leadDtoMapper = leadDtoMapper;
         this.leadService = leadService;
         this.s3Service = s3Service;
         this.uploadUrlDtoMapper = uploadUrlDtoMapper;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/api/public/customers/qrCode/{qrCode}/leads")
@@ -75,7 +79,11 @@ public class LeadController {
 
         // Save lead
         Lead lead = leadDtoMapper.map(request, customer);
-        return leadDtoMapper.map(leadService.createLeadAnonymous(lead));
+        Lead savedLead = leadService.createLeadAnonymous(lead);
+
+        notificationService.sendNotification(savedLead, leadFlow, customer);
+
+        return leadDtoMapper.map(savedLead);
     }
 
     @GetMapping("/api/public/customers/qrCode/{qrCode}/leads/photoUploadUrl")

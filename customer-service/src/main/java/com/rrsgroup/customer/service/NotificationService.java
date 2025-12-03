@@ -10,7 +10,9 @@ import com.rrsgroup.common.service.EmailService;
 import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CrmCustomerType;
 import com.rrsgroup.customer.dto.CompanyDto;
+import com.rrsgroup.customer.dto.LeadFlowDto;
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.entity.message.Message;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +29,20 @@ public class NotificationService {
     private final CustomerCrmIntegrationService integrationService;
     private final CompanyService companyService;
     private final CommonDtoMapper commonDtoMapper;
+    private final LeadFlowService leadFlowService;
 
     @Autowired
     public NotificationService(
             EmailService emailService,
             CustomerCrmIntegrationService integrationService,
             CompanyService companyService,
-            CommonDtoMapper commonDtoMapper) {
+            CommonDtoMapper commonDtoMapper,
+            LeadFlowService leadFlowService) {
         this.emailService = emailService;
         this.integrationService = integrationService;
         this.companyService = companyService;
         this.commonDtoMapper = commonDtoMapper;
+        this.leadFlowService = leadFlowService;
     }
 
     public void sendNotification(Message message, Customer customer) {
@@ -62,6 +67,31 @@ public class NotificationService {
             }
         } else {
             log.warn("companyId={} is not configured with an message notification email address", companyDto.id());
+        }
+    }
+
+    public void sendNotification(Lead lead, LeadFlowDto leadFlow, Customer customer) {
+        CompanyDto companyDto = getCompanyForCustomer(customer);
+
+        if(companyDto.leadNotificationEmail() != null) {
+            try {
+                CrmCustomer crmCustomer = getCrmCustomerForCustomer(customer);
+                String customerName = getCustomerName(crmCustomer);
+                Email leadNotificationEmail = commonDtoMapper.map(companyDto.leadNotificationEmail());
+                String emailHtml = emailService.render(EmailTemplate.NEW_LEAD,
+                        Map.of("firstName", leadNotificationEmail.getFirstName(),
+                                "year", LocalDate.now().getYear(),
+                                "customerName", customerName,
+                                "leadCreatedDate", lead.getCreatedDate(),
+                                "leadFlowName", leadFlow.name()));
+                EmailRequest emailRequest = new EmailRequest(leadNotificationEmail, EmailTemplate.NEW_LEAD, emailHtml);
+                emailService.sendEmail(emailRequest);
+            } catch (Exception e) {
+                log.error("Failed to send new lead email", e);
+                // Swallow exception; there's nothing the customer needs to do about this
+            }
+        } else {
+            log.warn("companyId={} is not configured with a lead notification email address", companyDto.id());
         }
     }
 
