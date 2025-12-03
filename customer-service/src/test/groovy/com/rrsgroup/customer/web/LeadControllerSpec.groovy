@@ -26,8 +26,10 @@ class LeadControllerSpec extends Specification {
     LeadService leadService = Mock()
     S3Service s3Service = Mock()
     UploadUrlDtoMapper uploadUrlDtoMapper = Mock()
+    NotificationService notificationService = Mock()
 
-    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService, s3Service, uploadUrlDtoMapper)
+    LeadController controller = new LeadController(leadFlowService, customerService, leadDtoMapper, leadService,
+            s3Service, uploadUrlDtoMapper, notificationService)
 
     def "validateRequiredQuestionsAreAnswered throws when required question missing"() {
         given:
