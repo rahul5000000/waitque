@@ -105,11 +105,15 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+          issuer-uri: ${KEYCLOAK_URL}/realms/rrs-waitque
       client:
         provider:
           keycloak:
-            token-uri: http://keycloak:8080/realms/rrs-waitque/protocol/openid-connect/token
+            token-uri: ${KEYCLOAK_URL}/realms/rrs-waitque/protocol/openid-connect/token
+
+microservices:
+  self:
+    base-url: http://waitque.com
 ---
 spring:
   config:
@@ -129,8 +133,8 @@ spring:
           keycloak:
             token-uri: ${KEYCLOAK_ALB_URL}/realms/rrs-waitque/protocol/openid-connect/token
 
-  microservices:
-    self:
-      base-url: ${ALB_URL}/2
-    customer-service:
-      base-url: ${ALB_URL}/3
+microservices:
+  self:
+    base-url: ${ALB_URL}/2
+  customer-service:
+    base-url: ${ALB_URL}/3
