@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.FieldUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
@@ -193,5 +194,10 @@ public class CustomerController {
     public void createMobileLogs(@PathVariable(name = "qrCode") UUID qrCode, @RequestBody MobileLogDto request) {
         Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
         log.log(request.level().getLog4jLevel(), "Mobile Logs: customer={}, platform={}, page={}, message={}, json={}", customer.getId(), request.platform(), request.page(), request.message(), request.json());
+    }
+
+    @PostMapping({"/api/admin/mobileLogs", "/api/field/mobileLogs"})
+    public void createMobileLogs(@AuthenticationPrincipal CompanyUserDto user, @RequestBody MobileLogDto request) {
+        log.log(request.level().getLog4jLevel(), "Mobile Logs: user={}, company={}, platform={}, page={}, message={}, json={}", user.getUserId(), user.getCompanyId(), request.platform(), request.page(), request.message(), request.json());
     }
 }

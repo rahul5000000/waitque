@@ -1,10 +1,7 @@
 package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
-import com.rrsgroup.common.dto.AdminUserDto;
-import com.rrsgroup.common.dto.SuperUserDto;
-import com.rrsgroup.common.dto.SystemUserDto;
-import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.common.dto.*;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
@@ -112,8 +109,8 @@ public class CompanyController {
         return companyDtoMapper.map(companyService.updateCompany(updateCompanyRequest, userDto));
     }
 
-    @GetMapping("/api/admin/config/companyInfo")
-    public CompanyDto getCompany(@AuthenticationPrincipal AdminUserDto user) {
+    @GetMapping({"/api/admin/config/companyInfo", "/api/field/config/companyInfo"})
+    public CompanyDto getCompany(@AuthenticationPrincipal CompanyUserDto user) {
         return companyDtoMapper.map(getCompanySafe(user.getCompanyId()));
     }
 
