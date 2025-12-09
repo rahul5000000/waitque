@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerCrmIntegrationService {
@@ -80,11 +81,23 @@ public class CustomerCrmIntegrationService {
     private List<CrmCustomer> searchCrmCustomers(CrmConfig crmConfig, CustomerSearchRequest request) {
         CrmService crmService = getCrmServiceForCrmConfig(crmConfig);
 
+        List<CrmCustomer> searchResults = new ArrayList<>();
         if(StringUtils.isNotBlank(request.getCrmCustomerId())) {
-            return crmService.getCustomerById(request.getCrmCustomerId()).map(List::of).orElseGet(List::of);
-        } else {
-            return crmService.searchCustomers(request);
+            searchResults.addAll(crmService.getCustomerById(request.getCrmCustomerId()).map(List::of).orElseGet(List::of));
         }
+
+        searchResults.addAll(crmService.searchCustomers(request));
+        // return deduped results because search by CrmCustomerId and other fields could both return the same record
+        return searchResults.stream()
+                .collect(Collectors.toMap(
+                        CrmCustomer::getCrmCustomerId,
+                        c -> c,
+                        (a, b) -> b
+                ))
+                .values()
+                .stream()
+                .toList();
+
     }
 
     private List<Customer> getCustomersMatchingCrmCustomers(CrmConfig crmConfig, List<CrmCustomer> crmCustomers) {

@@ -61,7 +61,9 @@ public class CustomerController {
                 && StringUtils.isBlank(request.getLastName())
                 && StringUtils.isBlank(request.getCrmCustomerId())
                 && StringUtils.isBlank(request.getAddress())
-                && request.getAddress() == null) {
+                && request.getAddress() == null
+                && StringUtils.isBlank(request.getPhoneNumber())
+                && request.getPhoneNumber() == null) {
             throw new IllegalRequestException("At least one search parameter must be passed");
         }
 

@@ -13,5 +13,5 @@ public class CustomerSearchRequest {
     private String lastName;
     private String crmCustomerId;
     private String address;
-    private Integer phoneNumber;
+    private String phoneNumber;
 }
