@@ -26,7 +26,7 @@ public class MockCrmService implements CrmService {
         String firstNameSnippet = request.getFirstName();
         String lastNameSnippet = request.getLastName();
         String addressSnippet = request.getAddress();
-        Integer phoneNumberSnippet = request.getPhoneNumber();
+        String phoneNumberSnippet = request.getPhoneNumber();
 
         return customers.stream().filter(customer -> {
             if(StringUtils.isNotBlank(companyNameSnippet) && StringUtils.containsIgnoreCase(customer.getCompanyName(), companyNameSnippet)) {
@@ -51,7 +51,7 @@ public class MockCrmService implements CrmService {
                 return true;
             }
 
-            if(phoneNumberSnippet != null && StringUtils.containsIgnoreCase(customer.getPhoneNumber().getPhoneNumber().toString(), phoneNumberSnippet.toString())) {
+            if(phoneNumberSnippet != null && StringUtils.containsIgnoreCase(customer.getPhoneNumber().getPhoneNumber().toString(), phoneNumberSnippet)) {
                 return true;
             }
 

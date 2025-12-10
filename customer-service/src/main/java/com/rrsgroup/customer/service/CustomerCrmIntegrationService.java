@@ -1,6 +1,8 @@
 package com.rrsgroup.customer.service;
 
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.FieldUserDto;
+import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.CrmCustomer;
 import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerCrmIntegrationService {
@@ -71,7 +74,7 @@ public class CustomerCrmIntegrationService {
                 qrCodeOptional = qrCodes.stream().filter(qrCode -> qrCode.getCustomer().getId().equals(finalCustomer.getId())).findFirst();
             }
 
-            searchResults.add(new CustomerSearchResult(crmCustomer, customer, qrCodeOptional.isPresent()));
+            searchResults.add(new CustomerSearchResult(crmCustomer, customer, qrCodeOptional.orElse(null)));
         }
 
         return searchResults;
@@ -80,11 +83,23 @@ public class CustomerCrmIntegrationService {
     private List<CrmCustomer> searchCrmCustomers(CrmConfig crmConfig, CustomerSearchRequest request) {
         CrmService crmService = getCrmServiceForCrmConfig(crmConfig);
 
+        List<CrmCustomer> searchResults = new ArrayList<>();
         if(StringUtils.isNotBlank(request.getCrmCustomerId())) {
-            return crmService.getCustomerById(request.getCrmCustomerId()).map(List::of).orElseGet(List::of);
-        } else {
-            return crmService.searchCustomers(request);
+            searchResults.addAll(crmService.getCustomerById(request.getCrmCustomerId()).map(List::of).orElseGet(List::of));
         }
+
+        searchResults.addAll(crmService.searchCustomers(request));
+        // return deduped results because search by CrmCustomerId and other fields could both return the same record
+        return searchResults.stream()
+                .collect(Collectors.toMap(
+                        CrmCustomer::getCrmCustomerId,
+                        c -> c,
+                        (a, b) -> b
+                ))
+                .values()
+                .stream()
+                .toList();
+
     }
 
     private List<Customer> getCustomersMatchingCrmCustomers(CrmConfig crmConfig, List<CrmCustomer> crmCustomers) {
@@ -110,5 +125,21 @@ public class CustomerCrmIntegrationService {
     public Optional<CrmCustomer> getCrmCustomer(String crmCustomerId, CrmConfig crmConfig) {
         CrmService crmService = getCrmServiceForCrmConfig(crmConfig);
         return crmService.getCustomerById(crmCustomerId);
+    }
+
+    public CustomerSearchResult getCustomer(Long customerId, CompanyUserDto userDto) {
+        Optional<Customer> customerOptional = customerService.getCustomerById(customerId, userDto);
+        if(customerOptional.isEmpty()) throw new RecordNotFoundException("Customer not found by customerId=" + customerId);
+        Customer customer = customerOptional.get();
+
+        Optional<CrmCustomer> crmCustomerOptional = getCrmCustomer(customer.getCrmCustomerId(), customer.getCrmConfig());
+
+        if(crmCustomerOptional.isEmpty()) throw new RecordNotFoundException("Customer not found in CRM by crmCustomerId=" + customer.getCrmCustomerId());
+
+        CrmCustomer crmCustomer = crmCustomerOptional.get();
+
+        Optional<QrCode> qrCodeOptional = qrCodeService.getQrCodeForCustomer(customer);
+
+        return new CustomerSearchResult(crmCustomer, customer, qrCodeOptional.orElse(null));
     }
 }

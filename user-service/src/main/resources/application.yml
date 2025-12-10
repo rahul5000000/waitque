@@ -59,7 +59,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+          issuer-uri: ${KEYCLOAK_URL}/realms/rrs-waitque
 ---
 spring:
   config:

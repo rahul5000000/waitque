@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.web;
 
 import com.rrsgroup.common.domain.SortDirection;
+import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.FieldUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
@@ -60,12 +61,22 @@ public class CustomerController {
                 && StringUtils.isBlank(request.getLastName())
                 && StringUtils.isBlank(request.getCrmCustomerId())
                 && StringUtils.isBlank(request.getAddress())
-                && request.getAddress() == null) {
+                && request.getAddress() == null
+                && StringUtils.isBlank(request.getPhoneNumber())
+                && request.getPhoneNumber() == null) {
             throw new IllegalRequestException("At least one search parameter must be passed");
         }
 
         List<CustomerSearchResult> searchResults = integrationService.customerSearch(fieldUserDto, request);
         return crmCustomerDtoMapper.map(searchResults);
+    }
+
+    @GetMapping("/api/field/customers/{customerId}")
+    public CustomerDetailDto getCustomer(
+            @AuthenticationPrincipal FieldUserDto fieldUserDto,
+            @PathVariable("customerId") Long customerId) {
+        CustomerSearchResult customerSearchResult = integrationService.getCustomer(customerId, fieldUserDto);
+        return crmCustomerDtoMapper.map(customerSearchResult);
     }
 
     @PutMapping("/api/field/customers/{customerId}/qrCode")
@@ -193,5 +204,10 @@ public class CustomerController {
     public void createMobileLogs(@PathVariable(name = "qrCode") UUID qrCode, @RequestBody MobileLogDto request) {
         Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
         log.log(request.level().getLog4jLevel(), "Mobile Logs: customer={}, platform={}, page={}, message={}, json={}", customer.getId(), request.platform(), request.page(), request.message(), request.json());
+    }
+
+    @PostMapping({"/api/admin/mobileLogs", "/api/field/mobileLogs"})
+    public void createMobileLogs(@AuthenticationPrincipal CompanyUserDto user, @RequestBody MobileLogDto request) {
+        log.log(request.level().getLog4jLevel(), "Mobile Logs: user={}, company={}, platform={}, page={}, message={}, json={}", user.getUserId(), user.getCompanyId(), request.platform(), request.page(), request.message(), request.json());
     }
 }

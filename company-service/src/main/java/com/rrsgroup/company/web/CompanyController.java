@@ -1,10 +1,7 @@
 package com.rrsgroup.company.web;
 
 import com.rrsgroup.common.domain.SortDirection;
-import com.rrsgroup.common.dto.AdminUserDto;
-import com.rrsgroup.common.dto.SuperUserDto;
-import com.rrsgroup.common.dto.SystemUserDto;
-import com.rrsgroup.common.dto.UserDto;
+import com.rrsgroup.common.dto.*;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
@@ -28,6 +25,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -112,8 +110,8 @@ public class CompanyController {
         return companyDtoMapper.map(companyService.updateCompany(updateCompanyRequest, userDto));
     }
 
-    @GetMapping("/api/admin/config/companyInfo")
-    public CompanyDto getCompany(@AuthenticationPrincipal AdminUserDto user) {
+    @GetMapping({"/api/admin/config/companyInfo", "/api/field/config/companyInfo"})
+    public CompanyDto getCompany(@AuthenticationPrincipal CompanyUserDto user) {
         return companyDtoMapper.map(getCompanySafe(user.getCompanyId()));
     }
 
@@ -159,6 +157,11 @@ public class CompanyController {
                 zos.closeEntry();
             }
         }
+    }
+
+    @GetMapping("/api/system/companies/{companyId}/qrCodes/{qrCode}/frontEndLink")
+    public String getFrontEndLinkForQrCode(@PathVariable("companyId") Long companyId, @PathVariable("qrCode") UUID qrCode) {
+        return frontEndLinkService.getCustomerLandingPageLink(companyId, qrCode);
     }
 
     @GetMapping("/api/internal/companies/{companyId}/logoUploadUrl")

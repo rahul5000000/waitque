@@ -70,7 +70,7 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
         results.size() == 2
         results*.customer*.id == [10L, 11L]
         results*.crmCustomer*.crmCustomerId == ["crm-1", "crm-2"]
-        results*.qrCodeIsAssociated == [true, false]
+        results*.qrCode == [qrCode, null]
     }
 
     def "should create new customer if CRM customer not found in DB"() {
@@ -91,6 +91,7 @@ class CustomerCrmIntegrationServiceSpec extends Specification {
         def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
         def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-xyz", null, "Alice", "Brown", crmAddress, crmPhoneNumber, "alice.b@test.com")
         crmService.getCustomerById("crm-xyz") >> Optional.of(crmCustomer)
+        crmService.searchCustomers(_) >> new ArrayList<CrmCustomer>()
 
         customerService.getCustomerByCrmConfig(crmConfig, crmCustomer) >> null
         def createdCustomer = new Customer(id: 99L, crmCustomerId: "crm-xyz")
