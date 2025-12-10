@@ -6,6 +6,7 @@ import com.rrsgroup.customer.domain.CrmCustomerType
 import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.domain.CustomerSearchResult
 import com.rrsgroup.customer.entity.Customer
+import com.rrsgroup.customer.entity.QrCode
 import spock.lang.Specification
 
 class CrmCustomerDtoMapperSpec extends Specification {
@@ -22,8 +23,9 @@ class CrmCustomerDtoMapperSpec extends Specification {
         def customer1 = new Customer(id: 1L)
         def customer2 = new Customer(id: 2L)
 
-        def searchResult1 = new CustomerSearchResult(crmCustomer1, customer1, false)
-        def searchResult2 = new CustomerSearchResult(crmCustomer2, customer2, true)
+        def qrCode = QrCode.builder().customer(customer1).qrCode(UUID.randomUUID()).build()
+        def searchResult1 = new CustomerSearchResult(crmCustomer1, customer1, null)
+        def searchResult2 = new CustomerSearchResult(crmCustomer2, customer2, qrCode)
 
         def searchResults = [searchResult1, searchResult2]
 
