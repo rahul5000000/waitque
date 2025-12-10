@@ -1,6 +1,7 @@
 package com.rrsgroup.customer.domain;
 
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.QrCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,5 +10,5 @@ import lombok.Data;
 public class CustomerSearchResult {
     private CrmCustomer crmCustomer;
     private Customer customer;
-    private Boolean qrCodeIsAssociated;
+    private QrCode qrCode;
 }

@@ -25,6 +25,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -156,6 +157,11 @@ public class CompanyController {
                 zos.closeEntry();
             }
         }
+    }
+
+    @GetMapping("/api/system/companies/{companyId}/qrCodes/{qrCode}/frontEndLink")
+    public String getFrontEndLinkForQrCode(@PathVariable("companyId") Long companyId, @PathVariable("qrCode") UUID qrCode) {
+        return frontEndLinkService.getCustomerLandingPageLink(companyId, qrCode);
     }
 
     @GetMapping("/api/internal/companies/{companyId}/logoUploadUrl")

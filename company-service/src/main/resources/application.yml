@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/rrs-waitque
+          issuer-uri: ${KEYCLOAK_URL}/realms/rrs-waitque
       client:
         registration:
           company-service:
@@ -15,7 +15,7 @@ spring:
             provider: keycloak
         provider:
           keycloak:
-            token-uri: http://keycloak:8080/realms/rrs-waitque/protocol/openid-connect/token
+            token-uri: ${KEYCLOAK_URL}/realms/rrs-waitque/protocol/openid-connect/token
   datasource:
     url: jdbc:postgresql://localhost:5432/waitque
     username: waitque_api
@@ -30,7 +30,7 @@ spring:
 
 microservices:
   self:
-    base-url: http://localhost:8082
+    base-url: http://waitque.com
   customer-service:
     base-url: http://customer-service:8083
 
@@ -50,7 +50,7 @@ spring:
 
 microservices:
   self:
-    base-url: http://localhost:8082
+    base-url: http://waitque.com
   customer-service:
     base-url: http://localhost:8083
 ---

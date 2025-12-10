@@ -71,6 +71,14 @@ public class CustomerController {
         return crmCustomerDtoMapper.map(searchResults);
     }
 
+    @GetMapping("/api/field/customers/{customerId}")
+    public CustomerDetailDto getCustomer(
+            @AuthenticationPrincipal FieldUserDto fieldUserDto,
+            @PathVariable("customerId") Long customerId) {
+        CustomerSearchResult customerSearchResult = integrationService.getCustomer(customerId, fieldUserDto);
+        return crmCustomerDtoMapper.map(customerSearchResult);
+    }
+
     @PutMapping("/api/field/customers/{customerId}/qrCode")
     public CustomerDto associateQrCodeWithCustomer(
             @AuthenticationPrincipal FieldUserDto fieldUserDto,

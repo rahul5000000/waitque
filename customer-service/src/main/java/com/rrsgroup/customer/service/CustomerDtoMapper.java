@@ -1,11 +1,15 @@
 package com.rrsgroup.customer.service;
 
 import com.rrsgroup.customer.domain.CrmCustomer;
+import com.rrsgroup.customer.dto.CustomerDetailDto;
 import com.rrsgroup.customer.dto.CustomerDto;
 import com.rrsgroup.customer.dto.PublicCustomerDetailDto;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class CustomerDtoMapper {
@@ -27,6 +31,7 @@ public class CustomerDtoMapper {
     }
 
     public PublicCustomerDetailDto map(Customer customer, CrmCustomer crmCustomer) {
-        return new PublicCustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(), crmCustomer.getFirstName(), crmCustomer.getLastName());
+        return new PublicCustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(),
+                crmCustomer.getFirstName(), crmCustomer.getLastName());
     }
 }

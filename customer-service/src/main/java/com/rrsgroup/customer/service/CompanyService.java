@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CompanyService {
@@ -28,6 +29,19 @@ public class CompanyService {
                     .uri(companyServiceBaseUrl + "/api/system/companies/" + companyId)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<CompanyDto>() {
+                    })
+                    .block());
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> getQrCodeFrontEndLink(Long companyId, UUID qrCode) {
+        try {
+            return Optional.ofNullable(webClient.get()
+                    .uri(companyServiceBaseUrl + "/api/system/companies/"+companyId+"/qrCodes/"+qrCode+"/frontEndLink")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<String>() {
                     })
                     .block());
         } catch (WebClientResponseException.NotFound e) {
