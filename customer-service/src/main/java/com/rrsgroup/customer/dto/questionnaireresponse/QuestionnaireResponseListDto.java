@@ -23,6 +23,7 @@ public class QuestionnaireResponseListDto extends PaginatedDto {
     @AllArgsConstructor
     public static class QuestionnaireResponseListItem {
         private Long id;
+        private Long questionnaireId;
         private String questionnaireName;
         private QuestionnaireResponseStatus status;
         private Long predecessorId;

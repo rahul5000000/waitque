@@ -111,8 +111,9 @@ public class QuestionnaireResponseDtoMapper {
                     QuestionnaireDto questionnaire = questionnaireOptional.get();
                     Long predecessorId = response.getPredecessor() != null ? response.getPredecessor().getId() : null;
 
-                    return new QuestionnaireResponseListDto.QuestionnaireResponseListItem(response.getId(), questionnaire.name(),
-                            response.getStatus(), predecessorId, response.getCreatedDate(), response.getUpdatedDate());
+                    return new QuestionnaireResponseListDto.QuestionnaireResponseListItem(response.getId(),
+                            questionnaire.id(), questionnaire.name(), response.getStatus(), predecessorId,
+                            response.getCreatedDate(), response.getUpdatedDate());
                 }).toList()
         );
     }
