@@ -523,6 +523,32 @@ resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
   policy_arn = aws_iam_policy.backend_upload_policy.arn
 }
 
+resource "aws_iam_policy" "ecs_ses_send_email" {
+  name = "ecs-ses-send-email"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Resource = [
+          "arn:aws:ses:us-east-1:667573506753:identity/rahul5000000@gmail.com",
+          "arn:aws:ses:us-east-1:667573506753:identity/rahul@therrsgroup.com"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_ses_policy" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.ecs_ses_send_email.arn
+}
+
 # -------------------------------
 # Secrets Manager for Application Secrets
 # -------------------------------

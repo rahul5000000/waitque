@@ -138,6 +138,6 @@ spring:
           keycloak:
             token-uri: ${KEYCLOAK_ALB_URL}/realms/rrs-waitque/protocol/openid-connect/token
 
-  microservices:
-    company-service:
-      base-url: ${ALB_URL}/2
+microservices:
+  company-service:
+    base-url: ${ALB_URL}/2

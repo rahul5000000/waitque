@@ -24,6 +24,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private static final String CORRELATION_ID = "correlationId";
     private static final int MAX_BODY_SIZE = 10 * 1024; // 10 KB
+    private static final String ACTUATOR_HEALTH_PATH = "/actuator/health";
 
     // Fields to mask
     private static final List<String> SENSITIVE_FIELDS = Arrays.asList(
@@ -65,8 +66,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } finally {
             long duration = System.currentTimeMillis() - start;
 
-            logRequest(req, correlationId);
-            logResponse(res, correlationId, duration);
+            if (!shouldSkipLogging(req, res)) {
+                logRequest(req, correlationId);
+                logResponse(res, correlationId, duration);
+            }
 
             MDC.remove(CORRELATION_ID);
         }
@@ -126,5 +129,11 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
 
         return body;
+    }
+
+    private boolean shouldSkipLogging(HttpServletRequest request,
+                                      HttpServletResponse response) {
+        return ACTUATOR_HEALTH_PATH.equals(request.getRequestURI())
+                && response.getStatus() == HttpServletResponse.SC_OK;
     }
 }
