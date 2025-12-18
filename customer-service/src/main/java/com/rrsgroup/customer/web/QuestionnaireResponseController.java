@@ -5,25 +5,30 @@ import com.rrsgroup.common.dto.FieldUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
+import com.rrsgroup.common.service.S3Service;
+import com.rrsgroup.customer.domain.FileStage;
+import com.rrsgroup.customer.domain.UploadFileType;
 import com.rrsgroup.customer.domain.questionnaire.QuestionnaireStatus;
 import com.rrsgroup.customer.domain.questionnaireresponse.QuestionnaireResponseStatus;
+import com.rrsgroup.customer.dto.UploadUrlDto;
 import com.rrsgroup.customer.dto.questionnaire.QuestionnaireDto;
 import com.rrsgroup.customer.dto.questionnaire.QuestionnaireQuestionDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseAnswerDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseDto;
 import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseListDto;
+import com.rrsgroup.customer.dto.questionnaireresponse.QuestionnaireResponseStatusUpdateDto;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
-import com.rrsgroup.customer.service.CustomerService;
-import com.rrsgroup.customer.service.QuestionnaireResponseDtoMapper;
-import com.rrsgroup.customer.service.QuestionnaireResponseService;
-import com.rrsgroup.customer.service.QuestionnaireService;
+import com.rrsgroup.customer.service.*;
 import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,22 +37,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
+@Log4j2
 public class QuestionnaireResponseController {
     private final CustomerService customerService;
     private final QuestionnaireService questionnaireService;
     private final QuestionnaireResponseDtoMapper dtoMapper;
     private final QuestionnaireResponseService questionnaireResponseService;
+    private final S3Service s3Service;
+    private final UploadUrlDtoMapper uploadUrlDtoMapper;
 
     @Autowired
     public QuestionnaireResponseController(
             CustomerService customerService,
             QuestionnaireService questionnaireService,
             QuestionnaireResponseDtoMapper dtoMapper,
-            QuestionnaireResponseService questionnaireResponseService) {
+            QuestionnaireResponseService questionnaireResponseService,
+            S3Service s3Service,
+            UploadUrlDtoMapper uploadUrlDtoMapper) {
         this.customerService = customerService;
         this.questionnaireService = questionnaireService;
         this.dtoMapper = dtoMapper;
         this.questionnaireResponseService = questionnaireResponseService;
+        this.s3Service = s3Service;
+        this.uploadUrlDtoMapper = uploadUrlDtoMapper;
     }
 
     @PostMapping("/api/field/customers/{customerId}/questionnaires/{questionnaireId}/responses")
@@ -216,6 +228,62 @@ public class QuestionnaireResponseController {
                                                                 @PathVariable("customerId") Long customerId,
                                                                 @PathVariable("responseId") Long responseId) {
         QuestionnaireResponse existingQuestionnaireResponse = getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId);
-        return dtoMapper.map(questionnaireResponseService.markQuestionnaireResponseInactive(existingQuestionnaireResponse, fieldUserDto));
+        return dtoMapper.map(questionnaireResponseService.markQuestionnaireResponseStatus(existingQuestionnaireResponse, fieldUserDto, QuestionnaireResponseStatus.INACTIVE));
+    }
+
+    @PatchMapping("/api/field/customers/{customerId}/questionnaires/*/responses/{responseId}/status")
+    public QuestionnaireResponseDto updateQuestionnaireResponseStatus(@AuthenticationPrincipal FieldUserDto fieldUserDto,
+                                                                      @PathVariable("customerId") Long customerId,
+                                                                      @PathVariable("responseId") Long responseId,
+                                                                      @RequestBody QuestionnaireResponseStatusUpdateDto request) {
+        QuestionnaireResponse existingQuestionnaireResponse = getQuestionnaireResponseSafe(fieldUserDto, customerId, responseId);
+        return dtoMapper.map(questionnaireResponseService.markQuestionnaireResponseStatus(existingQuestionnaireResponse, fieldUserDto, request.status()));
+    }
+
+    @GetMapping("/api/field/customers/{customerId}/questionnaires/*/responses/photoUploadUrl")
+    public UploadUrlDto generateLeadUploadUrl(
+            @AuthenticationPrincipal FieldUserDto fieldUserDto,
+            @PathVariable("customerId") Long customerId,
+            @RequestParam(name = "fileName") String fileName,
+            @RequestParam(name = "contentType") String contentType) {
+        Optional<Customer> customerOptional = customerService.getCustomerById(customerId, fieldUserDto);
+
+        if(customerOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer not found with customerId="+customerId);
+        }
+
+        Customer customer = customerOptional.get();
+
+        log.info("Uploading photo with fileName={} for customerId={}", fileName, customer.getId());
+
+        int validity = 300;
+        LocalDateTime validUntil = LocalDateTime.now().plusSeconds(validity);
+        String bucketKey = customerService.getBucketKeyForFileAndStage(customer, UploadFileType.RESPONSE, fileName, FileStage.RAW);
+
+        URL url = s3Service.generateUploadUrl(S3Service.WAITQUE_UPLOAD_BUCKET, bucketKey, contentType, validity);
+
+        return uploadUrlDtoMapper.map(url, bucketKey, validUntil);
+    }
+
+    @DeleteMapping("/api/field/customers/{customerId}/questionnaires/*/responses/photoUpload")
+    public void deleteLeadPhotoUpload(
+            @AuthenticationPrincipal FieldUserDto fieldUserDto,
+            @PathVariable("customerId") Long customerId,
+            @RequestParam("photoPath") String path) {
+        Optional<Customer> customerOptional = customerService.getCustomerById(customerId, fieldUserDto);
+
+        if(customerOptional.isEmpty()) {
+            throw new RecordNotFoundException("Customer not found with customerId="+customerId);
+        }
+
+        Customer customer = customerOptional.get();
+
+        log.info("Deleting photo with path={} for customerId={}", path, customer.getId());
+
+        if(!path.contains("/" + customerId + "/")) {
+            throw new IllegalRequestException("Cannot delete photo for another customer");
+        }
+
+        s3Service.delete(S3Service.WAITQUE_UPLOAD_BUCKET, path);
     }
 }

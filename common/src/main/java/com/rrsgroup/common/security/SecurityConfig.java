@@ -51,7 +51,7 @@ public class SecurityConfig {
         } else {
             config.setAllowedOrigins(List.of("https://waitque.com"));
         }
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

@@ -9,6 +9,7 @@ import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponse;
 import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ import java.util.Optional;
 @Log4j2
 @Service
 public class QuestionnaireResponseDtoMapper {
+    @Value("${CDN_BASE_URL}")
+    private String cdnBaseUrl;
+
     private final CustomerCrmIntegrationService customerCrmIntegrationService;
     private final QuestionnaireService questionnaireService;
 
@@ -75,7 +79,7 @@ public class QuestionnaireResponseDtoMapper {
         Long predecessorId = response.getPredecessor() != null ? response.getPredecessor().getId() : null;
 
         return new QuestionnaireResponseDto(response.getId(), response.getQuestionnaireId(), response.getStatus(),
-                questionnaire,  crmCustomer, response.getAnswers().stream().map(this::map).toList(), predecessorId,
+                questionnaire,  crmCustomer, response.getAnswers().stream().map(this::map).toList(), predecessorId, cdnBaseUrl,
                 response.getCreatedDate(), response.getUpdatedDate(), response.getCreatedBy(), response.getUpdatedBy());
     }
 

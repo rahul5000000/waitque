@@ -1,7 +1,8 @@
 package com.rrsgroup.customer.domain;
 
 public enum UploadFileType {
-    LEAD("lead");
+    LEAD("lead"),
+    RESPONSE("response");
 
     private String folder;
 
