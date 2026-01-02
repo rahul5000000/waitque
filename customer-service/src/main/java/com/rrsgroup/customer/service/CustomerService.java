@@ -83,8 +83,20 @@ public class CustomerService {
     }
 
     public String getBucketKeyForFileAndStage(UUID qrCode, UploadFileType fileType, String fileName, FileStage stage) {
-        if(fileType == UploadFileType.LEAD) {
+        List<UploadFileType> supportedFileTypes = List.of(UploadFileType.LEAD);
+
+        if(supportedFileTypes.contains(fileType)) {
             return stage.toString() + "/" + fileType.getFolder()+ "/" + qrCode + "/" + fileName;
+        } else {
+            throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
+        }
+    }
+
+    public String getBucketKeyForFileAndStage(Customer customer, UploadFileType fileType, String fileName, FileStage stage) {
+        List<UploadFileType> supportedFileTypes = List.of(UploadFileType.RESPONSE);
+
+        if(supportedFileTypes.contains(fileType)) {
+            return stage.toString() + "/" + fileType.getFolder()+ "/" + customer.getId() + "/" + fileName;
         } else {
             throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
         }
