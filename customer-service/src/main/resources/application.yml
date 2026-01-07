@@ -141,3 +141,26 @@ spring:
 microservices:
   company-service:
     base-url: ${ALB_URL}/2
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ecs-prod
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:}:5432/waitque?currentSchema=waitque
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ALB_URL}/realms/rrs-waitque
+      client:
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_ALB_URL}/realms/rrs-waitque/protocol/openid-connect/token
+
+microservices:
+  company-service:
+    base-url: ${ALB_URL}/2
