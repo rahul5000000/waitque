@@ -77,3 +77,21 @@ spring:
 
 self:
   base-url: http://user-service:8084
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ecs-prod
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:}:5432/waitque?currentSchema=waitque
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ALB_URL}/realms/rrs-waitque
+
+self:
+  base-url: http://user-service:8084

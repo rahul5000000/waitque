@@ -324,11 +324,12 @@ resource "aws_lb_target_group" "customer_service" {
   }
 }
 
-# Listeners
-resource "aws_lb_listener" "http" {
+resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
-  port              = 80
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = "arn:aws:acm:us-east-1:667573506753:certificate/e2610fae-fc03-4168-a7c3-2b00fbbaa72f"
 
   default_action {
     type = "fixed-response"
@@ -340,14 +341,51 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# Listener Rules
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "keycloak_auth_domain" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.keycloak.arn
+  }
+
+  condition {
+    host_header {
+      values = ["auth.waitque.com"]
+    }
+  }
+}
+
 resource "aws_lb_listener_rule" "user_service" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 100
 
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.user_service.arn
+  }
+
+  condition {
+    host_header {
+      values = ["api.waitque.com"]
+    }
   }
 
   condition {
@@ -358,12 +396,18 @@ resource "aws_lb_listener_rule" "user_service" {
 }
 
 resource "aws_lb_listener_rule" "company_service" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 200
 
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.company_service.arn
+  }
+
+  condition {
+    host_header {
+      values = ["api.waitque.com"]
+    }
   }
 
   condition {
@@ -374,7 +418,7 @@ resource "aws_lb_listener_rule" "company_service" {
 }
 
 resource "aws_lb_listener_rule" "customer_service" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 300
 
   action {
@@ -383,24 +427,14 @@ resource "aws_lb_listener_rule" "customer_service" {
   }
 
   condition {
-    path_pattern {
-      values = ["/3/*"]
+    host_header {
+      values = ["api.waitque.com"]
     }
-  }
-}
-
-resource "aws_lb_listener_rule" "keycloak" {
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 400
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.keycloak.arn
   }
 
   condition {
     path_pattern {
-      values = ["/*", "/realms/*", "/admin/*", "/health*"]
+      values = ["/3/*"]
     }
   }
 }
@@ -738,7 +772,7 @@ resource "aws_ecs_task_definition" "keycloak" {
       },
       {
         name  = "KC_HOSTNAME_STRICT"
-        value = "false"
+        value = "true"
       },
       {
         name  = "KC_PROXY"
@@ -749,36 +783,16 @@ resource "aws_ecs_task_definition" "keycloak" {
         value = "true"
       },
       {
-        name = "KC_HOSTNAME"
-        value = aws_lb.main.dns_name
-      },
-      {
-          name = "KC_HOSTNAME_URL"
-          value = "http://${aws_lb.main.dns_name}"
-        },
-      {
-          name = "KC_HOSTNAME_ADMIN_URL"
-          value = "http://${aws_lb.main.dns_name}"
-        },
-      {
           name  = "KC_HOSTNAME_STRICT_HTTPS"
-          value = "false"
-        },
-        {
-          name  = "KC_HTTP_ENABLED"
           value = "true"
         },
         {
-          name  = "KC_HTTPS_CERTIFICATE_FILE"
-          value = ""
+          name  = "KC_HTTP_ENABLED"
+          value = "false"
         },
         {
-          name  = "KC_HTTPS_CERTIFICATE_KEY_FILE"
-          value = ""
-        },
-        {
-          name  = "KC_HTTPS_REQUIRED"
-          value = "none"
+          name  = "KC_HOSTNAME_STRICT_HTTPS"
+          value = "true"
         }
     ]
 
@@ -836,6 +850,11 @@ resource "aws_ecs_task_definition" "keycloak" {
   }
 }
 
+data "aws_ecr_image" "user_service" {
+  repository_name = aws_ecr_repository.user_service.name
+  image_tag       = "latest"
+}
+
 resource "aws_ecs_task_definition" "user_service" {
   family                   = "waitque-user-service"
   network_mode             = "awsvpc"
@@ -847,7 +866,7 @@ resource "aws_ecs_task_definition" "user_service" {
 
   container_definitions = jsonencode([{
     name  = "user-service"
-    image = "${aws_ecr_repository.user_service.repository_url}:latest"
+    image = "${aws_ecr_repository.user_service.repository_url}@${data.aws_ecr_image.user_service.image_digest}"
 
     portMappings = [{
       containerPort = 8084
@@ -865,7 +884,7 @@ resource "aws_ecs_task_definition" "user_service" {
       },
       {
         name  = "KEYCLOAK_ALB_URL"
-        value = "http://${aws_lb.main.dns_name}"
+        value = var.keycloak_base_url
       }
     ]
 
@@ -892,6 +911,11 @@ resource "aws_ecs_task_definition" "user_service" {
   }
 }
 
+data "aws_ecr_image" "company_service" {
+  repository_name = aws_ecr_repository.company_service.name
+  image_tag       = "latest"
+}
+
 resource "aws_ecs_task_definition" "company_service" {
   family                   = "waitque-company-service"
   network_mode             = "awsvpc"
@@ -903,7 +927,7 @@ resource "aws_ecs_task_definition" "company_service" {
 
   container_definitions = jsonencode([{
     name  = "company-service"
-    image = "${aws_ecr_repository.company_service.repository_url}:latest"
+    image = "${aws_ecr_repository.company_service.repository_url}@${data.aws_ecr_image.company_service.image_digest}"
 
     portMappings = [{
       containerPort = 8082
@@ -921,11 +945,11 @@ resource "aws_ecs_task_definition" "company_service" {
       },
       {
         name  = "KEYCLOAK_ALB_URL"
-        value = "http://${aws_lb.main.dns_name}"
+        value = var.keycloak_base_url
       },
       {
         name  = "ALB_URL"
-        value = "http://${aws_lb.main.dns_name}"
+        value = var.api_base_url
       },
       {
         name  = "CDN_BASE_URL"
@@ -960,6 +984,11 @@ resource "aws_ecs_task_definition" "company_service" {
   }
 }
 
+data "aws_ecr_image" "customer_service" {
+  repository_name = aws_ecr_repository.customer_service.name
+  image_tag       = "latest"
+}
+
 resource "aws_ecs_task_definition" "customer_service" {
   family                   = "waitque-customer-service"
   network_mode             = "awsvpc"
@@ -971,7 +1000,7 @@ resource "aws_ecs_task_definition" "customer_service" {
 
   container_definitions = jsonencode([{
     name  = "customer-service"
-    image = "${aws_ecr_repository.customer_service.repository_url}:latest"
+    image = "${aws_ecr_repository.customer_service.repository_url}@${data.aws_ecr_image.customer_service.image_digest}"
 
     portMappings = [{
       containerPort = 8083
@@ -989,11 +1018,11 @@ resource "aws_ecs_task_definition" "customer_service" {
       },
       {
         name  = "KEYCLOAK_ALB_URL"
-        value = "http://${aws_lb.main.dns_name}"
+        value = var.keycloak_base_url
       },
       {
         name  = "ALB_URL"
-        value = "http://${aws_lb.main.dns_name}"
+        value = var.api_base_url
       },
       {
         name  = "CDN_BASE_URL"
@@ -1198,12 +1227,12 @@ output "alb_dns_name" {
 
 output "alb_url" {
   description = "ALB URL"
-  value       = "http://${aws_lb.main.dns_name}"
+  value       = "https://api.waitque.com"
 }
 
 output "keycloak_url" {
   description = "Keycloak URL"
-  value       = "http://${aws_lb.main.dns_name}"
+  value       = "https://auth.waitque.com"
 }
 
 output "ecr_repositories" {

@@ -49,7 +49,7 @@ public class SecurityConfig {
         if ("dev".equals(activeProfile) || "docker".equals(activeProfile) || "ecs-staging".equals(activeProfile)) {
             config.setAllowedOrigins(List.of("http://localhost:8081"));
         } else {
-            config.setAllowedOrigins(List.of("https://waitque.com"));
+            config.setAllowedOrigins(List.of("https://app.waitque.com"));
         }
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

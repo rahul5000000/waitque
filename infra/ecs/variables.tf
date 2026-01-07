@@ -27,3 +27,15 @@ variable "customer_service_client_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "keycloak_base_url" {
+  description = "Keycloak Baseurl"
+  type        = string
+  sensitive   = false
+}
+
+variable "api_base_url" {
+  description = "Backend APIs Baseurl"
+  type        = string
+  sensitive   = false
+}
