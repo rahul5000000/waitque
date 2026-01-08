@@ -33,7 +33,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - WAITQUE_DB_PASSWORD=${WAITQUE_DB_PASSWORD}
       - AWS_REGION=us-east-1
-      - KEYCLOAK_URL=http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com
+      - KEYCLOAK_URL=https://auth.waitque.com
     depends_on:
       - postgres
       - keycloak
@@ -48,7 +48,7 @@ services:
       - COMPANY_SERVICE_CLIENT_SECRET=${COMPANY_SERVICE_CLIENT_SECRET}
       - CDN_BASE_URL=http://dgzyzoic2eg8w.cloudfront.net
       - AWS_REGION=us-east-1
-      - KEYCLOAK_URL=http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com
+      - KEYCLOAK_URL=https://auth.waitque.com
     depends_on:
       - postgres
       - keycloak
@@ -63,7 +63,7 @@ services:
       - CUSTOMER_SERVICE_CLIENT_SECRET=${CUSTOMER_SERVICE_CLIENT_SECRET}
       - CDN_BASE_URL=http://dgzyzoic2eg8w.cloudfront.net
       - AWS_REGION=us-east-1
-      - KEYCLOAK_URL=http://waitque-alb-1208411922.us-east-1.elb.amazonaws.com
+      - KEYCLOAK_URL=https://auth.waitque.com
     depends_on:
       - postgres
       - keycloak

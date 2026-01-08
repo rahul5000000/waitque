@@ -9,6 +9,7 @@ import com.rrsgroup.customer.domain.CustomerSearchResult;
 import com.rrsgroup.customer.dto.CustomerDetailDto;
 import com.rrsgroup.customer.dto.CustomersSearchResultDto;
 import com.rrsgroup.customer.entity.Customer;
+import com.rrsgroup.customer.entity.CustomerCode;
 import com.rrsgroup.customer.entity.QrCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,9 +63,18 @@ public class CrmCustomerDtoMapper {
             }
         }
 
+        String customerCode = null;
+        if(searchResult.getCustomer().getCustomerCodes() != null) {
+            Optional<CustomerCode> activeCustomerCode = searchResult.getCustomer().getCustomerCodes().stream().filter(assignedCustomerCode -> assignedCustomerCode.getStatus() == CustomerCode.CustomerCodeStatus.ACTIVE).findFirst();
+
+            if(activeCustomerCode.isPresent()) {
+                customerCode = activeCustomerCode.get().getCustomerCode();
+            }
+        }
+
         return new CustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(),
                 crmCustomer.getFirstName(), crmCustomer.getLastName(),
                 map(crmCustomer.getAddress()), map(crmCustomer.getPhoneNumber()),
-                crmCustomer.getEmail(), frontEndLink);
+                crmCustomer.getEmail(), frontEndLink, customerCode);
     }
 }

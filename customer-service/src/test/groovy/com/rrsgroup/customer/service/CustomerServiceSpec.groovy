@@ -7,6 +7,7 @@ import com.rrsgroup.customer.domain.CrmCustomerType
 import com.rrsgroup.customer.domain.CrmPhoneNumber
 import com.rrsgroup.customer.entity.CrmConfig
 import com.rrsgroup.customer.entity.Customer
+import com.rrsgroup.customer.repository.CustomerCodeRespository
 import com.rrsgroup.customer.repository.CustomerRepository
 import spock.lang.Specification
 import spock.lang.Subject
@@ -17,9 +18,10 @@ class CustomerServiceSpec extends Specification {
 
     def customerRepository = Mock(CustomerRepository)
     def qrCodeService = Mock(QrCodeService)
+    def customerCodeRespository = Mock(CustomerCodeRespository)
 
     @Subject
-    def service = new CustomerService(customerRepository, qrCodeService)
+    def service = new CustomerService(customerRepository, qrCodeService, customerCodeRespository)
 
     def "should create a new customer and save it with correct fields"() {
         given:
@@ -42,6 +44,9 @@ class CustomerServiceSpec extends Specification {
             assert c.updatedDate instanceof LocalDateTime
             return savedCustomer
         }
+
+        and: "random customer code is generated"
+        1 * customerCodeRespository.findByCustomerCode(_) >> Optional.empty()
 
         when:
         def result = service.createCustomer(crmConfig, crmCustomer, companyUser)

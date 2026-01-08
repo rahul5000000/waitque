@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public record CustomerDetailDto(Long id, CrmCustomerType customerType, String companyName, String firstName,
                                 String lastName, AddressDto address, PhoneNumberDto phone, String email,
-                                String frontEndLink) {
+                                String frontEndLink, String customerCode) {
 }

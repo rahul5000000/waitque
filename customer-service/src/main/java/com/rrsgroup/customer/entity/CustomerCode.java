@@ -9,29 +9,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "customer", schema = "customer")
+@Table(name = "customer_code", schema = "customer")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Customer {
+public class CustomerCode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "crm_config_id", referencedColumnName = "id", nullable = false)
-    private CrmConfig crmConfig;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    private Customer customer;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CustomerCode> customerCodes = new ArrayList<>();
+    @NotNull
+    private String customerCode;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private CustomerCodeStatus status;
 
-    @NotBlank
-    private String crmCustomerId;
     @NotNull
     private LocalDateTime createdDate;
     @NotNull
@@ -40,4 +39,9 @@ public class Customer {
     private String createdBy;
     @NotBlank
     private String updatedBy;
+
+    public enum CustomerCodeStatus {
+        ACTIVE,
+        INACTIVE
+    }
 }
