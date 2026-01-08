@@ -1,6 +1,9 @@
 package com.rrsgroup.customer.service.mockcrm;
 
+import com.rrsgroup.common.dto.CompanyUserDto;
+import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.customer.domain.*;
+import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.service.CrmService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,12 +19,17 @@ public class MockCrmService implements CrmService {
     );
 
     @Override
-    public Optional<CrmCustomer> getCustomerById(String crmCustomerId) {
+    public CrmCustomer createCustomer(CrmCustomer crmCustomer, CrmConfig crmConfig, CompanyUserDto userDto) {
+        throw new IllegalRequestException("Customers cannot be created for companies using the Mock CRM");
+    }
+
+    @Override
+    public Optional<CrmCustomer> getCustomerById(String crmCustomerId, CrmConfig crmConfig) {
         return customers.stream().filter(customer -> customer.getCrmCustomerId().equals(crmCustomerId)).findFirst();
     }
 
     @Override
-    public List<CrmCustomer> searchCustomers(CustomerSearchRequest request) {
+    public List<CrmCustomer> searchCustomers(CustomerSearchRequest request, CrmConfig crmConfig) {
         String companyNameSnippet = request.getCompanyName();
         String firstNameSnippet = request.getFirstName();
         String lastNameSnippet = request.getLastName();

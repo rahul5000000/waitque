@@ -7,6 +7,7 @@ import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.customer.domain.CrmCustomer;
+import com.rrsgroup.customer.domain.CrmCustomerCreateResult;
 import com.rrsgroup.customer.domain.CustomerSearchRequest;
 import com.rrsgroup.customer.domain.CustomerSearchResult;
 import com.rrsgroup.customer.dto.*;
@@ -50,6 +51,16 @@ public class CustomerController {
         this.customerDtoMapper = customerDtoMapper;
         this.companyService = companyService;
         this.leadFlowService = leadFlowService;
+    }
+
+    @PostMapping("/api/field/customers")
+    public CustomerDetailDto createCrmCustomer(
+            @AuthenticationPrincipal FieldUserDto fieldUserDto,
+            @RequestBody CustomerDetailDto request) {
+        CrmCustomer crmCustomer = crmCustomerDtoMapper.map(request);
+        CrmCustomerCreateResult result = integrationService.createCrmCustomer(crmCustomer, fieldUserDto);
+
+        return crmCustomerDtoMapper.map(result);
     }
 
     @PostMapping(value = "/api/field/customers/search", consumes = "application/x-www-form-urlencoded")

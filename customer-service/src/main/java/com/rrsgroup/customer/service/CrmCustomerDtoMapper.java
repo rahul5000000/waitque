@@ -2,10 +2,7 @@ package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.AddressDto;
 import com.rrsgroup.common.dto.PhoneNumberDto;
-import com.rrsgroup.customer.domain.CrmAddress;
-import com.rrsgroup.customer.domain.CrmCustomer;
-import com.rrsgroup.customer.domain.CrmPhoneNumber;
-import com.rrsgroup.customer.domain.CustomerSearchResult;
+import com.rrsgroup.customer.domain.*;
 import com.rrsgroup.customer.dto.CustomerDetailDto;
 import com.rrsgroup.customer.dto.CustomersSearchResultDto;
 import com.rrsgroup.customer.entity.Customer;
@@ -42,9 +39,27 @@ public class CrmCustomerDtoMapper {
         }).toList());
     }
 
+    public CrmAddress map(AddressDto dto) {
+        return CrmAddress.builder()
+                .address1(dto.address1())
+                .address2(dto.address2())
+                .city(dto.city())
+                .state(dto.state())
+                .zipcode(dto.zipcode())
+                .country(dto.country())
+                .build();
+    }
+
     public AddressDto map(CrmAddress address) {
         return new AddressDto(null, address.getAddress1(), address.getAddress2(), address.getCity(),
                 address.getState(), address.getZipcode(), address.getCountry());
+    }
+
+    public CrmPhoneNumber map(PhoneNumberDto dto) {
+        return CrmPhoneNumber.builder()
+                .countryCode(dto.countryCode())
+                .phoneNumber(dto.phoneNumber())
+                .build();
     }
 
     public PhoneNumberDto map(CrmPhoneNumber phoneNumber) {
@@ -76,5 +91,36 @@ public class CrmCustomerDtoMapper {
                 crmCustomer.getFirstName(), crmCustomer.getLastName(),
                 map(crmCustomer.getAddress()), map(crmCustomer.getPhoneNumber()),
                 crmCustomer.getEmail(), frontEndLink, customerCode);
+    }
+
+    public CrmCustomer map(CustomerDetailDto dto) {
+        return CrmCustomer.builder()
+                .customerType(dto.customerType())
+                .companyName(dto.companyName())
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .address(map(dto.address()))
+                .phoneNumber(map(dto.phone()))
+                .email(dto.email())
+                .build();
+    }
+
+    public CustomerDetailDto map(CrmCustomerCreateResult result) {
+        Customer customer = result.getCustomer();
+        CrmCustomer crmCustomer = result.getCrmCustomer();
+
+        String customerCode = null;
+        if(result.getCustomer().getCustomerCodes() != null) {
+            Optional<CustomerCode> activeCustomerCode = result.getCustomer().getCustomerCodes().stream().filter(assignedCustomerCode -> assignedCustomerCode.getStatus() == CustomerCode.CustomerCodeStatus.ACTIVE).findFirst();
+
+            if(activeCustomerCode.isPresent()) {
+                customerCode = activeCustomerCode.get().getCustomerCode();
+            }
+        }
+
+        return new CustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(),
+                crmCustomer.getFirstName(), crmCustomer.getLastName(),
+                map(crmCustomer.getAddress()), map(crmCustomer.getPhoneNumber()),
+                crmCustomer.getEmail(), null, customerCode);
     }
 }
