@@ -2,10 +2,9 @@ package com.rrsgroup.customer.service;
 
 import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.common.dto.FieldUserDto;
+import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
-import com.rrsgroup.customer.domain.CrmCustomer;
-import com.rrsgroup.customer.domain.CustomerSearchRequest;
-import com.rrsgroup.customer.domain.CustomerSearchResult;
+import com.rrsgroup.customer.domain.*;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.entity.Customer;
 import com.rrsgroup.customer.entity.QrCode;
@@ -85,10 +84,10 @@ public class CustomerCrmIntegrationService {
 
         List<CrmCustomer> searchResults = new ArrayList<>();
         if(StringUtils.isNotBlank(request.getCrmCustomerId())) {
-            searchResults.addAll(crmService.getCustomerById(request.getCrmCustomerId()).map(List::of).orElseGet(List::of));
+            searchResults.addAll(crmService.getCustomerById(request.getCrmCustomerId(), crmConfig).map(List::of).orElseGet(List::of));
         }
 
-        searchResults.addAll(crmService.searchCustomers(request));
+        searchResults.addAll(crmService.searchCustomers(request, crmConfig));
         // return deduped results because search by CrmCustomerId and other fields could both return the same record
         return searchResults.stream()
                 .collect(Collectors.toMap(
@@ -124,7 +123,7 @@ public class CustomerCrmIntegrationService {
 
     public Optional<CrmCustomer> getCrmCustomer(String crmCustomerId, CrmConfig crmConfig) {
         CrmService crmService = getCrmServiceForCrmConfig(crmConfig);
-        return crmService.getCustomerById(crmCustomerId);
+        return crmService.getCustomerById(crmCustomerId, crmConfig);
     }
 
     public CustomerSearchResult getCustomer(Long customerId, CompanyUserDto userDto) {
@@ -141,5 +140,25 @@ public class CustomerCrmIntegrationService {
         Optional<QrCode> qrCodeOptional = qrCodeService.getQrCodeForCustomer(customer);
 
         return new CustomerSearchResult(crmCustomer, customer, qrCodeOptional.orElse(null));
+    }
+
+    public CrmCustomerCreateResult createCrmCustomer(CrmCustomer crmCustomer, FieldUserDto fieldUserDto) {
+        Long companyId = fieldUserDto.getCompanyId();
+        List<CrmConfig> companyCrmConfigs = crmConfigService.getCrmConfigsForCompany(companyId);
+
+        // TODO hardcoded to native CRM for now
+        Optional<CrmConfig> nativeCrmConfigOptional = companyCrmConfigs.stream().filter(crmConfig -> crmConfig.getCrmType() == CrmType.WAITQUE).findFirst();
+
+        if(nativeCrmConfigOptional.isEmpty()) {
+            throw new IllegalRequestException("Company is not configured with a CRM that allows customer creation");
+        }
+
+        CrmConfig nativeCrmConfig = nativeCrmConfigOptional.get();
+        CrmService crmService = getCrmServiceForCrmConfig(nativeCrmConfig);
+
+        CrmCustomer savedCrmCustomer = crmService.createCustomer(crmCustomer, nativeCrmConfig, fieldUserDto);
+        Customer customer = customerService.createCustomer(nativeCrmConfig, savedCrmCustomer, fieldUserDto);
+
+        return new CrmCustomerCreateResult(savedCrmCustomer, customer);
     }
 }
