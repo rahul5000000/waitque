@@ -954,6 +954,10 @@ resource "aws_ecs_task_definition" "company_service" {
       {
         name  = "CDN_BASE_URL"
         value = "http://${module.waitque-upload-bucket.cdn_domain}"
+      },
+      {
+        name = "APP_FRONTEND_URL"
+        value = var.app_base_url
       }
     ]
 
