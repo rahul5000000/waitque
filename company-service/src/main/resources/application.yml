@@ -33,6 +33,9 @@ microservices:
     base-url: http://waitque.com
   customer-service:
     base-url: http://customer-service:8083
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_URL}
 
 logging:
   level:
@@ -53,6 +56,9 @@ microservices:
     base-url: http://waitque.com
   customer-service:
     base-url: http://localhost:8083
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_URL}
 ---
 spring:
   config:
@@ -114,6 +120,9 @@ spring:
 microservices:
   self:
     base-url: http://waitque.com
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_URL}
 ---
 spring:
   config:
@@ -138,7 +147,9 @@ microservices:
     base-url: ${ALB_URL}/2
   customer-service:
     base-url: ${ALB_URL}/3
-
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_URL}
 ---
 spring:
   config:
@@ -163,3 +174,6 @@ microservices:
     base-url: ${ALB_URL}/2
   customer-service:
     base-url: ${ALB_URL}/3
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_URL}

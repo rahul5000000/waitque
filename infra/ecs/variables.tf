@@ -39,3 +39,9 @@ variable "api_base_url" {
   type        = string
   sensitive   = false
 }
+
+variable "app_base_url" {
+  description = "App Frontend Baseurl"
+  type        = string
+  sensitive   = false
+}

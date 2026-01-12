@@ -9,11 +9,11 @@ import java.util.UUID;
 @Service
 @Log4j2
 public class FrontEndLinkService {
-    @Value("${microservices.self.base-url}")
-    private String selfBaseUrl;
+    @Value("${app.frontend.base-url}")
+    private String appFrontendBaseUrl;
 
     public String getCustomerLandingPageLink(Long companyId, UUID customerCode) {
-        String customerLandingPageLink = selfBaseUrl+"/web/landing?company="+companyId+"&customerCode="+customerCode;
+        String customerLandingPageLink = appFrontendBaseUrl +"?company="+companyId+"&customerCode="+customerCode;
         log.debug("customerLandingPageLink: {}", customerLandingPageLink);
 
         return customerLandingPageLink;
