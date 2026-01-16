@@ -447,7 +447,7 @@ resource "aws_ecs_cluster" "main" {
 
   setting {
     name  = "containerInsights"
-    value = "enabled"
+    value = "disabled"
   }
 
   tags = {
@@ -661,6 +661,203 @@ resource "aws_cloudwatch_log_group" "customer_service" {
     Service     = "customer-service"
   }
 }
+
+# -------------------------------
+# CloudWatch Alarms
+# -------------------------------
+resource "aws_cloudwatch_metric_alarm" "keycloak_5xx" {
+  alarm_name          = "keycloak-5xx"
+  alarm_description   = "Keycloak is returning 5XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.keycloak.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "user_service_5xx" {
+  alarm_name          = "user_service-5xx"
+  alarm_description   = "User Service is returning 5XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.user_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "company_service_5xx" {
+  alarm_name          = "company_service-5xx"
+  alarm_description   = "Company Service is returning 5XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.company_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "customer_service_5xx" {
+  alarm_name          = "customer_service-5xx"
+  alarm_description   = "Customer Service is returning 5XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.customer_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "user_service_4xx" {
+  alarm_name          = "user_service-4xx"
+  alarm_description   = "User Service is returning 4XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_4XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.user_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "company_service_4xx" {
+  alarm_name          = "company_service-4xx"
+  alarm_description   = "Company Service is returning 4XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_4XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.company_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "customer_service_4xx" {
+  alarm_name          = "customer_service-4xx"
+  alarm_description   = "Customer Service is returning 4XX responses"
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_Target_4XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+
+  dimensions = {
+    LoadBalancer = aws_lb.main.arn_suffix
+    TargetGroup  = aws_lb_target_group.customer_service.arn_suffix
+  }
+
+  alarm_actions = [var.cloud_watch_notification_topic_arn]
+  ok_actions    = [var.cloud_watch_notification_topic_arn]
+
+  treat_missing_data = "notBreaching"
+}
+
+# -------------------------------
+# EventBridge Rules
+# -------------------------------
+resource "aws_cloudwatch_event_rule" "ecs_task_stopped" {
+  name        = "ecs-task-stopped"
+  description = "Triggers when ECS tasks stop"
+
+  event_pattern = jsonencode({
+    "source" = ["aws.ecs"]
+    "detail-type" = ["ECS Task State Change"]
+    "detail" = {
+      "clusterArn" = [aws_ecs_cluster.main.arn]
+      "lastStatus" = ["STOPPED"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "ecs_task_stopped_sns" {
+  rule = aws_cloudwatch_event_rule.ecs_task_stopped.name
+  arn  = var.cloud_watch_notification_topic_arn
+
+  # Optional: use input transformer to include key info in the message
+  input_transformer {
+    input_paths = {
+      "taskArn"         = "$.detail.taskArn"
+      "taskDefinition"  = "$.detail.taskDefinitionArn"
+      "stoppedReason"   = "$.detail.stoppedReason"
+      "containerExitCode" = "$.detail.containers[0].exitCode"
+    }
+
+    input_template = jsonencode({
+      "TaskArn"         = "<taskArn>"
+      "TaskDefinition"  = "<taskDefinition>"
+      "StoppedReason"   = "<stoppedReason>"
+      "ContainerExitCode" = "<containerExitCode>"
+    })
+  }
+}
+
 
 # -------------------------------
 # Service Discovery (for inter-service communication)

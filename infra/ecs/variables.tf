@@ -45,3 +45,9 @@ variable "app_base_url" {
   type        = string
   sensitive   = false
 }
+
+variable "cloud_watch_notification_topic_arn" {
+  description = "SNS topic arn"
+  type        = string
+  sensitive   = false
+}
