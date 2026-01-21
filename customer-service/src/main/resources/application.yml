@@ -28,6 +28,12 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           default_schema: customer
           format_sql: true
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 300000
 
 microservices:
   company-service:
@@ -44,6 +50,7 @@ logging:
           sql:
             BasicBinder: TRACE
     orm.jdbc.bind: TRACE
+
 ---
 spring:
   profiles:
