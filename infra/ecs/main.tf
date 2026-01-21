@@ -761,7 +761,7 @@ resource "aws_cloudwatch_metric_alarm" "user_service_4xx" {
   statistic           = "Sum"
   period              = 60
   evaluation_periods  = 1
-  threshold           = 1
+  threshold           = 5
   comparison_operator = "GreaterThanOrEqualToThreshold"
 
   dimensions = {
@@ -933,6 +933,11 @@ resource "aws_service_discovery_service" "customer_service" {
 # -------------------------------
 # ECS Task Definitions
 # -------------------------------
+data "aws_ecr_image" "keycloak" {
+  repository_name = aws_ecr_repository.keycloak.name
+  image_tag       = "latest"
+}
+
 resource "aws_ecs_task_definition" "keycloak" {
   family                   = "waitque-keycloak"
   network_mode             = "awsvpc"
@@ -944,7 +949,7 @@ resource "aws_ecs_task_definition" "keycloak" {
 
   container_definitions = jsonencode([{
     name  = "keycloak"
-    image = "quay.io/keycloak/keycloak:26.3.2"
+    image = "${aws_ecr_repository.keycloak.repository_url}@${data.aws_ecr_image.keycloak.image_digest}"
 
     command = ["start-dev", "--http-port=8080", "--hostname-strict=false", "--http-relative-path=/", "--http-management-port=9000"]
 
