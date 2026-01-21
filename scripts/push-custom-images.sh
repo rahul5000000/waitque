@@ -20,3 +20,5 @@ for module in "${modules[@]}"; do
 
     echo "$module image built successfully!"
 done
+
+docker build -t waitque-keycloak:26.3.2 -f ./keycloak/Dockerfile ./keycloak

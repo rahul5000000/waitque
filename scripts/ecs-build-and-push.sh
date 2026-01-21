@@ -79,17 +79,11 @@ build_and_push "user-service" "./user-service" "$USER_SERVICE_REPO"
 build_and_push "company-service" "./company-service" "$COMPANY_SERVICE_REPO"
 build_and_push "customer-service" "./customer-service" "$CUSTOMER_SERVICE_REPO"
 
-# For Keycloak, we'll pull the official image and push to our ECR
+# For Keycloak, we will build and push
 echo -e "\n${YELLOW}📥 Pulling official Keycloak image...${NC}"
-docker pull quay.io/keycloak/keycloak:26.3.2
-
+docker buildx build --platform linux/amd64 -t $KEYCLOAK_REPO:latest -f ./keycloak/Dockerfile --push ./keycloak
 echo -e "${YELLOW}🏷️  Tagging Keycloak for ECR...${NC}"
-docker tag quay.io/keycloak/keycloak:26.3.2 $KEYCLOAK_REPO:26.3.2
-docker tag quay.io/keycloak/keycloak:26.3.2 $KEYCLOAK_REPO:latest
-
-echo -e "${YELLOW}📤 Pushing Keycloak to ECR...${NC}"
-docker push $KEYCLOAK_REPO:26.3.2
-docker push $KEYCLOAK_REPO:latest
+docker tag $KEYCLOAK_REPO:latest $KEYCLOAK_REPO:latest
 
 echo -e "\n${GREEN}✅ All images built and pushed successfully!${NC}"
 echo -e "\n${YELLOW}Next steps:${NC}"
