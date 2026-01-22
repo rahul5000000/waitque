@@ -583,6 +583,27 @@ resource "aws_iam_role_policy_attachment" "attach_ses_policy" {
   policy_arn = aws_iam_policy.ecs_ses_send_email.arn
 }
 
+resource "aws_iam_policy" "publish_lead_created_event" {
+  name        = "publish-lead-created-event"
+  description = "Allow publishing Lead Created events to SNS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = module.lead_events.topic_arns["lead_created_event"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_publish_lead_event" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.publish_lead_created_event.arn
+}
+
 # -------------------------------
 # Secrets Manager for Application Secrets
 # -------------------------------
@@ -1233,6 +1254,10 @@ resource "aws_ecs_task_definition" "customer_service" {
       {
         name  = "CDN_BASE_URL"
         value = "http://${module.waitque-upload-bucket.cdn_domain}"
+      },
+      {
+        name  = "SNS_LEAD_CREATED_TOPIC_ARN"
+        value = module.lead_events.topic_arns["lead_created_event"]
       }
     ]
 
@@ -1421,6 +1446,29 @@ module "waitque-upload-bucket" {
     "US",
     "CA"
   ]
+}
+
+# -------------------------------
+# SNS Topics
+# -------------------------------
+
+module "lead_events" {
+  source = "../sns"
+
+  default_tags = {
+    environment = "prod"
+    service     = "events"
+  }
+
+  topics = {
+    "lead_created_event" = {
+      display_name = "Lead Created Event"
+      enable_dlq   = true
+      email_subscriptions = [
+        "rahul@waitque.com"
+      ]
+    }
+  }
 }
 
 # -------------------------------

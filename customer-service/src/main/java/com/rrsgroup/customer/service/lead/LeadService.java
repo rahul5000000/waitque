@@ -5,6 +5,7 @@ import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.entity.lead.Lead;
 import com.rrsgroup.customer.repository.LeadRepository;
+import com.rrsgroup.customer.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +20,12 @@ import java.util.Optional;
 @Service
 public class LeadService {
     private final LeadRepository leadRepository;
+    private final EventService eventService;
 
     @Autowired
-    public LeadService(LeadRepository leadRepository) {
+    public LeadService(LeadRepository leadRepository, EventService eventService) {
         this.leadRepository = leadRepository;
+        this.eventService = eventService;
     }
 
     public Lead createLeadAnonymous(Lead lead) {
@@ -42,7 +45,11 @@ public class LeadService {
             answer.setUpdatedBy(createdBy);
         });
 
-        return leadRepository.save(lead);
+        Lead savedLead = leadRepository.save(lead);
+
+        eventService.leadCreated(savedLead);
+
+        return savedLead;
     }
 
     public Page<Lead> getCompanyListOfLeads(Long companyId, List<LeadStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {
