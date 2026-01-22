@@ -68,6 +68,7 @@ services:
       - CDN_BASE_URL=http://dgzyzoic2eg8w.cloudfront.net
       - AWS_REGION=us-east-1
       - KEYCLOAK_URL=https://auth.waitque.com
+      - SNS_LEAD_CREATED_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:lead_created_event
     depends_on:
       - postgres
       - keycloak

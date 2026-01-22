@@ -6,6 +6,7 @@ import com.rrsgroup.customer.domain.lead.LeadStatus
 import com.rrsgroup.customer.entity.lead.Lead
 import com.rrsgroup.customer.entity.lead.LeadAnswer
 import com.rrsgroup.customer.repository.LeadRepository
+import com.rrsgroup.customer.service.EventService
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import spock.lang.Specification
@@ -13,7 +14,8 @@ import spock.lang.Specification
 class LeadServiceSpec extends Specification {
 
     def leadRepository = Mock(LeadRepository)
-    def service = new LeadService(leadRepository)
+    def eventService = Mock(EventService)
+    def service = new LeadService(leadRepository, eventService)
 
     def "createLeadAnonymous should set metadata and save lead"() {
         given:
