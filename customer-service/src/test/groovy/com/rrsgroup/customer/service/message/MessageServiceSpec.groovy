@@ -3,6 +3,7 @@ package com.rrsgroup.customer.service.message
 import com.rrsgroup.customer.domain.message.MessageStatus
 import com.rrsgroup.customer.entity.message.Message
 import com.rrsgroup.customer.repository.MessageRepository
+import com.rrsgroup.customer.service.EventService
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -10,7 +11,8 @@ import java.time.LocalDateTime
 class MessageServiceSpec extends Specification {
 
     MessageRepository messageRepository = Mock()
-    MessageService messageService = new MessageService(messageRepository)
+    EventService eventService = Mock()
+    MessageService messageService = new MessageService(messageRepository, eventService)
 
     def "saveMessageAnonymous should set audit fields and save message"() {
         given:

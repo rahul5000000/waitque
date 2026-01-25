@@ -5,6 +5,7 @@ import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.customer.domain.message.MessageStatus;
 import com.rrsgroup.customer.entity.message.Message;
 import com.rrsgroup.customer.repository.MessageRepository;
+import com.rrsgroup.customer.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +20,12 @@ import java.util.Optional;
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
+    private final EventService eventService;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository) {
+    public MessageService(MessageRepository messageRepository, EventService eventService) {
         this.messageRepository = messageRepository;
+        this.eventService = eventService;
     }
 
     public Message saveMessageAnonymous(Message message) {
@@ -35,7 +38,11 @@ public class MessageService {
         message.setCreatedBy(createdBy);
         message.setUpdatedBy(createdBy);
 
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+
+        eventService.messageSent(savedMessage);
+
+        return savedMessage;
     }
 
     public Page<Message> getCompanyListOfMessages(Long companyId, List<MessageStatus> statuses, int limit, int page, String sortField, SortDirection sortDir) {

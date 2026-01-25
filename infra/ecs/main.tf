@@ -604,6 +604,90 @@ resource "aws_iam_role_policy_attachment" "ecs_publish_lead_event" {
   policy_arn = aws_iam_policy.publish_lead_created_event.arn
 }
 
+resource "aws_iam_policy" "publish_message_sent_event" {
+  name        = "publish-message-sent-event"
+  description = "Allow publishing Message Sent events to SNS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = module.message_events.topic_arns["message_sent_event"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_publish_message_sent_event" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.publish_message_sent_event.arn
+}
+
+resource "aws_iam_policy" "publish_customer_login_event" {
+  name        = "publish-customer-login-event"
+  description = "Allow publishing Customer Login events to SNS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = module.user_events.topic_arns["customer_login_event"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_publish_customer_login_event" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.publish_customer_login_event.arn
+}
+
+resource "aws_iam_policy" "publish_questionnaire_response_created_event" {
+  name        = "publish-questionnaire-resp-created-event"
+  description = "Allow publishing Questionnaire Response Created events to SNS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = module.questionnaire_response_events.topic_arns["questionnaire_response_created_event"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_publish_questionnaire_response_created_event" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.publish_questionnaire_response_created_event.arn
+}
+
+resource "aws_iam_policy" "publish_questionnaire_response_viewed_event" {
+  name        = "publish-questionnaire-resp-viewed-event"
+  description = "Allow publishing Questionnaire Response Viewed events to SNS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["sns:Publish"]
+        Resource = module.questionnaire_response_events.topic_arns["questionnaire_response_viewed_event"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_publish_questionnaire_response_viewed_event" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.publish_questionnaire_response_viewed_event.arn
+}
+
 # -------------------------------
 # Secrets Manager for Application Secrets
 # -------------------------------
@@ -1258,6 +1342,22 @@ resource "aws_ecs_task_definition" "customer_service" {
       {
         name  = "SNS_LEAD_CREATED_TOPIC_ARN"
         value = module.lead_events.topic_arns["lead_created_event"]
+      },
+      {
+        name  = "SNS_MESSAGE_SENT_TOPIC_ARN"
+        value = module.message_events.topic_arns["message_sent_event"]
+      },
+      {
+        name  = "SNS_CUSTOMER_LOGIN_TOPIC_ARN"
+        value = module.user_events.topic_arns["customer_login_event"]
+      },
+      {
+        name  = "SNS_QR_CREATED_TOPIC_ARN"
+        value = module.questionnaire_response_events.topic_arns["questionnaire_response_created_event"]
+      },
+      {
+        name  = "SNS_QR_VIEWED_TOPIC_ARN"
+        value = module.questionnaire_response_events.topic_arns["questionnaire_response_viewed_event"]
       }
     ]
 
@@ -1468,6 +1568,61 @@ module "lead_events" {
         "rahul@waitque.com"
       ]
     }
+  }
+}
+
+module "message_events" {
+  source = "../sns"
+
+  default_tags = {
+    environment = "prod"
+    service     = "events"
+  }
+
+  topics = {
+    "message_sent_event" = {
+      display_name = "Message Sent Event"
+      enable_dlq   = true
+      email_subscriptions = [
+        "rahul@waitque.com"
+      ]
+    }
+  }
+}
+
+module "user_events" {
+  source = "../sns"
+
+  default_tags = {
+    environment = "prod"
+    service     = "events"
+  }
+
+  topics = {
+    "customer_login_event" = {
+      display_name = "Customer Login Event"
+      enable_dlq   = true
+    }
+  }
+}
+
+module "questionnaire_response_events" {
+  source = "../sns"
+
+  default_tags = {
+    environment = "prod"
+    service     = "events"
+  }
+
+  topics = {
+    "questionnaire_response_created_event" = {
+      display_name = "Questionnaire Response Created Event"
+      enable_dlq   = true
+    },
+    "questionnaire_response_viewed_event" = {
+      display_name = "Questionnaire Response Viewed Event"
+      enable_dlq   = true
+    },
   }
 }
 
