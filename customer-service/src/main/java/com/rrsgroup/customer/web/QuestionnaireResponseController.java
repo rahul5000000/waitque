@@ -45,6 +45,7 @@ public class QuestionnaireResponseController {
     private final QuestionnaireResponseService questionnaireResponseService;
     private final S3Service s3Service;
     private final UploadUrlDtoMapper uploadUrlDtoMapper;
+    private final EventService eventService;
 
     @Autowired
     public QuestionnaireResponseController(
@@ -53,13 +54,15 @@ public class QuestionnaireResponseController {
             QuestionnaireResponseDtoMapper dtoMapper,
             QuestionnaireResponseService questionnaireResponseService,
             S3Service s3Service,
-            UploadUrlDtoMapper uploadUrlDtoMapper) {
+            UploadUrlDtoMapper uploadUrlDtoMapper,
+            EventService eventService) {
         this.customerService = customerService;
         this.questionnaireService = questionnaireService;
         this.dtoMapper = dtoMapper;
         this.questionnaireResponseService = questionnaireResponseService;
         this.s3Service = s3Service;
         this.uploadUrlDtoMapper = uploadUrlDtoMapper;
+        this.eventService = eventService;
     }
 
     @PostMapping("/api/field/customers/{customerId}/questionnaires/{questionnaireId}/responses")
@@ -85,7 +88,11 @@ public class QuestionnaireResponseController {
 
         QuestionnaireResponse questionnaireResponse = dtoMapper.map(request, customer);
         questionnaireResponse.setQuestionnaireId(questionnaireId);
-        return dtoMapper.map(questionnaireResponseService.createQuestionnaireResponse(questionnaireResponse, fieldUserDto));
+        QuestionnaireResponseDto response = dtoMapper.map(questionnaireResponseService.createQuestionnaireResponse(questionnaireResponse, fieldUserDto));
+
+        eventService.questionnaireResponseCreated(response, customer, fieldUserDto);
+
+        return response;
     }
 
     private QuestionnaireDto getActiveQuestionnaire(Long questionnaireId, Long companyId) {
@@ -178,7 +185,11 @@ public class QuestionnaireResponseController {
     public QuestionnaireResponseDto publicGetQuestionnaireResponse(@PathVariable(name = "qrCode") UUID qrCode,
                                                              @PathVariable("responseId") Long responseId) {
         Customer customer = customerService.getCustomerByQrCodeSafe(qrCode);
-        return dtoMapper.map(getQuestionnaireResponseSafe(customer.getCrmConfig().getCompanyId(), customer.getId(), responseId));
+        QuestionnaireResponseDto response = dtoMapper.map(getQuestionnaireResponseSafe(customer.getCrmConfig().getCompanyId(), customer.getId(), responseId));
+
+        eventService.questionnaireResponseViewed(response, qrCode, customer);
+
+        return response;
     }
 
     private QuestionnaireResponse getQuestionnaireResponseSafe(FieldUserDto fieldUserDto, Long customerId, Long responseId) {

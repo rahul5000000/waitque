@@ -34,6 +34,7 @@ public class CustomerController {
     private final CustomerDtoMapper customerDtoMapper;
     private final CompanyService companyService;
     private final LeadFlowService leadFlowService;
+    private final EventService eventService;
 
     @Autowired
     public CustomerController(
@@ -43,7 +44,8 @@ public class CustomerController {
             QrCodeService qrCodeService,
             CustomerDtoMapper customerDtoMapper,
             CompanyService companyService,
-            LeadFlowService leadFlowService) {
+            LeadFlowService leadFlowService,
+            EventService eventService) {
         this.crmCustomerDtoMapper = crmCustomerDtoMapper;
         this.integrationService = integrationService;
         this.customerService = customerService;
@@ -51,6 +53,7 @@ public class CustomerController {
         this.customerDtoMapper = customerDtoMapper;
         this.companyService = companyService;
         this.leadFlowService = leadFlowService;
+        this.eventService = eventService;
     }
 
     @PostMapping("/api/field/customers")
@@ -207,6 +210,8 @@ public class CustomerController {
         if(crmCustomerOptional.isEmpty()) {
             throw new RecordNotFoundException("Customer information not found for qrCode=" + qrCode);
         }
+
+        eventService.customerLogin(customer, qrCode);
 
         return customerDtoMapper.map(customer, crmCustomerOptional.get());
     }

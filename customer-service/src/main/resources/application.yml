@@ -54,6 +54,10 @@ logging:
 sns:
   topics:
     lead-created: ${SNS_LEAD_CREATED_TOPIC_ARN}
+    message-sent: ${SNS_MESSAGE_SENT_TOPIC_ARN}
+    customer-login: ${SNS_CUSTOMER_LOGIN_TOPIC_ARN}
+    qr-created: ${SNS_QR_CREATED_TOPIC_ARN}
+    qr-viewed: ${SNS_QR_VIEWED_TOPIC_ARN}
 
 ---
 spring:
