@@ -26,6 +26,7 @@ public class MessageListDto extends PaginatedDto {
         private String lastName;
         private String phoneNumber;
         private String email;
+        private String contentSnippet;
         private MessageStatus status;
         private LocalDateTime createdDate;
         private LocalDateTime updatedDate;

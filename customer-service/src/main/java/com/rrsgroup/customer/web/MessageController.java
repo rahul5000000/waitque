@@ -95,4 +95,18 @@ public class MessageController {
 
         return messageDtoMapper.map(messageOptional.get());
     }
+
+    @PatchMapping("/api/admin/messages/{messageId}/status")
+    public MessageDto updateMessageStatus(
+            @AuthenticationPrincipal AdminUserDto user,
+            @PathVariable("messageId") Long messageId,
+            @RequestParam("status") MessageStatus status) {
+        Optional<Message> messageOptional = messageService.getMessageById(messageId, user);
+        if (messageOptional.isEmpty()) {
+            throw new RecordNotFoundException("Message not found by messageId=" + messageId);
+        }
+        Message message = messageOptional.get();
+
+        return messageDtoMapper.map(messageService.updateMessageStatus(message, status, user));
+    }
 }

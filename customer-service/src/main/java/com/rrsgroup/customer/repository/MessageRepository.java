@@ -19,4 +19,17 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Page<Message> findByCompanyIdAndStatusIn(@Param("companyId") Long companyId, @Param("statuses") Collection<MessageStatus> statuses, Pageable pageable);
 
     Optional<Message> findByIdAndCustomer_CrmConfig_CompanyId(Long id, Long companyId);
+
+    @Query("""
+        SELECT COUNT(m)
+        FROM Message m
+        JOIN m.customer cust
+        JOIN cust.crmConfig crmc
+        WHERE crmc.companyId = :companyId
+          AND m.status = :status
+    """)
+    long countByCompanyIdAndStatus(
+            @Param("companyId") Long companyId,
+            @Param("status") MessageStatus status
+    );
 }
