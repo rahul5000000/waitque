@@ -35,7 +35,7 @@ class LeadControllerSpec extends Specification {
         given:
         def leadFlow = generateLeadFlow()
         def answer = new LeadTextAnswerDto(2L, 2L, "Some answer")
-        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null)
+        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null, null)
 
         when:
         controller."validateRequiredQuestionsAreAnswered"(leadDto, leadFlow)
@@ -49,7 +49,7 @@ class LeadControllerSpec extends Specification {
         given:
         def leadFlow = generateLeadFlow()
         def answer = new LeadBooleanAnswerDto(1L, 1L, true)
-        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null)
+        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null, null)
 
         when:
         controller."validateRequiredQuestionsAreAnswered"(leadDto, leadFlow)
@@ -62,7 +62,7 @@ class LeadControllerSpec extends Specification {
         given:
         def leadFlow = generateLeadFlow()
         def answer = new LeadTextAnswerDto(3L, 3L, "Some answer")
-        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null)
+        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null, null)
 
         when:
         controller."validateAnswersMatchQuestions"(leadDto, leadFlow)
@@ -76,7 +76,7 @@ class LeadControllerSpec extends Specification {
         given:
         def leadFlow = generateLeadFlow()
         def answer = new LeadTextAnswerDto(2L, 1L, "Some answer")
-        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null)
+        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answer], null, null, null, null, null, null, null, null)
 
         when:
         controller."validateAnswersMatchQuestions"(leadDto, leadFlow)
@@ -91,7 +91,7 @@ class LeadControllerSpec extends Specification {
         def leadFlow = generateLeadFlow()
         def answerBoolean = new LeadBooleanAnswerDto(2L, 1L, true)
         def answerText = new LeadTextAnswerDto(2L, 2L, "Some answer")
-        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answerBoolean, answerText], null, null, null, null, null, null, null)
+        def leadDto = new LeadDto(1L, 1L, LeadStatus.NEW, "Alice", "Smith", null, null, "alice@test.com", [answerBoolean, answerText], null, null, null, null, null, null, null, null)
 
         when:
         controller."validateAnswersMatchQuestions"(leadDto, leadFlow)

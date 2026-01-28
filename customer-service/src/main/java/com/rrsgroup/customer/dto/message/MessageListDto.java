@@ -22,6 +22,7 @@ public class MessageListDto extends PaginatedDto {
     @AllArgsConstructor
     public static class MessageListItem {
         private Long id;
+        private String companyName;
         private String firstName;
         private String lastName;
         private String phoneNumber;

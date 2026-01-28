@@ -74,13 +74,14 @@ public class MessageDtoMapper {
 
                     CrmCustomer crmCustomer = crmCustomerOptional.get();
 
+                    String companyName = crmCustomer.getCompanyName();
                     String firstName = StringUtils.isBlank(message.getOverrideFirstName()) ? crmCustomer.getFirstName() : message.getOverrideFirstName();
                     String lastName = StringUtils.isBlank(message.getOverrideLastName()) ? crmCustomer.getLastName() : message.getOverrideLastName();
                     String phoneNumber = message.getOverridePhoneNumber() == null ? crmCustomer.getPhoneNumber().toString() : message.getOverridePhoneNumber().toString();
                     String email = StringUtils.isBlank(message.getOverrideEmail()) ? crmCustomer.getEmail() : message.getOverrideEmail();
                     String contentSnippet = message.getMessage().length() <= 40 ? message.getMessage() : message.getMessage().substring(0, 37) + "...";
 
-                    return new MessageListDto.MessageListItem(message.getId(), firstName, lastName, phoneNumber, email, contentSnippet, message.getStatus(), message.getCreatedDate(), message.getUpdatedDate());
+                    return new MessageListDto.MessageListItem(message.getId(), companyName, firstName, lastName, phoneNumber, email, contentSnippet, message.getStatus(), message.getCreatedDate(), message.getUpdatedDate());
                 }).toList()
         );
     }

@@ -15,6 +15,7 @@ import com.rrsgroup.customer.service.LeadFlowService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,9 @@ import java.util.Optional;
 @Service
 @Log4j2
 public class LeadDtoMapper {
+    @Value("${CDN_BASE_URL}")
+    private String cdnBaseUrl;
+
     private final CommonDtoMapper commonDtoMapper;
     private final CustomerCrmIntegrationService customerCrmIntegrationService;
     private final LeadFlowService leadFlowService;
@@ -107,7 +111,7 @@ public class LeadDtoMapper {
         return new LeadDto(lead.getId(), lead.getLeadFlowId(),
                 lead.getStatus(), lead.getOverrideFirstName(), lead.getOverrideLastName(), addressDto, phoneNumberDto,
                 lead.getOverrideEmail(), lead.getAnswers().stream().map(this::map).toList(), crmCustomer, leadFlow,
-                null, lead.getCreatedDate(), lead.getUpdatedDate(), lead.getCreatedBy(), lead.getUpdatedBy());
+                null, cdnBaseUrl, lead.getCreatedDate(), lead.getUpdatedDate(), lead.getCreatedBy(), lead.getUpdatedBy());
     }
 
     public LeadListDto map(Page<Lead> pageOfLeads) {
@@ -136,13 +140,14 @@ public class LeadDtoMapper {
                     CrmCustomer crmCustomer = crmCustomerOptional.get();
                     LeadFlowDto leadFlow = leadFlowOptional.get();
 
+                    String companyName = crmCustomer.getCompanyName();
                     String firstName = StringUtils.isBlank(lead.getOverrideFirstName()) ? crmCustomer.getFirstName() : lead.getOverrideFirstName();
                     String lastName = StringUtils.isBlank(lead.getOverrideLastName()) ? crmCustomer.getLastName() : lead.getOverrideLastName();
                     String leadFlowName = leadFlow.name();
                     String phoneNumber = lead.getOverridePhoneNumber() == null ? crmCustomer.getPhoneNumber().toString() : lead.getOverridePhoneNumber().toString();
                     String email = StringUtils.isBlank(lead.getOverrideEmail()) ? crmCustomer.getEmail() : lead.getOverrideEmail();
 
-                    return new LeadListDto.LeadListItem(lead.getId(), firstName, lastName, leadFlowName, phoneNumber, email, lead.getStatus(), lead.getCreatedDate(), lead.getUpdatedDate());
+                    return new LeadListDto.LeadListItem(lead.getId(), companyName, firstName, lastName, leadFlowName, phoneNumber, email, lead.getStatus(), lead.getCreatedDate(), lead.getUpdatedDate());
                 }).toList()
         );
     }
