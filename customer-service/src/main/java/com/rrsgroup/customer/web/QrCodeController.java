@@ -32,6 +32,14 @@ public class QrCodeController {
             @RequestParam(name = "companyId") Long companyId,
             @RequestParam(name = "userId") String userId
     ) {
+        if(count == null || count <= 0) {
+            throw new IllegalRequestException("Count must be a positive integer");
+        }
+
+        if(count > 1000) {
+            throw new IllegalRequestException("Count must not exceed 1000");
+        }
+
         return qrCodeDtoMapper.map(qrCodeService.generateUnassignedQrCodes(count, companyId, userId));
     }
 
