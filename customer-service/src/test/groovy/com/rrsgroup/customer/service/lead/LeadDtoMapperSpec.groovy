@@ -63,7 +63,7 @@ class LeadDtoMapperSpec extends Specification {
                     getLeadFlowQuestionId() >> 2L
                     getDataType() >> LeadFlowQuestionDataType.BOOLEAN
                 }
-        ], null, null, null, null, null, null, null)
+        ], null, null, null, null, null, null, null, null)
 
         and:
         def mappedAddress = new Address(id, address1, address2, city, state, zipcode, country)
@@ -99,7 +99,7 @@ class LeadDtoMapperSpec extends Specification {
     def "map should skip address and phone mapping when null"() {
         given:
         def customer = new Customer(id: 200L)
-        def dto = new LeadDto(1L, 99L, LeadStatus.IN_PROGRESS, "Johnson", "Smith", null, null, "bob@example.com", [], null, null, null, null, null, null, null)
+        def dto = new LeadDto(1L, 99L, LeadStatus.IN_PROGRESS, "Johnson", "Smith", null, null, "bob@example.com", [], null, null, null, null, null, null, null, null)
 
         when:
         def result = dtoMapper.map(dto, customer)

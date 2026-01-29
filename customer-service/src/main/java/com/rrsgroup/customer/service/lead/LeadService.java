@@ -4,6 +4,7 @@ import com.rrsgroup.common.domain.SortDirection;
 import com.rrsgroup.common.dto.CompanyUserDto;
 import com.rrsgroup.customer.domain.lead.LeadStatus;
 import com.rrsgroup.customer.entity.lead.Lead;
+import com.rrsgroup.customer.entity.lead.LeadStatusCount;
 import com.rrsgroup.customer.repository.LeadRepository;
 import com.rrsgroup.customer.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,5 +68,20 @@ public class LeadService {
 
     public Optional<Lead> getLeadById(Long id, CompanyUserDto userDto) {
         return leadRepository.findByIdAndCustomer_CrmConfig_CompanyId(id, userDto.getCompanyId());
+    }
+
+    public LeadStatusCount getLeadStatusCountForCompany(Long companyId) {
+        return leadRepository.countLeadsByStatusForCompanyId(companyId);
+    }
+
+    public Lead updateLeadStatus(Lead lead, LeadStatus newStatus, CompanyUserDto updatedByUser) {
+        LocalDateTime now = LocalDateTime.now();
+        String updatedBy = updatedByUser.getUserId();
+
+        lead.setStatus(newStatus);
+        lead.setUpdatedDate(now);
+        lead.setUpdatedBy(updatedBy);
+
+        return leadRepository.save(lead);
     }
 }

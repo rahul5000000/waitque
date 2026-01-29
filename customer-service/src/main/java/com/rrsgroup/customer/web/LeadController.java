@@ -193,4 +193,18 @@ public class LeadController {
 
         return leadDtoMapper.map(leadOptional.get());
     }
+
+    @PatchMapping("/api/admin/leads/{leadId}/status")
+    public LeadDto updateLeadStatus(
+            @AuthenticationPrincipal AdminUserDto user,
+            @PathVariable("leadId") Long leadId,
+            @RequestParam("status") LeadStatus status) {
+        Optional<Lead> leadOptional = leadService.getLeadById(leadId, user);
+        if (leadOptional.isEmpty()) {
+            throw new RecordNotFoundException("Lead not found by leadId=" + leadId);
+        }
+        Lead lead = leadOptional.get();
+
+        return leadDtoMapper.map(leadService.updateLeadStatus(lead, status, user));
+    }
 }

@@ -61,4 +61,19 @@ public class MessageService {
     public Optional<Message> getMessageById(Long id, CompanyUserDto userDto) {
         return messageRepository.findByIdAndCustomer_CrmConfig_CompanyId(id, userDto.getCompanyId());
     }
+
+    public long countUnreadMessages(Long companyId) {
+        return messageRepository.countByCompanyIdAndStatus(companyId, MessageStatus.UNREAD);
+    }
+
+    public Message updateMessageStatus(Message message, MessageStatus newStatus, CompanyUserDto updatedByUser) {
+        LocalDateTime now = LocalDateTime.now();
+        String updatedBy = updatedByUser.getUserId();
+
+        message.setStatus(newStatus);
+        message.setUpdatedDate(now);
+        message.setUpdatedBy(updatedBy);
+
+        return messageRepository.save(message);
+    }
 }

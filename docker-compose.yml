@@ -69,6 +69,10 @@ services:
       - AWS_REGION=us-east-1
       - KEYCLOAK_URL=https://auth.waitque.com
       - SNS_LEAD_CREATED_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:lead_created_event
+      - SNS_CUSTOMER_LOGIN_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:customer_login_event
+      - SNS_MESSAGE_SENT_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:message_sent_event
+      - SNS_QR_CREATED_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:questionnaire_response_created_event
+      - SNS_QR_VIEWED_TOPIC_ARN=arn:aws:sns:us-east-1:667573506753:questionnaire_response_viewed_event
     depends_on:
       - postgres
       - keycloak

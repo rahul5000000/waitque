@@ -22,6 +22,7 @@ public class LeadListDto extends PaginatedDto {
     @AllArgsConstructor
     public static class LeadListItem {
         private Long id;
+        private String companyName;
         private String firstName;
         private String lastName;
         private String leadFlowName;
