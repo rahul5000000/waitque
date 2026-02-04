@@ -2,6 +2,8 @@ package com.rrsgroup.company.entity;
 
 import com.rrsgroup.common.entity.Address;
 import com.rrsgroup.common.entity.PhoneNumber;
+import com.rrsgroup.company.domain.EmailStatus;
+import com.rrsgroup.company.domain.EmailType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "company", schema = "company")
@@ -39,4 +42,11 @@ public class Company {
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CompanyEmail> emails = new ArrayList<>();
+
+    public Optional<CompanyEmail> findEmailByAddressStatusAndType(String emailAddress, EmailStatus status, EmailType type) {
+        return getEmails().stream().filter(existingEmail ->
+                existingEmail.getStatus() == status &&
+                        existingEmail.getType() == type &&
+                        existingEmail.getEmail().getEmail().equals(emailAddress)).findFirst();
+    }
 }

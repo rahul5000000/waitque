@@ -1,0 +1,19 @@
+<!— email/user_enabled_admin.html —>
+<th:block th:replace="email/fragments/header :: emailHeader"></th:block>
+<!-- Content Start -->
+<p style="font-size:24px; color:#58c7bc;">
+    You have enabled [[${userFirstName}]] [[${userLastName}]]'s user
+</p>
+
+<p style="font-size:14px; color:#333;">Hi [[${firstName}]],</p>
+
+<p style="font-size:14px; color:#555;">
+    You have enabled [[${userFirstName}]] [[${userLastName}]]'s user, and they can now log in to WaitQue again using their previous credentials.
+</p>
+
+<p style="font-size:14px; color:#555;">
+    Sincerely,<br/>
+    The WaitQue Team
+</p>
+<!-- Content End -->
+<th:block th:replace="email/fragments/footer :: emailFooter"></th:block>

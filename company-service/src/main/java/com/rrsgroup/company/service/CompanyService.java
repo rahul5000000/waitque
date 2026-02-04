@@ -8,10 +8,12 @@ import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.company.domain.EmailStatus;
+import com.rrsgroup.company.domain.EmailType;
 import com.rrsgroup.company.domain.FileStage;
 import com.rrsgroup.company.domain.UploadFileType;
 import com.rrsgroup.company.entity.Company;
 import com.rrsgroup.company.entity.CompanyEmail;
+import com.rrsgroup.company.repository.CompanyEmailRepository;
 import com.rrsgroup.company.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +30,12 @@ import java.util.Optional;
 @Service
 public class CompanyService {
     private final CompanyRepository repository;
+    private final CompanyEmailRepository companyEmailRepository;
 
     @Autowired
-    public CompanyService(CompanyRepository repository) {
+    public CompanyService(CompanyRepository repository, CompanyEmailRepository companyEmailRepository) {
         this.repository = repository;
+        this.companyEmailRepository = companyEmailRepository;
     }
 
     public Company createCompany(Company request, SuperUserDto user) {
@@ -125,5 +130,20 @@ public class CompanyService {
         } else {
             throw new IllegalRequestException("UploadFileType " + fileType + " is not supported");
         }
+    }
+
+    public CompanyEmail addEmailToCompany(Company company, EmailType type, String firstName, String lastName, String email, UserDto userDto) {
+        Optional<CompanyEmail> existingEmail = company.findEmailByAddressStatusAndType(email, EmailStatus.ACTIVE, type);
+
+        if(existingEmail.isPresent()) {
+            return existingEmail.get();
+        }
+
+        CompanyEmail companyEmail = CompanyEmail.builder().type(type).status(EmailStatus.ACTIVE).company(company).email(Email.builder().email(email)
+                .firstName(firstName).lastName(lastName).build()).build();
+
+        setAuditFieldsOnNewEmail(companyEmail.getEmail(), userDto, LocalDateTime.now());
+
+        return companyEmailRepository.save(companyEmail);
     }
 }
