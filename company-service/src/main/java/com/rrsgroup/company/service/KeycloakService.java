@@ -173,7 +173,7 @@ public class KeycloakService {
         notificationService.notifyUserDeleted(rep.getFirstName(), rep.getLastName(), adminUser);
     }
 
-    public String generatePassword(int length) {
+    private String generatePassword(int length) {
         if (length < 3) {
             throw new IllegalArgumentException("Password length must be at least 3");
         }
@@ -197,5 +197,27 @@ public class KeycloakService {
         chars.forEach(password::append);
 
         return password.toString();
+    }
+
+    public void resetUserPassword(String userId, AdminUserDto adminUser) {
+        UserResource user = keycloak.realm(REALM)
+                .users()
+                .get(userId);
+
+        UserRepresentation rep = user.toRepresentation();
+
+        if(rep.getAttributes().get("companyId") == null ||
+                !rep.getAttributes().get("companyId").get(0).equals(adminUser.getCompanyId().toString())) {
+            throw new IllegalRequestException("User does not belong to the admin's company");
+        }
+
+        if(!rep.isEnabled()) {
+            throw new IllegalRequestException("Cannot reset the password of a disabled user. Please enable the user first.");
+        }
+
+        String temporaryPassword = generatePassword(8);
+        setPassword(userId, temporaryPassword, true);
+
+        notificationService.notifyPasswordReset(rep.getEmail(), rep.getFirstName(), rep.getLastName(), temporaryPassword, adminUser);
     }
 }

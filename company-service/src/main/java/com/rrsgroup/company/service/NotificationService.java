@@ -135,4 +135,34 @@ public class NotificationService {
             // Swallow exception; there's nothing the customer needs to do about this
         }
     }
+
+    public void notifyPasswordReset (
+            String userEmailAddress,
+            String userFirstName,
+            String userLastName,
+            String temporaryPassword,
+            AdminUserDto createdBy
+    ) {
+        try {
+            Company company = getCompany(createdBy);
+            Email newUserEmail = getEmailByEmailAddress(userEmailAddress, userFirstName, userLastName, company, createdBy);
+            Email adminEmail = getEmailByEmailAddress(createdBy.getEmail(), createdBy.getFirstName(), createdBy.getLastName(), company, createdBy);
+
+            String emailHtml = emailService.render(EmailTemplate.RESET_PASSWORD,
+                    Map.of("firstName", userFirstName,
+                            "password", temporaryPassword));
+            EmailRequest emailRequest = new EmailRequest(newUserEmail, EmailTemplate.RESET_PASSWORD, emailHtml);
+            emailService.sendEmail(emailRequest);
+
+            String adminEmailHtml = emailService.render(EmailTemplate.RESET_PASSWORD_ADMIN,
+                    Map.of("userFirstName",userFirstName,
+                            "userLastName", userLastName,
+                            "firstName", createdBy.getFirstName()));
+            EmailRequest adminEmailRequest = new EmailRequest(adminEmail, EmailTemplate.RESET_PASSWORD_ADMIN, adminEmailHtml);
+            emailService.sendEmail(adminEmailRequest);
+        } catch (Exception e) {
+            log.error("Failed to send user password reset email", e);
+            // Swallow exception; there's nothing the customer needs to do about this
+        }
+    }
 }

@@ -54,4 +54,10 @@ public class CompanyUserController {
             @PathVariable("userId") String userId) {
         keycloakService.deleteUser(userId, adminUser);
     }
+
+    @PostMapping("/api/admin/company/users/{userId}/password/reset")
+    public void resetUserPassword(@AuthenticationPrincipal AdminUserDto adminUser,
+                                  @PathVariable("userId") String userId) {
+        keycloakService.resetUserPassword(userId, adminUser);
+    }
 }
