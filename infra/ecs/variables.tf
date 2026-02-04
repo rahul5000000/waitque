@@ -51,3 +51,9 @@ variable "cloud_watch_notification_topic_arn" {
   type        = string
   sensitive   = false
 }
+
+variable "spring_admin_client_secret" {
+  description = "Keycloak OAuth client secret for Spring Admin"
+  type        = string
+  sensitive   = true
+}

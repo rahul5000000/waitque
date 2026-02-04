@@ -8,6 +8,7 @@ import com.rrsgroup.common.entity.PhoneNumber
 import com.rrsgroup.common.exception.IllegalUpdateException
 import com.rrsgroup.company.entity.Company
 import com.rrsgroup.company.entity.CompanyEmail
+import com.rrsgroup.company.repository.CompanyEmailRepository
 import com.rrsgroup.company.repository.CompanyRepository
 import com.rrsgroup.company.util.CompanyMockGenerator
 import org.springframework.data.domain.PageRequest
@@ -16,7 +17,8 @@ import spock.lang.Specification
 
 class CompanyServiceSpec extends Specification {
     def repository = Mock(CompanyRepository)
-    def companyService = new CompanyService(repository)
+    def companyEmailRepository = Mock(CompanyEmailRepository)
+    def companyService = new CompanyService(repository, companyEmailRepository)
     def companyMockGenerator = new CompanyMockGenerator()
 
     def "createCompany saves the company via the repository and returns saved company"() {

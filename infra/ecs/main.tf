@@ -1265,6 +1265,10 @@ resource "aws_ecs_task_definition" "company_service" {
       {
         name = "APP_FRONTEND_URL"
         value = var.app_base_url
+      },
+      {
+        name = "SPRING_ADMIN_CLIENT_SECRET"
+        value = var.spring_admin_client_secret
       }
     ]
 
