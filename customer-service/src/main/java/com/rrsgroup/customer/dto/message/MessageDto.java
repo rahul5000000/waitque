@@ -10,5 +10,6 @@ import java.util.List;
 public record MessageDto(Long id, MessageStatus status, String overrideFirstName,
                          String overrideLastName, AddressDto overrideAddress, PhoneNumberDto overridePhoneNumber,
                          String overrideEmail, String message, List<MessageStatusHistoryDto> statusHistory,
+                         String companyName, String firstName, String lastName,
                          LocalDateTime createdDate, LocalDateTime updatedDate, String createdBy, String updatedBy) {
 }

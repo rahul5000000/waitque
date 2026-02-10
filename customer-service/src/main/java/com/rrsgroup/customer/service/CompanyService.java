@@ -48,4 +48,30 @@ public class CompanyService {
             return Optional.empty();
         }
     }
+
+    public Optional<String> getLeadFrontEndLink(Long companyId, Long leadId) {
+        try {
+            return Optional.ofNullable(webClient.get()
+                    .uri(companyServiceBaseUrl + "/api/system/companies/"+companyId+"/leads/"+leadId+"/frontEndLink")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<String>() {
+                    })
+                    .block());
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> getMessageFrontEndLink(Long companyId, Long messageId) {
+        try {
+            return Optional.ofNullable(webClient.get()
+                    .uri(companyServiceBaseUrl + "/api/system/companies/"+companyId+"/messages/"+messageId+"/frontEndLink")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<String>() {
+                    })
+                    .block());
+        } catch (WebClientResponseException.NotFound e) {
+            return Optional.empty();
+        }
+    }
 }

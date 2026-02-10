@@ -53,12 +53,14 @@ public class NotificationService {
                 CrmCustomer crmCustomer = getCrmCustomerForCustomer(customer);
                 String customerName = getCustomerName(crmCustomer);
                 Email messageNotificationEmail = commonDtoMapper.map(companyDto.messageNotificationEmail());
+                String messageUrl = companyService.getMessageFrontEndLink(companyDto.id(), message.getId()).orElse(null);
                 String emailHtml = emailService.render(EmailTemplate.NEW_MESSAGE,
                         Map.of("firstName", messageNotificationEmail.getFirstName(),
                                 "year", LocalDate.now().getYear(),
                                 "customerName", customerName,
                                 "messageDate", message.getCreatedDate(),
-                                "message", message.getMessage()));
+                                "message", message.getMessage(),
+                                "messageUrl", messageUrl));
                 EmailRequest emailRequest = new EmailRequest(messageNotificationEmail, EmailTemplate.NEW_MESSAGE, emailHtml);
                 emailService.sendEmail(emailRequest);
             } catch (Exception e) {
@@ -78,12 +80,14 @@ public class NotificationService {
                 CrmCustomer crmCustomer = getCrmCustomerForCustomer(customer);
                 String customerName = getCustomerName(crmCustomer);
                 Email leadNotificationEmail = commonDtoMapper.map(companyDto.leadNotificationEmail());
+                String leadUrl = companyService.getLeadFrontEndLink(companyDto.id(), lead.getId()).orElse(null);
                 String emailHtml = emailService.render(EmailTemplate.NEW_LEAD,
                         Map.of("firstName", leadNotificationEmail.getFirstName(),
                                 "year", LocalDate.now().getYear(),
                                 "customerName", customerName,
                                 "leadCreatedDate", lead.getCreatedDate(),
-                                "leadFlowName", leadFlow.name()));
+                                "leadFlowName", leadFlow.name(),
+                                "leadUrl", leadUrl));
                 EmailRequest emailRequest = new EmailRequest(leadNotificationEmail, EmailTemplate.NEW_LEAD, emailHtml);
                 emailService.sendEmail(emailRequest);
             } catch (Exception e) {
