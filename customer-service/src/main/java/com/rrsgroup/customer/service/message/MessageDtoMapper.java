@@ -49,11 +49,24 @@ public class MessageDtoMapper {
     public MessageDto map(Message message) {
         AddressDto addressDto = message.getOverrideAddress() == null ? null : commonDtoMapper.map(message.getOverrideAddress());
         PhoneNumberDto phoneNumberDto = message.getOverridePhoneNumber() == null ? null : commonDtoMapper.map(message.getOverridePhoneNumber());
+        Optional<CrmCustomer> crmCustomerOptional = customerCrmIntegrationService.getCrmCustomer(message.getCustomer().getCrmCustomerId(), message.getCustomer().getCrmConfig());
+
+        if(crmCustomerOptional.isEmpty()) {
+            log.error("Did not find matching crmCustomer for customerId={}, crmCustomerId={}", message.getCustomer().getId(), message.getCustomer().getCrmCustomerId());
+            return null;
+        }
+
+        CrmCustomer crmCustomer = crmCustomerOptional.get();
+
+        String companyName = crmCustomer.getCompanyName();
+        String firstName = StringUtils.isBlank(message.getOverrideFirstName()) ? crmCustomer.getFirstName() : message.getOverrideFirstName();
+        String lastName = StringUtils.isBlank(message.getOverrideLastName()) ? crmCustomer.getLastName() : message.getOverrideLastName();
 
         return new MessageDto(message.getId(), message.getStatus(),
                 message.getOverrideFirstName(), message.getOverrideLastName(), addressDto, phoneNumberDto,
-                message.getOverrideEmail(), message.getMessage(), null, message.getCreatedDate(),
-                message.getUpdatedDate(), message.getCreatedBy(), message.getUpdatedBy());
+                message.getOverrideEmail(), message.getMessage(), null,
+                companyName, firstName, lastName,
+                message.getCreatedDate(), message.getUpdatedDate(), message.getCreatedBy(), message.getUpdatedBy());
     }
 
     public MessageListDto map(Page<Message> pageOfMessages) {
