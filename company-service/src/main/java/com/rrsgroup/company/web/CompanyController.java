@@ -164,6 +164,16 @@ public class CompanyController {
         return frontEndLinkService.getCustomerLandingPageLink(companyId, qrCode);
     }
 
+    @GetMapping("/api/system/companies/{companyId}/leads/{leadId}/frontEndLink")
+    public String getFrontEndLinkForLead(@PathVariable("companyId") Long companyId, @PathVariable("leadId") Long leadId) {
+        return frontEndLinkService.getLeadLandingPageLink(leadId);
+    }
+
+    @GetMapping("/api/system/companies/{companyId}/messages/{messageId}/frontEndLink")
+    public String getFrontEndLinkForMessage(@PathVariable("companyId") Long companyId, @PathVariable("messageId") Long messageId) {
+        return frontEndLinkService.getMessageLandingPageLink(messageId);
+    }
+
     @GetMapping("/api/internal/companies/{companyId}/logoUploadUrl")
     public UploadUrlDto generateLogoUploadUrl(
             @PathVariable(name = "companyId") Long companyId,

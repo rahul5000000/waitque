@@ -18,4 +18,18 @@ public class FrontEndLinkService {
 
         return customerLandingPageLink;
     }
+
+    public String getLeadLandingPageLink(Long leadId) {
+        String leadLandingPageLink = appFrontendBaseUrl + "?leadId=" + leadId;
+        log.debug("leadLandingPageLink: {}", leadLandingPageLink);
+
+        return leadLandingPageLink;
+    }
+
+    public String getMessageLandingPageLink(Long messageId) {
+        String messageLandingPageLink = appFrontendBaseUrl + "?messageId=" + messageId;
+        log.debug("messageLandingPageLink: {}", messageLandingPageLink);
+
+        return messageLandingPageLink;
+    }
 }
