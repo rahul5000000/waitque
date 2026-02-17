@@ -1631,6 +1631,33 @@ module "questionnaire_response_events" {
 }
 
 # -------------------------------
+# SQS Queues
+# -------------------------------
+module "questionnaire_response_viewed_queue" {
+  source = "../sqs"
+
+  name        = "questionnaire-response-viewed-queue"
+  enable_dlq  = true
+
+  tags = {
+    environment = "prod"
+    service     = "events"
+  }
+}
+
+# -------------------------------
+# SNS -> SQS Subscription
+# -------------------------------
+module "questionnaire_response_viewed_subscription" {
+  source = "../sns_sqs_subscription"
+
+  topic_arn = module.questionnaire_response_events.topic_arns["questionnaire_response_viewed_event"]
+
+  queue_arn = module.questionnaire_response_viewed_queue.queue_arn
+  queue_url = module.questionnaire_response_viewed_queue.queue_url
+}
+
+# -------------------------------
 # Outputs
 # -------------------------------
 output "alb_dns_name" {
