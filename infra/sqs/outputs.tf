@@ -9,3 +9,7 @@ output "queue_url" {
 output "dlq_arn" {
   value = var.enable_dlq ? aws_sqs_queue.dlq[0].arn : null
 }
+
+output "queue_name" {
+  value = aws_sqs_queue.this.name
+}
