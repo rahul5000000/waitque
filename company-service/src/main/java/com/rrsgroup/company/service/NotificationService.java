@@ -4,6 +4,8 @@ import com.rrsgroup.common.EmailRequest;
 import com.rrsgroup.common.domain.EmailTemplate;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.dto.CompanyUserDto;
+import com.rrsgroup.common.dto.SuperUserDto;
+import com.rrsgroup.common.dto.UserDto;
 import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.common.exception.RecordNotFoundException;
 import com.rrsgroup.common.service.EmailService;
@@ -29,6 +31,29 @@ public class NotificationService {
     public NotificationService(EmailService emailService, CompanyService companyService) {
         this.emailService = emailService;
         this.companyService = companyService;
+    }
+
+    public void notifyNewAdminUser(String newUserEmailAddress,
+                                   String newUserFirstName,
+                                   String newUserLastName,
+                                   String newUserUserName,
+                                   String temporaryPassword,
+                                   Company company,
+                                   SuperUserDto createdBy) {
+        try {
+            Email newUserEmail = getEmailByEmailAddress(newUserEmailAddress, newUserFirstName, newUserLastName, company, createdBy);
+
+            String emailHtml = emailService.render(EmailTemplate.NEW_ADMIN,
+                    Map.of("companyName", company.getName(),
+                            "firstName", newUserFirstName,
+                            "username", newUserUserName,
+                            "password", temporaryPassword));
+            EmailRequest emailRequest = new EmailRequest(newUserEmail, EmailTemplate.NEW_ADMIN, emailHtml);
+            emailService.sendEmail(emailRequest);
+        } catch (Exception e) {
+            log.error("Failed to send new user email", e);
+            // Swallow exception; there's nothing the customer needs to do about this
+        }
     }
 
     public void notifyNewUser(
@@ -63,7 +88,7 @@ public class NotificationService {
         }
     }
 
-    private Email getEmailByEmailAddress(String emailAddress, String firstName, String lastName, Company company, CompanyUserDto userDto) {
+    private Email getEmailByEmailAddress(String emailAddress, String firstName, String lastName, Company company, UserDto userDto) {
         Optional<CompanyEmail> companyEmailOptional = company.findEmailByAddressStatusAndType(emailAddress, EmailStatus.ACTIVE, EmailType.USER);
 
         if(companyEmailOptional.isPresent()) {

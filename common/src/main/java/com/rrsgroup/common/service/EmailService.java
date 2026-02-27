@@ -42,7 +42,7 @@ public class EmailService {
         // TODO: Convert sending emails to an async process
         try {
             SendEmailRequest request = SendEmailRequest.builder()
-                    .source("rahul@therrsgroup.com")
+                    .source("info@waitque.com")
                     .destination(Destination.builder()
                             .toAddresses(sendEmailRequest.toEmail().getEmail())
                             .build())

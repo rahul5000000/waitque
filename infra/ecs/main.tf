@@ -590,7 +590,8 @@ resource "aws_iam_policy" "ecs_ses_send_email" {
         ]
         Resource = [
           "arn:aws:ses:us-east-1:667573506753:identity/rahul5000000@gmail.com",
-          "arn:aws:ses:us-east-1:667573506753:identity/rahul@therrsgroup.com"
+          "arn:aws:ses:us-east-1:667573506753:identity/rahul@therrsgroup.com",
+          "arn:aws:ses:us-east-1:667573506753:identity/info@waitque.com"
         ]
       }
     ]

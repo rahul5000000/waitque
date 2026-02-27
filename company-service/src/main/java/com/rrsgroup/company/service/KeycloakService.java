@@ -4,6 +4,7 @@ import com.rrsgroup.common.EmailRequest;
 import com.rrsgroup.common.domain.EmailTemplate;
 import com.rrsgroup.common.dto.AdminUserDto;
 import com.rrsgroup.common.dto.CompanyUserDto;
+import com.rrsgroup.common.dto.SuperUserDto;
 import com.rrsgroup.common.exception.IllegalRequestException;
 import com.rrsgroup.common.exception.IllegalUpdateException;
 import com.rrsgroup.common.exception.RecordNotFoundException;
@@ -68,6 +69,20 @@ public class KeycloakService {
 
         // Send welcome email
         notificationService.notifyNewUser(email, firstName, lastName, username, temporaryPassword, createdBy);
+
+        return newUser;
+    }
+
+    public UserRepresentation createAdminUser(String username, String email, String firstName, String lastName, Company company, SuperUserDto createdBy) {
+        String userId = createUser(username, email, firstName, lastName, company.getId(), KeycloakRole.ADMIN);
+
+        String temporaryPassword = generatePassword(8);
+        setPassword(userId, temporaryPassword, true);
+        assignRealmRole(userId, KeycloakRole.ADMIN);
+        UserRepresentation newUser = getUserById(userId);
+
+        // Send welcome email
+        notificationService.notifyNewAdminUser(email, firstName, lastName, username, temporaryPassword, company, createdBy);
 
         return newUser;
     }
