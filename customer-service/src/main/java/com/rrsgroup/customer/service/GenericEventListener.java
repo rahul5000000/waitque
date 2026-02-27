@@ -52,7 +52,7 @@ public class GenericEventListener {
                 .eventType(eventType)
                 .companyId(companyId)
                 .source(source)
-                .payload(payload)
+                .payload(message)
                 .occurredAt(occurredAt)
                 .createdAt(createdAt)
                 .build();
