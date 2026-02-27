@@ -57,7 +57,7 @@ public class QuestionnaireService {
         QuestionnairePage customerInfoPage = createPage("Customer Info", ++pageNumber, now, createdBy, questionnaire);
 
         customerInfoPage.setQuestions(List.of(
-                createQuestion("Customer Name", QuestionnaireQuestionDataType.TEXT, true, customerInfoPage, now, createdBy),
+                createQuestion("Customer Name", QuestionnaireQuestionDataType.TEXT, false, customerInfoPage, now, createdBy),
                 createQuestion("Customer Logo", QuestionnaireQuestionDataType.IMAGE, false, customerInfoPage, now, createdBy)
         ));
 
