@@ -11,7 +11,8 @@ public enum EmailTemplate {
     USER_DISABLED_ADMIN("WaitQue User Account Has Been Disabled", "email/user_disabled_admin"),
     USER_ENABLED("Your Account Has Been Enabled", "email/user_enabled"),
     USER_ENABLED_ADMIN("WaitQue User Account Has Been Enabled", "email/user_enabled_admin"),
-    USER_DELETED_ADMIN("WaitQue User Account Has Been Deleted", "email/user_deleted_admin");
+    USER_DELETED_ADMIN("WaitQue User Account Has Been Deleted", "email/user_deleted_admin"),
+    NEW_ADMIN("Welcome to WaitQue", "email/new_admin");
 
     private String subject;
     private String templateName;

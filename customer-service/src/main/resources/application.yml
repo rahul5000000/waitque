@@ -34,6 +34,10 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       keepalive-time: 300000
+  cloud:
+    aws:
+      sqs:
+        queue-creation-strategy: never
 
 microservices:
   company-service:
@@ -50,6 +54,7 @@ logging:
           sql:
             BasicBinder: TRACE
     orm.jdbc.bind: TRACE
+    io.awspring.cloud.sqs: DEBUG
 
 sns:
   topics:
@@ -58,6 +63,9 @@ sns:
     customer-login: ${SNS_CUSTOMER_LOGIN_TOPIC_ARN}
     qr-created: ${SNS_QR_CREATED_TOPIC_ARN}
     qr-viewed: ${SNS_QR_VIEWED_TOPIC_ARN}
+sqs:
+  queue-names:
+    qr-viewed: ${SQS_QR_VIEWED_QUEUE_NAME}
 
 ---
 spring:

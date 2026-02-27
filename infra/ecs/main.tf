@@ -539,6 +539,25 @@ resource "aws_iam_role" "ecs_task_role" {
   }
 }
 
+resource "aws_iam_role_policy" "ecs_task_sqs_policy" {
+  name = "waitque-ecs-task-sqs-policy"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "sqs:GetQueueUrl",
+        "sqs:GetQueueAttributes",
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage"
+      ]
+      Resource = "arn:aws:sqs:us-east-1:667573506753:questionnaire-response-viewed-queue"
+    }]
+  })
+}
+
 resource "aws_iam_policy" "backend_upload_policy" {
   name = "backend-upload-policy"
 
@@ -571,7 +590,8 @@ resource "aws_iam_policy" "ecs_ses_send_email" {
         ]
         Resource = [
           "arn:aws:ses:us-east-1:667573506753:identity/rahul5000000@gmail.com",
-          "arn:aws:ses:us-east-1:667573506753:identity/rahul@therrsgroup.com"
+          "arn:aws:ses:us-east-1:667573506753:identity/rahul@therrsgroup.com",
+          "arn:aws:ses:us-east-1:667573506753:identity/info@waitque.com"
         ]
       }
     ]
@@ -1362,6 +1382,10 @@ resource "aws_ecs_task_definition" "customer_service" {
       {
         name  = "SNS_QR_VIEWED_TOPIC_ARN"
         value = module.questionnaire_response_events.topic_arns["questionnaire_response_viewed_event"]
+      },
+      {
+        name  = "SQS_QR_VIEWED_QUEUE_NAME"
+        value = module.questionnaire_response_viewed_queue.queue_name
       }
     ]
 
@@ -1628,6 +1652,33 @@ module "questionnaire_response_events" {
       enable_dlq   = true
     },
   }
+}
+
+# -------------------------------
+# SQS Queues
+# -------------------------------
+module "questionnaire_response_viewed_queue" {
+  source = "../sqs"
+
+  name        = "questionnaire-response-viewed-queue"
+  enable_dlq  = true
+
+  tags = {
+    environment = "prod"
+    service     = "events"
+  }
+}
+
+# -------------------------------
+# SNS -> SQS Subscription
+# -------------------------------
+module "questionnaire_response_viewed_subscription" {
+  source = "../sns_sqs_subscription"
+
+  topic_arn = module.questionnaire_response_events.topic_arns["questionnaire_response_viewed_event"]
+
+  queue_arn = module.questionnaire_response_viewed_queue.queue_arn
+  queue_url = module.questionnaire_response_viewed_queue.queue_url
 }
 
 # -------------------------------
