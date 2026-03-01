@@ -25,7 +25,7 @@ public class GenericEventListener {
         this.repository = repository;
     }
 
-    @SqsListener(value = "${sqs.queue-names.qr-viewed}")
+    //@SqsListener(value = "${sqs.queue-names.qr-viewed}")
     public void handleMessage(Message<Map<String, Object>> snsMessage) {
         log.info("Received message from SQS: {}", snsMessage);
 

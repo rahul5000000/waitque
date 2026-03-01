@@ -1,4 +1,4 @@
 package com.rrsgroup.common.dto;
 
-public record PhoneNumberDto(Long id, Integer countryCode, Long phoneNumber) {
+public record PhoneNumberDto(Long id, Integer countryCode, Long phoneNumber, String type) {
 }

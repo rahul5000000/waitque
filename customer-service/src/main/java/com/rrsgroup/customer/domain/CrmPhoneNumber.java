@@ -8,4 +8,5 @@ import lombok.Data;
 public class CrmPhoneNumber {
     private Integer countryCode;
     private Long phoneNumber;
+    private String type;
 }

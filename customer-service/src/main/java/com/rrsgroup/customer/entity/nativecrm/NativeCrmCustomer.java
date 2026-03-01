@@ -4,6 +4,7 @@ import com.rrsgroup.common.entity.Address;
 import com.rrsgroup.common.entity.Email;
 import com.rrsgroup.common.entity.PhoneNumber;
 import com.rrsgroup.customer.domain.CrmCustomerType;
+import com.rrsgroup.customer.entity.questionnaireresponse.QuestionnaireResponseAnswer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "customer", schema = "crm")
@@ -48,6 +51,9 @@ public class NativeCrmCustomer {
     @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "email_id", nullable = false)
     private Email email;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<NativeCrmPhoneNumber> additionalPhoneNumbers = new ArrayList<>();
 
     @NotNull
     private LocalDateTime createdDate;

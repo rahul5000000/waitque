@@ -9,6 +9,7 @@ import com.rrsgroup.customer.domain.*;
 import com.rrsgroup.customer.entity.CrmConfig;
 import com.rrsgroup.customer.entity.nativecrm.NativeCrmConfig;
 import com.rrsgroup.customer.entity.nativecrm.NativeCrmCustomer;
+import com.rrsgroup.customer.entity.nativecrm.NativeCrmPhoneNumber;
 import com.rrsgroup.customer.repository.nativecrm.NativeCrmConfigRepository;
 import com.rrsgroup.customer.repository.nativecrm.NativeCrmCustomerRepository;
 import com.rrsgroup.customer.service.CrmService;
@@ -65,6 +66,25 @@ public class NativeCrmService implements CrmService {
                 .updatedBy(createdBy)
                 .build();
 
+        List<NativeCrmPhoneNumber> additionalPhoneNumbers = null;
+
+        if(crmCustomer.getAdditionalPhoneNumbers() != null) {
+            additionalPhoneNumbers = crmCustomer.getAdditionalPhoneNumbers().stream().map(p -> {
+                PhoneNumber pn = new PhoneNumber();
+                pn.setCountryCode(p.getCountryCode());
+                pn.setPhoneNumber(p.getPhoneNumber());
+
+                return NativeCrmPhoneNumber.builder()
+                        .phoneNumber(pn)
+                        .type(p.getType())
+                        .createdBy(createdBy)
+                        .createdDate(now)
+                        .updatedBy(createdBy)
+                        .updatedDate(now)
+                        .build();
+            }).toList();
+        }
+
         // TODO: prevent duplicate customers
         NativeCrmCustomer nativeCrmCustomer = NativeCrmCustomer.builder()
                 .tenantId(getTenantId(crmConfig))
@@ -74,12 +94,17 @@ public class NativeCrmService implements CrmService {
                 .lastName(trimSafe(crmCustomer.getLastName()))
                 .address(address)
                 .phoneNumber(phoneNumber)
+                .additionalPhoneNumbers(additionalPhoneNumbers)
                 .email(email)
                 .createdDate(now)
                 .createdBy(createdBy)
                 .updatedDate(now)
                 .updatedBy(createdBy)
                 .build();
+
+        if(additionalPhoneNumbers != null) {
+            additionalPhoneNumbers.forEach(p -> p.setCustomer(nativeCrmCustomer));
+        }
 
         NativeCrmCustomer savedNativeCrmCustomer = nativeCrmCustomerRepository.save(nativeCrmCustomer);
 
@@ -151,6 +176,16 @@ public class NativeCrmService implements CrmService {
                 .phoneNumber(nativeCrmCustomer.getPhoneNumber().getPhoneNumber())
                 .build();
 
+        List<CrmPhoneNumber> additionalPhoneNumbers = null;
+
+        if(nativeCrmCustomer.getAdditionalPhoneNumbers() != null) {
+            additionalPhoneNumbers = nativeCrmCustomer.getAdditionalPhoneNumbers().stream().map(p -> CrmPhoneNumber.builder()
+                    .countryCode(p.getPhoneNumber().getCountryCode())
+                    .phoneNumber(p.getPhoneNumber().getPhoneNumber())
+                    .type(p.getType())
+                    .build()).toList();
+        }
+
         return CrmCustomer.builder()
                 .customerType(nativeCrmCustomer.getCustomerType())
                 .crmCustomerId(nativeCrmCustomer.getId().toString())
@@ -159,6 +194,7 @@ public class NativeCrmService implements CrmService {
                 .lastName(nativeCrmCustomer.getLastName())
                 .address(crmAddress)
                 .phoneNumber(crmPhoneNumber)
+                .additionalPhoneNumbers(additionalPhoneNumbers)
                 .email(nativeCrmCustomer.getEmail().getEmail())
                 .build();
     }
