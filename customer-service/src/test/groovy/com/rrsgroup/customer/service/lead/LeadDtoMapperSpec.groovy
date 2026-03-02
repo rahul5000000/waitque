@@ -52,7 +52,7 @@ class LeadDtoMapperSpec extends Specification {
         def addressDto = new AddressDto(id, address1, address2, city, state, zipcode, country)
         def countryCode = 1
         def phoneNumber = 1234567
-        def phoneDto = new PhoneNumberDto(id, countryCode, phoneNumber)
+        def phoneDto = new PhoneNumberDto(id, countryCode, phoneNumber, null)
 
         def dto = new LeadDto(id, 55L, LeadStatus.NEW, "Alice", "Smith", addressDto, phoneDto, "alice@test.com", [
                 Mock(LeadAnswerDto) {
@@ -202,8 +202,8 @@ class LeadDtoMapperSpec extends Specification {
                 .build()
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
-        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234, null)
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, null, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
 
         customerCrmIntegrationService.getCrmCustomer(_, _) >> Optional.of(crmCustomer)
@@ -236,8 +236,8 @@ class LeadDtoMapperSpec extends Specification {
                 .build()
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
-        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234, null)
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, null, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
         def page = new PageImpl<>([lead], PageRequest.of(0, 10), 1)
 
@@ -270,8 +270,8 @@ class LeadDtoMapperSpec extends Specification {
                 .build()
 
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
-        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
+        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234, null)
+        def crmCustomer = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, null, "john.d@test.com")
         def leadFlow = generateLeadFlow(LeadFlowStatus.ACTIVE)
         def page = new PageImpl<>([lead], PageRequest.of(0, 10), 1)
 
