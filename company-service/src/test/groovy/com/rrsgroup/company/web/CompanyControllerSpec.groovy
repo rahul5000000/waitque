@@ -315,7 +315,7 @@ class CompanyControllerSpec extends Specification {
         def phoneNumber = 1234567
 
         def addressDto = new AddressDto(addressId, address1, address2, city, state, zipcode, country)
-        def phoneNumberDto = new PhoneNumberDto(phoneNumberId, countryCode, phoneNumber)
+        def phoneNumberDto = new PhoneNumberDto(phoneNumberId, countryCode, phoneNumber, null)
 
         def messageEmailDto = new EmailDto(1L, "test@test.com", "John", "Doe")
         def leadEmailDto = new EmailDto(2L, "test2@test.com", "Jane", "Doe")

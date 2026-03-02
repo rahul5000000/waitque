@@ -3,6 +3,8 @@ package com.rrsgroup.customer.domain;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class CrmCustomer {
@@ -13,5 +15,6 @@ public class CrmCustomer {
     private String lastName;
     private CrmAddress address;
     private CrmPhoneNumber phoneNumber;
+    private List<CrmPhoneNumber> additionalPhoneNumbers;
     private String email;
 }

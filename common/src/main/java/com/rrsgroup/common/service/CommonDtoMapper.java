@@ -33,7 +33,7 @@ public class CommonDtoMapper {
     }
 
     public PhoneNumberDto map(final PhoneNumber phoneNumber) {
-        return new PhoneNumberDto(phoneNumber.getId(), phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
+        return new PhoneNumberDto(phoneNumber.getId(), phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber(), null);
     }
     
     public PhoneNumber map(final PhoneNumberDto dto) {

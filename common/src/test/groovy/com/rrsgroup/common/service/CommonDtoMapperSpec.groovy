@@ -62,7 +62,7 @@ class CommonDtoMapperSpec extends Specification {
         def id = 123L
         def countryCode = 1
         def phoneNumber = 1234567
-        def dto = new PhoneNumberDto(id, countryCode, phoneNumber)
+        def dto = new PhoneNumberDto(id, countryCode, phoneNumber, null)
 
         when:
         def result = mapper.map(dto)

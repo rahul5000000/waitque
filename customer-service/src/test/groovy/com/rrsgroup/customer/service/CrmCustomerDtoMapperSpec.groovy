@@ -16,9 +16,9 @@ class CrmCustomerDtoMapperSpec extends Specification {
     def "should map list of CustomerSearchResult to CustomersSearchResultDto"() {
         given:
         def crmAddress = new CrmAddress("123 Main St.", null, "Atlanta", "Georgia", "30303", "USA")
-        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234)
-        def crmCustomer1 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, "john.d@test.com")
-        def crmCustomer2 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-456", null, "Jane", "Smith", crmAddress, crmPhoneNumber, "jane.s@test.com")
+        def crmPhoneNumber = new CrmPhoneNumber(1, 1231231234, null)
+        def crmCustomer1 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-123", null, "John", "Doe", crmAddress, crmPhoneNumber, null, "john.d@test.com")
+        def crmCustomer2 = new CrmCustomer(CrmCustomerType.RESIDENTIAL, "crm-456", null, "Jane", "Smith", crmAddress, crmPhoneNumber, null, "jane.s@test.com")
 
         def customer1 = new Customer(id: 1L)
         def customer2 = new Customer(id: 2L)

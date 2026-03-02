@@ -59,11 +59,12 @@ public class CrmCustomerDtoMapper {
         return CrmPhoneNumber.builder()
                 .countryCode(dto.countryCode())
                 .phoneNumber(dto.phoneNumber())
+                .type(dto.type())
                 .build();
     }
 
     public PhoneNumberDto map(CrmPhoneNumber phoneNumber) {
-        return new PhoneNumberDto(null, phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
+        return new PhoneNumberDto(null, phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber(), phoneNumber.getType());
     }
 
     public CustomerDetailDto map(CustomerSearchResult searchResult) {
@@ -87,13 +88,21 @@ public class CrmCustomerDtoMapper {
             }
         }
 
+        List<PhoneNumberDto> additionalPhones = crmCustomer.getAdditionalPhoneNumbers().stream().map(this::map).toList();
+
         return new CustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(),
                 crmCustomer.getFirstName(), crmCustomer.getLastName(),
                 map(crmCustomer.getAddress()), map(crmCustomer.getPhoneNumber()),
-                crmCustomer.getEmail(), frontEndLink, customerCode);
+                crmCustomer.getEmail(), frontEndLink, customerCode, additionalPhones);
     }
 
     public CrmCustomer map(CustomerDetailDto dto) {
+        List<CrmPhoneNumber> additionalPhoneNumbers = null;
+
+        if(dto.additionalPhones() != null) {
+            additionalPhoneNumbers = dto.additionalPhones().stream().map(this::map).toList();
+        }
+
         return CrmCustomer.builder()
                 .customerType(dto.customerType())
                 .companyName(dto.companyName())
@@ -101,6 +110,7 @@ public class CrmCustomerDtoMapper {
                 .lastName(dto.lastName())
                 .address(map(dto.address()))
                 .phoneNumber(map(dto.phone()))
+                .additionalPhoneNumbers(additionalPhoneNumbers)
                 .email(dto.email())
                 .build();
     }
@@ -118,9 +128,15 @@ public class CrmCustomerDtoMapper {
             }
         }
 
+        List<PhoneNumberDto> additionalPhones = null;
+
+        if(crmCustomer.getAdditionalPhoneNumbers() != null) {
+            additionalPhones = crmCustomer.getAdditionalPhoneNumbers().stream().map(this::map).toList();
+        }
+
         return new CustomerDetailDto(customer.getId(), crmCustomer.getCustomerType(), crmCustomer.getCompanyName(),
                 crmCustomer.getFirstName(), crmCustomer.getLastName(),
                 map(crmCustomer.getAddress()), map(crmCustomer.getPhoneNumber()),
-                crmCustomer.getEmail(), null, customerCode);
+                crmCustomer.getEmail(), null, customerCode, additionalPhones);
     }
 }
